@@ -1247,13 +1247,39 @@
             
             <div class="jft-card">
                 <div class="jft-date" id="jftDate"></div>
-                <div class="jft-content">
-                    <p><em>"Just for today, I will try to live through this day only, and not tackle all my problems at once."</em></p>
-                    <br>
-                    <p>Click the link below to read today's full meditation from NA World Services:</p>
+                
+                <!-- Loading state -->
+                <div id="jftLoading" class="loading">
+                    <div class="spinner"></div>
                 </div>
+                
+                <!-- Content container (hidden until loaded) -->
+                <div id="jftContentContainer" style="display: none;">
+                    <h3 id="jftTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; color: var(--warm-brown); margin-bottom: 1.5rem;"></h3>
+                    
+                    <div id="jftQuote" style="background: var(--sand); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; font-style: italic;">
+                        <p id="jftQuoteText" style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--warm-brown); margin-bottom: 0.5rem;"></p>
+                        <p id="jftQuoteSource" style="font-size: 0.9rem; color: var(--sage-dark); text-align: right;"></p>
+                    </div>
+                    
+                    <div id="jftBody" class="jft-content" style="white-space: pre-line;"></div>
+                    
+                    <div id="jftThought" style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%); border-radius: 12px; color: white;">
+                        <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem;"></p>
+                    </div>
+                </div>
+                
+                <!-- Error/fallback state -->
+                <div id="jftError" style="display: none;">
+                    <div class="jft-content">
+                        <p><em>"Just for today, I will try to live through this day only, and not tackle all my problems at once."</em></p>
+                        <br>
+                        <p>Click the link below to read today's full meditation from NA World Services:</p>
+                    </div>
+                </div>
+                
                 <a href="https://www.jftna.org/jft/" target="_blank" rel="noopener" class="jft-link">
-                    Read Today's Full Meditation
+                    Read on Official Site
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
@@ -1932,9 +1958,75 @@
         }
         window.escapeHtml = escapeHtml;
 
+        // ========== JFT CONFIGURATION ==========
+        const JFT_WORKER_URL = 'https://jft-proxy.kidell-powellj.workers.dev';
+        // =======================================
+
         function updateJFTDate() {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('jftDate').textContent = new Date().toLocaleDateString('en-US', options);
+        }
+
+        async function loadJFTContent() {
+            const loadingEl = document.getElementById('jftLoading');
+            const contentEl = document.getElementById('jftContentContainer');
+            const errorEl = document.getElementById('jftError');
+            
+            // Update date regardless
+            updateJFTDate();
+            
+            // Check if worker URL is configured
+            if (JFT_WORKER_URL === 'YOUR_CLOUDFLARE_WORKER_URL_HERE') {
+                // Worker not configured, show fallback
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                contentEl.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(JFT_WORKER_URL);
+                const data = await response.json();
+
+                if (data.success && data.content) {
+                    // Populate the content
+                    document.getElementById('jftTitle').textContent = data.title || 'Just for Today';
+                    
+                    // Quote section
+                    if (data.quote) {
+                        document.getElementById('jftQuoteText').textContent = '"' + data.quote + '"';
+                        document.getElementById('jftQuoteSource').textContent = data.quoteSource ? '— ' + data.quoteSource : '';
+                        document.getElementById('jftQuote').style.display = 'block';
+                    } else {
+                        document.getElementById('jftQuote').style.display = 'none';
+                    }
+                    
+                    // Main content
+                    document.getElementById('jftBody').textContent = data.content;
+                    
+                    // Closing thought
+                    const thoughtEl = document.getElementById('jftThought');
+                    if (data.thought) {
+                        thoughtEl.querySelector('p').textContent = data.thought;
+                        thoughtEl.style.display = 'block';
+                    } else {
+                        thoughtEl.style.display = 'none';
+                    }
+                    
+                    // Show content, hide loading
+                    loadingEl.style.display = 'none';
+                    contentEl.style.display = 'block';
+                    errorEl.style.display = 'none';
+                } else {
+                    throw new Error('Invalid response');
+                }
+            } catch (error) {
+                console.error('Error loading JFT:', error);
+                // Show fallback
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'none';
+                errorEl.style.display = 'block';
+            }
         }
 
         document.getElementById('gratitudeForm').addEventListener('submit', async (e) => {
@@ -2046,7 +2138,7 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
-            updateJFTDate();
+            loadJFTContent(); // This also calls updateJFTDate()
             
             // Check for shared view or handle initial navigation
             const hash = window.location.hash;
