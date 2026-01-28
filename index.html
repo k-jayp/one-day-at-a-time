@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One Day at a Time | Recovery Journey</title>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfUIVksAAAAAKznNk7dviglWBcLxX_s054Kuw5M"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -994,6 +995,22 @@
             opacity: 1;
         }
 
+        /* Hide reCAPTCHA badge - attribution added to form */
+        .grecaptcha-badge {
+            visibility: hidden;
+        }
+
+        .recaptcha-notice {
+            font-size: 0.75rem;
+            color: var(--sage-dark);
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .recaptcha-notice a {
+            color: var(--sage-dark);
+        }
+
         .loading {
             display: flex;
             align-items: center;
@@ -1180,6 +1197,11 @@
                         <input type="password" id="signupPassword" required minlength="6" placeholder="At least 6 characters">
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                    <p class="recaptcha-notice">
+                        Protected by reCAPTCHA. 
+                        <a href="https://policies.google.com/privacy" target="_blank">Privacy</a> · 
+                        <a href="https://policies.google.com/terms" target="_blank">Terms</a>
+                    </p>
                 </form>
 
                 <div class="divider">or</div>
@@ -1599,12 +1621,38 @@
             
             try {
                 hideAuthError();
+                
+                // Execute reCAPTCHA Enterprise verification
+                const recaptchaToken = await new Promise((resolve, reject) => {
+                    grecaptcha.enterprise.ready(async () => {
+                        try {
+                            const token = await grecaptcha.enterprise.execute(
+                                '6LfUIVksAAAAAKznNk7dviglWBcLxX_s054Kuw5M', 
+                                { action: 'signup' }
+                            );
+                            resolve(token);
+                        } catch (err) {
+                            reject(err);
+                        }
+                    });
+                });
+                
+                if (!recaptchaToken) {
+                    showAuthError('Security verification failed. Please try again.');
+                    return;
+                }
+                
+                // Proceed with account creation
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await updateProfile(userCredential.user, { displayName: name });
                 showToast('Account created! Welcome! 🎉');
                 showPage('home');
             } catch (error) {
-                showAuthError(getErrorMessage(error.code));
+                if (error.message?.includes('reCAPTCHA') || error.message?.includes('grecaptcha')) {
+                    showAuthError('Security verification failed. Please refresh and try again.');
+                } else {
+                    showAuthError(getErrorMessage(error.code));
+                }
             }
         }
 
