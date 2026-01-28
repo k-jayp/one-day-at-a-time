@@ -134,7 +134,7 @@
             font-size: 0.9rem;
         }
 
-        .sign-out-btn {
+        .sign-out-btn, .sign-in-btn {
             background: none;
             border: 1px solid var(--warm-brown);
             padding: 0.5rem 1rem;
@@ -146,9 +146,20 @@
             transition: all 0.3s ease;
         }
 
-        .sign-out-btn:hover {
+        .sign-out-btn:hover, .sign-in-btn:hover {
             background: var(--warm-brown);
             color: white;
+        }
+
+        .sign-in-btn {
+            background: var(--terracotta);
+            border-color: var(--terracotta);
+            color: white;
+        }
+
+        .sign-in-btn:hover {
+            background: var(--rust);
+            border-color: var(--rust);
         }
 
         .mobile-menu-btn {
@@ -1025,6 +1036,28 @@
             font-family: 'Outfit', sans-serif;
         }
 
+        /* Sign in prompt card */
+        .sign-in-prompt {
+            background: linear-gradient(135deg, var(--sand) 0%, var(--cream) 100%);
+            border: 2px dashed var(--terracotta-light);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sign-in-prompt h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            color: var(--warm-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .sign-in-prompt p {
+            color: var(--sage-dark);
+            margin-bottom: 1.5rem;
+        }
+
         @media (max-width: 768px) {
             nav { padding: 1rem 1.5rem; }
 
@@ -1045,14 +1078,15 @@
 
             .mobile-menu-btn { display: block; }
 
-            .user-menu { display: none; }
+            .user-menu-desktop { display: none !important; }
 
-            .nav-links.open .user-menu {
+            .nav-links.open .user-menu-mobile {
                 display: flex;
                 flex-direction: column;
                 padding-top: 1rem;
                 border-top: 1px solid var(--sand);
                 margin-top: 1rem;
+                gap: 1rem;
             }
 
             .hero { padding: 2rem 1.5rem; }
@@ -1075,14 +1109,27 @@
             <li><a data-page="gratitude">Gratitude</a></li>
             <li><a data-page="journal">Journal</a></li>
             <li><a data-page="resources">Resources</a></li>
-            <li class="user-menu" id="userMenuNav" style="display: none;">
-                <div class="user-avatar" id="userAvatarNav"></div>
+            <!-- Mobile user menu -->
+            <li class="user-menu user-menu-mobile" id="userMenuNav" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div class="user-avatar" id="userAvatarNav"></div>
+                    <span id="userNameNav" style="color: var(--warm-brown);"></span>
+                </div>
                 <button class="sign-out-btn" onclick="signOutUser()">Sign Out</button>
             </li>
+            <!-- Mobile sign in button -->
+            <li class="user-menu-mobile" id="signInMenuNav" style="display: none;">
+                <button class="sign-in-btn" onclick="showPage('auth')">Sign In</button>
+            </li>
         </ul>
-        <div class="user-menu" id="userMenuDesktop" style="display: none;">
+        <!-- Desktop user menu (signed in) -->
+        <div class="user-menu user-menu-desktop" id="userMenuDesktop" style="display: none;">
             <div class="user-avatar" id="userAvatar"></div>
             <button class="sign-out-btn" onclick="signOutUser()">Sign Out</button>
+        </div>
+        <!-- Desktop sign in button (signed out) -->
+        <div class="user-menu user-menu-desktop" id="signInMenuDesktop" style="display: none;">
+            <button class="sign-in-btn" onclick="showPage('auth')">Sign In</button>
         </div>
         <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
             <span></span>
@@ -1160,15 +1207,26 @@
                 <h1>Recovery is a <span>journey</span>, not a destination</h1>
                 <p class="hero-tagline">Welcome to my space of healing, growth, and gratitude</p>
                 
-                <div class="clean-time-display" onclick="toggleCleanDateSetup()" style="cursor: pointer;">
-                    <h3>Clean Time</h3>
-                    <div class="time" id="cleanTimeDisplay">Set your date →</div>
+                <!-- Clean time display for logged in users -->
+                <div id="cleanTimeSection" style="display: none;">
+                    <div class="clean-time-display" onclick="toggleCleanDateSetup()" style="cursor: pointer;">
+                        <h3>Clean Time</h3>
+                        <div class="time" id="cleanTimeDisplay">Set your date →</div>
+                    </div>
+                    
+                    <div class="clean-date-setup" id="cleanDateSetup">
+                        <label>Set your clean date:</label>
+                        <input type="date" id="cleanDateInput">
+                        <button onclick="saveCleanDate()" class="btn btn-primary" style="margin-left: 0.5rem;">Save</button>
+                    </div>
                 </div>
-                
-                <div class="clean-date-setup" id="cleanDateSetup">
-                    <label>Set your clean date:</label>
-                    <input type="date" id="cleanDateInput">
-                    <button onclick="saveCleanDate()" class="btn btn-primary" style="margin-left: 0.5rem;">Save</button>
+
+                <!-- Prompt for non-logged in users -->
+                <div id="cleanTimePrompt" style="display: none; margin-bottom: 2rem;">
+                    <div class="sign-in-prompt" style="display: inline-block; padding: 1.5rem 2.5rem;">
+                        <p style="margin-bottom: 1rem;">🕐 Track your clean time</p>
+                        <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Start</button>
+                    </div>
                 </div>
                 
                 <div class="hero-cta">
@@ -1216,7 +1274,15 @@
                 <p>What are you grateful for today?</p>
             </div>
             
-            <div class="gratitude-input-section">
+            <!-- Sign in prompt for non-logged in users -->
+            <div class="sign-in-prompt" id="gratitudeSignInPrompt" style="display: none;">
+                <h4>✨ Start Your Gratitude Practice</h4>
+                <p>Sign in to write and save your daily gratitude lists, and share them with your fellows.</p>
+                <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Write</button>
+            </div>
+
+            <!-- Gratitude form for logged in users -->
+            <div class="gratitude-input-section" id="gratitudeFormSection" style="display: none;">
                 <h3>✨ Today's Gratitude</h3>
                 <form class="gratitude-form" id="gratitudeForm">
                     <div class="gratitude-items">
@@ -1242,7 +1308,8 @@
                 </div>
             </div>
             
-            <div class="past-entries">
+            <!-- Past entries (only for logged in users) -->
+            <div class="past-entries" id="pastEntriesSection" style="display: none;">
                 <h3>📚 Past Entries</h3>
                 <div class="entries-grid" id="entriesGrid">
                     <div class="loading"><div class="spinner"></div></div>
@@ -1259,7 +1326,7 @@
                 <p class="shared-date" id="sharedDate"></p>
                 <ul class="shared-list" id="sharedList"></ul>
                 <div style="margin-top: 2rem;">
-                    <a class="btn btn-primary" onclick="showPage('gratitude')">Write Your Own</a>
+                    <a class="btn btn-primary" onclick="showPage('auth')">Sign In to Write Your Own</a>
                 </div>
             </div>
         </div>
@@ -1273,7 +1340,15 @@
                 <p>A space for reflection and growth</p>
             </div>
             
-            <div class="journal-editor">
+            <!-- Sign in prompt for non-logged in users -->
+            <div class="sign-in-prompt" id="journalSignInPrompt" style="display: none;">
+                <h4>📝 Start Your Recovery Journal</h4>
+                <p>Sign in to write private journal entries, track your moods, and reflect on your journey.</p>
+                <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Write</button>
+            </div>
+
+            <!-- Journal form for logged in users -->
+            <div class="journal-editor" id="journalFormSection" style="display: none;">
                 <h3>📝 New Entry</h3>
                 <form id="journalForm">
                     <input type="text" class="journal-title-input" id="journalTitle" placeholder="Entry title...">
@@ -1295,7 +1370,8 @@
                 </form>
             </div>
             
-            <div class="journal-entries">
+            <!-- Past journal entries (only for logged in users) -->
+            <div class="journal-entries" id="journalEntriesSection" style="display: none;">
                 <h3>📖 Past Entries</h3>
                 <div id="journalEntriesContainer">
                     <div class="loading"><div class="spinner"></div></div>
@@ -1399,50 +1475,93 @@
 
         let currentUser = null;
 
+        // Make currentUser accessible globally
+        window.getCurrentUser = () => currentUser;
+
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
+            updateUIForAuthState(user);
             if (user) {
-                showAuthenticatedUI(user);
                 loadUserData();
-            } else {
-                showUnauthenticatedUI();
             }
         });
 
-        function showAuthenticatedUI(user) {
-            document.getElementById('userMenuDesktop').style.display = 'flex';
-            document.getElementById('userMenuNav').style.display = 'flex';
-            
-            const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
-            document.getElementById('userAvatar').textContent = initial;
-            document.getElementById('userAvatarNav').textContent = initial;
-            document.getElementById('welcomeUser').textContent = `Welcome back, ${user.displayName || 'friend'}!`;
-            
-            const hash = window.location.hash;
-            if (hash.startsWith('#shared?data=')) {
-                handleSharedView();
-            } else if (hash && hash !== '#auth') {
-                const pageId = hash.replace('#', '').split('?')[0];
-                if (document.getElementById(pageId) && pageId !== 'auth') {
-                    showPage(pageId);
-                } else {
+        function updateUIForAuthState(user) {
+            // Desktop menus
+            const userMenuDesktop = document.getElementById('userMenuDesktop');
+            const signInMenuDesktop = document.getElementById('signInMenuDesktop');
+            // Mobile menus
+            const userMenuNav = document.getElementById('userMenuNav');
+            const signInMenuNav = document.getElementById('signInMenuNav');
+            // Content sections
+            const cleanTimeSection = document.getElementById('cleanTimeSection');
+            const cleanTimePrompt = document.getElementById('cleanTimePrompt');
+            const gratitudeFormSection = document.getElementById('gratitudeFormSection');
+            const gratitudeSignInPrompt = document.getElementById('gratitudeSignInPrompt');
+            const pastEntriesSection = document.getElementById('pastEntriesSection');
+            const journalFormSection = document.getElementById('journalFormSection');
+            const journalSignInPrompt = document.getElementById('journalSignInPrompt');
+            const journalEntriesSection = document.getElementById('journalEntriesSection');
+            const welcomeUser = document.getElementById('welcomeUser');
+
+            if (user) {
+                // Show signed-in UI
+                userMenuDesktop.style.display = 'flex';
+                signInMenuDesktop.style.display = 'none';
+                userMenuNav.style.display = 'flex';
+                signInMenuNav.style.display = 'none';
+
+                // Set avatar initials
+                const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = initial;
+                document.getElementById('userAvatarNav').textContent = initial;
+                document.getElementById('userNameNav').textContent = user.displayName || user.email;
+
+                // Welcome message
+                welcomeUser.textContent = `Welcome back, ${user.displayName || 'friend'}!`;
+
+                // Show logged-in content
+                cleanTimeSection.style.display = 'block';
+                cleanTimePrompt.style.display = 'none';
+                gratitudeFormSection.style.display = 'block';
+                gratitudeSignInPrompt.style.display = 'none';
+                pastEntriesSection.style.display = 'block';
+                journalFormSection.style.display = 'block';
+                journalSignInPrompt.style.display = 'none';
+                journalEntriesSection.style.display = 'block';
+
+                // Navigate to appropriate page
+                const hash = window.location.hash;
+                if (hash.startsWith('#shared?data=')) {
+                    handleSharedView();
+                } else if (hash === '#auth') {
                     showPage('home');
                 }
             } else {
-                showPage('home');
-            }
-        }
+                // Show signed-out UI
+                userMenuDesktop.style.display = 'none';
+                signInMenuDesktop.style.display = 'flex';
+                userMenuNav.style.display = 'none';
+                signInMenuNav.style.display = 'block';
 
-        function showUnauthenticatedUI() {
-            document.getElementById('userMenuDesktop').style.display = 'none';
-            document.getElementById('userMenuNav').style.display = 'none';
-            document.getElementById('welcomeUser').textContent = '';
-            
-            const hash = window.location.hash;
-            if (hash.startsWith('#shared?data=')) {
-                handleSharedView();
-            } else {
-                showPage('auth');
+                // Clear welcome message
+                welcomeUser.textContent = '';
+
+                // Show signed-out content
+                cleanTimeSection.style.display = 'none';
+                cleanTimePrompt.style.display = 'block';
+                gratitudeFormSection.style.display = 'none';
+                gratitudeSignInPrompt.style.display = 'block';
+                pastEntriesSection.style.display = 'none';
+                journalFormSection.style.display = 'none';
+                journalSignInPrompt.style.display = 'block';
+                journalEntriesSection.style.display = 'none';
+
+                // Handle shared view (allow without auth)
+                const hash = window.location.hash;
+                if (hash.startsWith('#shared?data=')) {
+                    handleSharedView();
+                }
             }
         }
 
@@ -1457,6 +1576,7 @@
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await updateProfile(userCredential.user, { displayName: name });
                 showToast('Account created! Welcome! 🎉');
+                showPage('home');
             } catch (error) {
                 showAuthError(getErrorMessage(error.code));
             }
@@ -1471,6 +1591,7 @@
                 hideAuthError();
                 await signInWithEmailAndPassword(auth, email, password);
                 showToast('Welcome back! 🙏');
+                showPage('home');
             } catch (error) {
                 showAuthError(getErrorMessage(error.code));
             }
@@ -1481,6 +1602,7 @@
                 hideAuthError();
                 await signInWithPopup(auth, googleProvider);
                 showToast('Welcome! 🙏');
+                showPage('home');
             } catch (error) {
                 showAuthError(getErrorMessage(error.code));
             }
@@ -1490,6 +1612,7 @@
             try {
                 await signOut(auth);
                 showToast('Signed out. Take care! 💚');
+                showPage('home');
             } catch (error) {
                 showToast('Error signing out');
             }
@@ -1518,7 +1641,11 @@
         }
 
         window.saveCleanDate = async function() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                showToast('Please sign in first');
+                showPage('auth');
+                return;
+            }
             const dateInput = document.getElementById('cleanDateInput').value;
             if (!dateInput) {
                 showToast('Please select a date');
@@ -1554,6 +1681,11 @@
         }
 
         window.toggleCleanDateSetup = function() {
+            if (!currentUser) {
+                showToast('Please sign in first');
+                showPage('auth');
+                return;
+            }
             document.getElementById('cleanDateSetup').classList.toggle('show');
         }
 
@@ -1593,7 +1725,11 @@
         }
 
         window.saveGratitudeEntry = async function(items) {
-            if (!currentUser) return null;
+            if (!currentUser) {
+                showToast('Please sign in first');
+                showPage('auth');
+                return null;
+            }
             try {
                 const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'gratitude'), {
                     items: items,
@@ -1681,7 +1817,11 @@
         }
 
         window.saveJournalEntry = async function(title, content, mood) {
-            if (!currentUser) return null;
+            if (!currentUser) {
+                showToast('Please sign in first');
+                showPage('auth');
+                return null;
+            }
             try {
                 const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'journal'), {
                     title: title,
@@ -1799,6 +1939,13 @@
 
         document.getElementById('gratitudeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if (!window.getCurrentUser || !window.getCurrentUser()) {
+                showToast('Please sign in first');
+                showPage('auth');
+                return;
+            }
+
             const items = [];
             for (let i = 1; i <= 5; i++) {
                 const value = document.getElementById(`gratitude${i}`).value;
@@ -1845,6 +1992,13 @@
 
         document.getElementById('journalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            if (!window.getCurrentUser || !window.getCurrentUser()) {
+                showToast('Please sign in first');
+                showPage('auth');
+                return;
+            }
+
             const title = document.getElementById('journalTitle').value.trim();
             const content = document.getElementById('journalContent').value.trim();
             if (!content) {
@@ -1878,15 +2032,45 @@
                         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
                     });
                     document.getElementById('sharedList').innerHTML = data.items.map(item => `<li>${escapeHtml(item)}</li>`).join('');
-                    showPage('shared');
+                    
+                    // Show the shared page
+                    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+                    document.getElementById('shared').classList.add('active');
                 } catch (e) {
                     console.error('Error parsing shared data:', e);
+                    showPage('home');
                 }
             }
         }
         window.handleSharedView = handleSharedView;
 
-        document.addEventListener('DOMContentLoaded', () => updateJFTDate());
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            updateJFTDate();
+            
+            // Check for shared view or handle initial navigation
+            const hash = window.location.hash;
+            if (hash.startsWith('#shared?data=')) {
+                handleSharedView();
+            } else if (hash && hash !== '#auth' && hash !== '#home' && hash !== '#') {
+                const pageId = hash.replace('#', '').split('?')[0];
+                if (document.getElementById(pageId)) {
+                    showPage(pageId);
+                } else {
+                    showPage('home');
+                }
+            } else {
+                showPage('home');
+            }
+        });
+
+        // Handle hash changes
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash;
+            if (hash.startsWith('#shared?data=')) {
+                handleSharedView();
+            }
+        });
     </script>
 </body>
 </html>
