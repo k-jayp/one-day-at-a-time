@@ -1987,6 +1987,23 @@
             document.getElementById('authError').classList.remove('show');
         }
 
+        // Function to load shared gratitude by ID (needs Firestore access)
+        window.loadSharedGratitude = async function(shareId) {
+            try {
+                const sharedRef = doc(db, 'shared', shareId);
+                const sharedSnap = await getDoc(sharedRef);
+                
+                if (!sharedSnap.exists()) {
+                    return null;
+                }
+                
+                return sharedSnap.data();
+            } catch (error) {
+                console.error('Error loading shared gratitude:', error);
+                throw error;
+            }
+        }
+
         window.loadGratitudeEntries = loadGratitudeEntries;
         window.loadJournalEntries = loadJournalEntries;
     </script>
@@ -2213,16 +2230,14 @@
             if (hash.startsWith('#shared?id=')) {
                 try {
                     const shareId = hash.split('id=')[1];
-                    const sharedRef = doc(db, 'shared', shareId);
-                    const sharedSnap = await getDoc(sharedRef);
+                    const data = await window.loadSharedGratitude(shareId);
                     
-                    if (!sharedSnap.exists()) {
+                    if (!data) {
                         showToast('Shared list not found');
                         showPage('home');
                         return;
                     }
                     
-                    const data = sharedSnap.data();
                     document.getElementById('sharedDate').textContent = new Date(data.date).toLocaleDateString('en-US', { 
                         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
                     });
