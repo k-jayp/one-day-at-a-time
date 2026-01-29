@@ -1782,7 +1782,7 @@
                     const date = entry.createdAt?.toDate() || new Date();
                     const dateStr = date.toISOString();
                     // Encode the share data directly so we don't need to fetch again
-                    const shareData = btoa(JSON.stringify({ items: entry.items, date: dateStr }));
+                    const shareData = btoa(unescape(encodeURIComponent(JSON.stringify({ items: entry.items, date: dateStr }))));
                     html += `
                         <div class="entry-card">
                             <div class="entry-date">${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
@@ -1808,6 +1808,11 @@
                 return null;
             }
             try {
+                // Ensure user document exists first
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
+                
+                // Now add the gratitude entry
                 const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'gratitude'), {
                     items: items,
                     createdAt: serverTimestamp()
@@ -1890,6 +1895,11 @@
                 return null;
             }
             try {
+                // Ensure user document exists first
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
+                
+                // Now add the journal entry
                 const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'journal'), {
                     title: title,
                     content: content,
@@ -2090,7 +2100,7 @@
             }
             try {
                 await window.saveGratitudeEntry(items);
-                const shareData = btoa(JSON.stringify({ items: items, date: new Date().toISOString() }));
+                const shareData = btoa(unescape(encodeURIComponent(JSON.stringify({ items: items, date: new Date().toISOString() }))));
                 const shareUrl = `${window.location.origin}${window.location.pathname}#shared?data=${shareData}`;
                 document.getElementById('shareLink').value = shareUrl;
                 document.getElementById('shareSection').style.display = 'block';
@@ -2160,7 +2170,7 @@
             const hash = window.location.hash;
             if (hash.startsWith('#shared?data=')) {
                 try {
-                    const data = JSON.parse(atob(hash.split('data=')[1]));
+                    const data = JSON.parse(decodeURIComponent(escape(atob(hash.split('data=')[1]))));
                     document.getElementById('sharedDate').textContent = new Date(data.date).toLocaleDateString('en-US', { 
                         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
                     });
