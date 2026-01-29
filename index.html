@@ -1437,7 +1437,7 @@
             </div>
             
             <div class="resources-grid">
-                <a href="https://www.crystalmeth.org/meetings/find-a-meeting/" target="_blank" rel="noopener" class="resource-card">
+                <a href="https://www.cmaboston.org/meetings" target="_blank" rel="noopener" class="resource-card">
                     <div class="resource-icon meetings">📍</div>
                     <h3>Find CMA Meetings</h3>
                     <p>Find Crystal Meth Anonymous meetings near you, including virtual options.</p>
@@ -1466,7 +1466,7 @@
                 <div style="background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 15px 40px rgba(92, 74, 61, 0.1);">
                     <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 1rem; color: var(--warm-brown);">Boston CMA Community</h3>
                     <p style="color: var(--sage-dark); margin-bottom: 1.5rem;">Connect with your local fellowship</p>
-                    <a href="https://www.crystalmeth.org/meetings/find-a-meeting/?tsml-day=any&tsml-region=massachusetts" target="_blank" rel="noopener" class="btn btn-primary">Find Boston Meetings</a>
+                    <a href="https://www.cmaboston.org" target="_blank" rel="noopener" class="btn btn-primary">Find Boston Meetings</a>
                 </div>
             </div>
         </div>
@@ -1780,12 +1780,15 @@
                 querySnapshot.forEach((doc) => {
                     const entry = doc.data();
                     const date = entry.createdAt?.toDate() || new Date();
+                    const dateStr = date.toISOString();
+                    // Encode the share data directly so we don't need to fetch again
+                    const shareData = btoa(JSON.stringify({ items: entry.items, date: dateStr }));
                     html += `
                         <div class="entry-card">
                             <div class="entry-date">${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
                             <ul class="entry-list">${entry.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
                             <div class="entry-actions">
-                                <button class="share-entry-btn" onclick="shareGratitudeEntry('${doc.id}')">Share</button>
+                                <button class="share-entry-btn" onclick="shareGratitudeEntry('${shareData}')">Share</button>
                                 <button class="delete-entry-btn" onclick="deleteGratitudeEntry('${doc.id}')">Delete</button>
                             </div>
                         </div>
@@ -1830,20 +1833,10 @@
             }
         }
 
-        window.shareGratitudeEntry = async function(entryId) {
-            if (!currentUser) return;
+        window.shareGratitudeEntry = function(shareData) {
             try {
-                const docRef = doc(db, 'users', currentUser.uid, 'gratitude', entryId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const entry = docSnap.data();
-                    const shareData = btoa(JSON.stringify({ 
-                        items: entry.items, 
-                        date: entry.createdAt?.toDate().toISOString() || new Date().toISOString() 
-                    }));
-                    const shareUrl = `${window.location.origin}${window.location.pathname}#shared?data=${shareData}`;
-                    navigator.clipboard.writeText(shareUrl).then(() => showToast('Share link copied! 📋'));
-                }
+                const shareUrl = `${window.location.origin}${window.location.pathname}#shared?data=${shareData}`;
+                navigator.clipboard.writeText(shareUrl).then(() => showToast('Share link copied! 📋'));
             } catch (error) {
                 showToast('Error creating share link');
                 console.error(error);
