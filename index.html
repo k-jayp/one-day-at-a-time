@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>One Day at a Time | Recovery Journey</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PQHXP9Z4DC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PQHXP9Z4DC');
+    </script>
     <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfUIVksAAAAAKznNk7dviglWBcLxX_s054Kuw5M"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2278,7 +2286,17 @@
             
             // Check for shared view or handle initial navigation
             const hash = window.location.hash;
-            if (hash.startsWith('#shared?id=') || hash.startsWith('#shared?data=')) {
+            if (hash.startsWith('#shared?id=')) {
+                // Wait for Firebase to be ready before loading shared content
+                const waitForFirebase = setInterval(() => {
+                    if (window.loadSharedGratitude) {
+                        clearInterval(waitForFirebase);
+                        handleSharedView();
+                    }
+                }, 100);
+                // Timeout after 5 seconds
+                setTimeout(() => clearInterval(waitForFirebase), 5000);
+            } else if (hash.startsWith('#shared?data=')) {
                 handleSharedView();
             } else if (hash && hash !== '#auth' && hash !== '#home' && hash !== '#') {
                 const pageId = hash.replace('#', '').split('?')[0];
