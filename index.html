@@ -1040,19 +1040,33 @@
         }
 
         .chat-header {
-            padding: 1.5rem;
+            padding: 1.25rem 1.5rem;
             background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
             color: white;
+        }
+
+        .mona-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .mona-avatar-header {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            object-fit: cover;
         }
 
         .chat-header h3 {
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.5rem;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.15rem;
         }
 
         .chat-header p {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             opacity: 0.9;
         }
 
@@ -1085,6 +1099,18 @@
             background: var(--sand);
             color: var(--warm-brown);
             border-bottom-left-radius: 4px;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .mona-avatar-msg {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
         .chat-message.system {
@@ -1160,6 +1186,11 @@
             border-radius: 18px;
             border-bottom-left-radius: 4px;
             align-self: flex-start;
+            align-items: center;
+        }
+
+        .typing-indicator .mona-avatar-msg {
+            margin-right: 4px;
         }
 
         .typing-indicator span {
@@ -1657,32 +1688,38 @@
         <div class="support-container">
             <div class="chat-container">
                 <div class="chat-header">
-                    <h3>💚 Recovery Support Chat</h3>
-                    <p>A safe space to talk about your journey. I'm here to listen and help.</p>
+                    <div class="mona-header">
+                        <img src="mona.png" alt="Mona - Recovery Support Companion" class="mona-avatar-header">
+                        <div>
+                            <h3>🐾 Chat with Mona</h3>
+                            <p>Your recovery support companion — always here, never judges</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="chat-messages" id="chatMessages">
                     <div class="chat-message system">
-                        This is an AI assistant focused on recovery support. While I can offer encouragement and resources, I'm not a replacement for sponsors, therapists, or medical professionals.
+                        Mona is an AI support companion inspired by a real emotional support Cavalier King Charles Spaniel. While she can offer encouragement and resources, she's not a replacement for sponsors, therapists, or medical professionals.
                     </div>
                     <div class="chat-message assistant">
-                        Hi there! 💚 I'm here to support you on your recovery journey. Whether you're dealing with cravings, need encouragement, want to talk through something, or just need someone to listen – I'm here for you. How are you doing today?
+                        <img src="mona.png" alt="Mona" class="mona-avatar-msg">
+                        <div>Hey there, friend! 🐾 It's Mona. I'm curled up right here with you. Whether you're having a tough moment, need a little encouragement, or just want someone to sit with — I'm not going anywhere. How are you doing today?</div>
                     </div>
                 </div>
                 
                 <div class="quick-prompts" id="quickPrompts">
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m having a craving right now')">Having a craving</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I need some encouragement today')">Need encouragement</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Help me with a coping strategy')">Coping strategies</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m feeling triggered')">Feeling triggered</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Celebrate a milestone with me')">Celebrate a win</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m having a craving right now')">🫤 Having a craving</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I need some encouragement today')">💛 Need encouragement</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Help me with a coping strategy')">🧘 Coping strategies</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m feeling triggered')">⚡ Feeling triggered</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Celebrate a milestone with me')">🎉 Celebrate a win</button>
                 </div>
                 
                 <div class="chat-input-area">
                     <textarea 
                         class="chat-input" 
                         id="chatInput" 
-                        placeholder="Type your message..." 
+                        placeholder="Talk to Mona..." 
                         rows="1"
                         onkeydown="handleChatKeydown(event)"
                     ></textarea>
@@ -2491,7 +2528,7 @@
         }
         window.clearJournalForm = clearJournalForm;
 
-        // ========== AI SUPPORT CHAT ==========
+        // ========== AI SUPPORT CHAT - MONA ==========
         const CHAT_WORKER_URL = 'https://recovery-chat.kidell-powellj.workers.dev';
         
         let chatHistory = [];
@@ -2501,7 +2538,14 @@
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${role}`;
-            messageDiv.textContent = content;
+            
+            if (role === 'assistant') {
+                // Add Mona's avatar to assistant messages
+                messageDiv.innerHTML = `<img src="mona.png" alt="Mona" class="mona-avatar-msg"><div>${escapeHtml(content)}</div>`;
+            } else {
+                messageDiv.textContent = content;
+            }
+            
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -2511,7 +2555,7 @@
             const typingDiv = document.createElement('div');
             typingDiv.className = 'typing-indicator';
             typingDiv.id = 'typingIndicator';
-            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            typingDiv.innerHTML = '<img src="mona.png" alt="Mona" class="mona-avatar-msg"><span></span><span></span><span></span>';
             messagesContainer.appendChild(typingDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -2569,12 +2613,12 @@
                     addMessageToChat(assistantMessage, 'assistant');
                     chatHistory.push({ role: 'assistant', content: assistantMessage });
                 } else if (data.error) {
-                    addMessageToChat("I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357.", 'assistant');
+                    addMessageToChat("*whimpers softly* I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357. 🐾", 'assistant');
                     console.error('API Error:', data.error);
                 }
             } catch (error) {
                 hideTypingIndicator();
-                addMessageToChat("I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357.", 'assistant');
+                addMessageToChat("*whimpers softly* I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357. 🐾", 'assistant');
                 console.error('Chat error:', error);
             }
             
