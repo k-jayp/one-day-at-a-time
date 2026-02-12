@@ -1168,3 +1168,130 @@
     from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ========== PRIVACY POLICY ========== */
+.privacy-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.privacy-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 3rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.privacy-updated {
+    color: var(--sage-dark);
+    font-size: 0.9rem;
+    font-style: italic;
+    margin-bottom: 2rem;
+}
+
+.privacy-section {
+    margin-bottom: 2.5rem;
+}
+
+.privacy-section:last-child {
+    margin-bottom: 0;
+}
+
+.privacy-section h3 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--warm-brown);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--sand);
+}
+
+.privacy-section h4 {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--sage-dark);
+    margin: 1.5rem 0 0.75rem;
+}
+
+.privacy-section p {
+    color: var(--warm-brown);
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+}
+
+.privacy-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0;
+}
+
+.privacy-section ul li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--warm-brown);
+    line-height: 1.6;
+}
+
+.privacy-section ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    background: var(--sage);
+    border-radius: 50%;
+}
+
+.privacy-section a {
+    color: var(--terracotta);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.privacy-section a:hover {
+    color: var(--sage-dark);
+}
+
+.privacy-table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-radius: 12px;
+    border: 1px solid var(--sand);
+}
+
+.privacy-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.privacy-table th {
+    background: var(--sage);
+    color: white;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    text-align: left;
+}
+
+.privacy-table td {
+    padding: 0.75rem 1rem;
+    color: var(--warm-brown);
+    border-bottom: 1px solid var(--sand);
+}
+
+.privacy-table tr:last-child td {
+    border-bottom: none;
+}
+
+.privacy-table tr:nth-child(even) td {
+    background: rgba(230, 221, 210, 0.3);
+}

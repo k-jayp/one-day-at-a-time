@@ -84,4 +84,11 @@
     .grounding-icon { font-size: 2.5rem; }
     .bodyscan-figure { max-height: 45vh; }
     .med-instruction { font-size: 1.2rem; }
+
+    /* Privacy mobile */
+    .privacy-container { padding: 1.5rem; }
+    .privacy-card { padding: 2rem 1.5rem; }
+    .privacy-section h3 { font-size: 1.2rem; }
+    .privacy-table { font-size: 0.8rem; }
+    .privacy-table th, .privacy-table td { padding: 0.5rem 0.75rem; }
 }
