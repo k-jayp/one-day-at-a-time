@@ -5,15 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>We Do Recover | One Day at a Time</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PQHXP9Z4DC"></script>
+    <!-- Google Analytics & reCAPTCHA — loaded only after cookie consent -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-PQHXP9Z4DC');
+      function loadAnalytics() {
+        if (document.getElementById('ga-script')) return;
+        var s = document.createElement('script');
+        s.id = 'ga-script';
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-PQHXP9Z4DC';
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        gtag('config', 'G-PQHXP9Z4DC');
+      }
+      function loadRecaptcha() {
+        if (document.getElementById('recaptcha-script')) return;
+        var s = document.createElement('script');
+        s.id = 'recaptcha-script';
+        s.src = 'https://www.google.com/recaptcha/enterprise.js?render=6LfUIVksAAAAAKznNk7dviglWBcLxX_s054Kuw5M';
+        document.head.appendChild(s);
+      }
+      // Auto-load if user already consented
+      if (localStorage.getItem('cookie-consent') === 'accepted') {
+        loadAnalytics();
+        loadRecaptcha();
+      }
     </script>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfUIVksAAAAAKznNk7dviglWBcLxX_s054Kuw5M"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Open+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -24,6 +42,17 @@
     <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-banner" id="cookieBanner">
+        <div class="cookie-banner-content">
+            <p>We use cookies and similar technologies for analytics (Google Analytics) and security (reCAPTCHA). See our <a onclick="showPage('privacy')" style="color: var(--terracotta); cursor: pointer; text-decoration: underline;">Privacy Policy</a> for details.</p>
+            <div class="cookie-banner-actions">
+                <button class="btn btn-primary cookie-btn" onclick="acceptCookies()">Accept</button>
+                <button class="btn btn-secondary cookie-btn" onclick="declineCookies()">Decline</button>
+            </div>
+        </div>
+    </div>
+
     <nav>
         <div class="logo" onclick="showPage('home')">
             <div class="logo-main">We Do Recover</div>

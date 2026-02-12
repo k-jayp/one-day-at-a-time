@@ -91,4 +91,10 @@
     .privacy-section h3 { font-size: 1.2rem; }
     .privacy-table { font-size: 0.8rem; }
     .privacy-table th, .privacy-table td { padding: 0.5rem 0.75rem; }
+
+    /* Cookie banner mobile */
+    .cookie-banner { padding: 1rem 1.25rem; }
+    .cookie-banner-content { flex-direction: column; text-align: center; gap: 1rem; }
+    .cookie-banner-content p { font-size: 0.82rem; }
+    .cookie-banner-actions { justify-content: center; }
 }

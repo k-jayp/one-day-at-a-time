@@ -364,3 +364,31 @@ window.addEventListener('hashchange', () => {
         handleSharedView();
     }
 });
+
+// ========== COOKIE CONSENT ==========
+function acceptCookies() {
+    localStorage.setItem('cookie-consent', 'accepted');
+    hideCookieBanner();
+    if (typeof loadAnalytics === 'function') loadAnalytics();
+    if (typeof loadRecaptcha === 'function') loadRecaptcha();
+}
+window.acceptCookies = acceptCookies;
+
+function declineCookies() {
+    localStorage.setItem('cookie-consent', 'declined');
+    hideCookieBanner();
+}
+window.declineCookies = declineCookies;
+
+function hideCookieBanner() {
+    const banner = document.getElementById('cookieBanner');
+    if (banner) banner.classList.add('hidden');
+}
+
+// Show/hide banner on load
+(function initCookieBanner() {
+    const consent = localStorage.getItem('cookie-consent');
+    if (consent) {
+        hideCookieBanner();
+    }
+})();
