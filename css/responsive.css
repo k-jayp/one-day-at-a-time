@@ -7,10 +7,10 @@
         height: calc(100vh - 160px);
     }
 
-    .mona-avatar-header { width: 64px; height: 64px; }
-    .mona-status-dot { width: 12px; height: 12px; bottom: 2px; right: 2px; }
-    .chat-header h3 { font-size: 1.2rem; }
-    .chat-header { padding: 1.25rem 1rem 1rem; }
+    .mona-avatar-header { width: 40px; height: 40px; }
+    .mona-status-dot { width: 10px; height: 10px; bottom: 0; right: 0; }
+    .chat-header h3 { font-size: 1.05rem; }
+    .chat-header { padding: 0.6rem 1rem; }
 
     .chat-message {
         max-width: 90%;
