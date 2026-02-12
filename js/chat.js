@@ -139,8 +139,10 @@ async function sendChatMessage() {
     isWaitingForResponse = true;
     sendBtn.disabled = true;
 
-    // Hide quick prompts while waiting
-    document.getElementById('quickPrompts').style.display = 'none';
+    // Permanently hide quick prompts once conversation begins
+    const qp = document.getElementById('quickPrompts');
+    qp.style.display = 'none';
+    qp.dataset.dismissed = 'true';
 
     showTypingIndicator();
 
@@ -171,9 +173,6 @@ async function sendChatMessage() {
     isWaitingForResponse = false;
     sendBtn.disabled = false;
     input.focus();
-
-    // Show follow-up quick prompts after response
-    showFollowUpPrompts();
 }
 window.sendChatMessage = sendChatMessage;
 
@@ -182,45 +181,6 @@ function sendQuickPrompt(prompt) {
     sendChatMessage();
 }
 window.sendQuickPrompt = sendQuickPrompt;
-
-// Contextual follow-up prompts — clean labels, no emojis
-const FOLLOW_UP_SETS = [
-    [
-        { label: 'Guide me through breathing', prompt: 'Can you guide me through a quick breathing exercise right now?' },
-        { label: 'Grounding exercise', prompt: 'Can you walk me through a grounding exercise? I need to get out of my head.' },
-        { label: 'Tell me more', prompt: 'Can you tell me more about that?' },
-        { label: 'Help me journal', prompt: 'Can you help me process what I\'m feeling by journaling about it?' },
-    ],
-    [
-        { label: 'Just sit with me', prompt: 'I don\'t need advice right now. Can you just sit with me for a moment?' },
-        { label: 'Gratitude practice', prompt: 'Can you help me do a quick gratitude practice right now?' },
-        { label: 'Help me reach out', prompt: 'I think I should reach out to someone. Can you help me figure out who to call?' },
-        { label: 'Daily affirmation', prompt: 'Can you give me a recovery affirmation for today?' },
-    ],
-    [
-        { label: 'Find a meeting', prompt: 'Can you help me find a recovery meeting near me?' },
-        { label: 'Step work help', prompt: 'Can you help me think through some step work?' },
-        { label: 'Body scan', prompt: 'Can you guide me through a quick body scan meditation?' },
-        { label: 'Relapse prevention', prompt: 'I\'m worried about relapse. Can you help me make a plan?' },
-    ]
-];
-let followUpIndex = 0;
-
-function showFollowUpPrompts() {
-    const container = document.getElementById('quickPrompts');
-    const set = FOLLOW_UP_SETS[followUpIndex % FOLLOW_UP_SETS.length];
-    followUpIndex++;
-
-    container.innerHTML = '';
-    set.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = 'quick-prompt-btn';
-        btn.textContent = item.label;
-        btn.onclick = () => sendQuickPrompt(item.prompt);
-        container.appendChild(btn);
-    });
-    container.style.display = 'flex';
-}
 
 // Toolkit toggle
 function toggleToolkit() {
