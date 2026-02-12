@@ -392,3 +392,22 @@ function hideCookieBanner() {
         hideCookieBanner();
     }
 })();
+
+// ========== FELLOWSHIP RESOURCES ==========
+function showFellowship(id) {
+    document.getElementById('fellowshipSelector').classList.add('hidden');
+    document.querySelectorAll('.fellowship-detail').forEach(d => d.classList.add('hidden'));
+    const detail = document.getElementById('fellowship-' + id);
+    if (detail) {
+        detail.classList.remove('hidden');
+        window.scrollTo(0, document.getElementById('resources').offsetTop);
+    }
+}
+window.showFellowship = showFellowship;
+
+function showFellowshipSelector() {
+    document.querySelectorAll('.fellowship-detail').forEach(d => d.classList.add('hidden'));
+    document.getElementById('fellowshipSelector').classList.remove('hidden');
+    window.scrollTo(0, document.getElementById('resources').offsetTop);
+}
+window.showFellowshipSelector = showFellowshipSelector;

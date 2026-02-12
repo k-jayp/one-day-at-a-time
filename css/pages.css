@@ -753,6 +753,166 @@
     font-size: 0.95rem;
 }
 
+/* ========== FELLOWSHIP SELECTOR ========== */
+.fellowship-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.fellowship-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--glass-shadow);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.fellowship-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--card-gradient);
+}
+
+.fellowship-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(92, 74, 61, 0.18), 0 0 0 1px rgba(255,255,255,0.2);
+}
+
+.fellowship-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.fellowship-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--warm-brown);
+    margin: 0;
+}
+
+.fellowship-card p {
+    color: var(--sage-dark);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.fellowship-tag {
+    display: inline-block;
+    background: var(--sand);
+    color: var(--sage-dark);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    margin-top: 0.5rem;
+    letter-spacing: 0.03em;
+}
+
+/* ========== FELLOWSHIP DETAIL ========== */
+.fellowship-detail {
+    animation: pageEnter 0.4s ease;
+}
+
+.fellowship-detail.hidden {
+    display: none;
+}
+
+.fellowship-selector.hidden {
+    display: none;
+}
+
+.fellowship-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    color: var(--sage);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s ease;
+}
+
+.fellowship-back-btn:hover {
+    color: var(--terracotta);
+}
+
+.fellowship-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.75rem 2rem;
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 2rem;
+    border-left: 5px solid var(--header-accent, var(--sage));
+}
+
+.fellowship-header-emoji {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.fellowship-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--warm-brown);
+    margin: 0 0 0.25rem;
+}
+
+.fellowship-header p {
+    color: var(--sage-dark);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Universal resources (crisis lines at bottom) */
+.universal-resources {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--sand);
+}
+
+.universal-resources h3 {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--sage-dark);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
 .shared-view {
     max-width: 700px;
     margin: 0 auto;

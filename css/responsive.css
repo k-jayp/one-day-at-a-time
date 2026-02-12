@@ -64,6 +64,12 @@
     .avatar-dropdown { right: -0.5rem; min-width: 220px; }
     .wall-feed { columns: 1; }
     .community-container { padding: 1.5rem; }
+    .fellowship-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .fellowship-card { padding: 1.5rem; }
+    .fellowship-emoji { font-size: 2rem; }
+    .fellowship-card h3 { font-size: 1.25rem; }
+    .fellowship-header { flex-direction: column; text-align: center; padding: 1.5rem; }
+    .fellowship-header-emoji { font-size: 2rem; }
     .streak-badges { gap: 0.5rem; }
     .milestone-badge { width: 55px; height: 55px; font-size: 1.2rem; }
     .mood-timeline { flex-wrap: wrap; }

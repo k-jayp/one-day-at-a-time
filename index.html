@@ -471,42 +471,299 @@
         <div class="resources-container">
             <div class="page-header">
                 <h2>Resources</h2>
-                <p>Support for your recovery journey</p>
+                <p>Find support for your recovery journey</p>
             </div>
 
-            <div class="resources-grid">
-                <a href="https://www.cmaboston.org/meetings" target="_blank" rel="noopener" class="resource-card">
-                    <div class="resource-icon meetings">📍</div>
-                    <h3>Find CMA Meetings</h3>
-                    <p>Find Crystal Meth Anonymous meetings near you, including virtual options.</p>
-                </a>
+            <!-- Fellowship Selector -->
+            <div id="fellowshipSelector" class="fellowship-selector">
+                <div class="fellowship-grid">
+                    <button class="fellowship-card" onclick="showFellowship('cma')" style="--card-gradient: linear-gradient(135deg, #2D5A3D 0%, #1E4D2E 100%);">
+                        <span class="fellowship-emoji">💎</span>
+                        <h3>CMA</h3>
+                        <p>Crystal Meth Anonymous</p>
+                        <span class="fellowship-tag">12-Step</span>
+                    </button>
+                    <button class="fellowship-card" onclick="showFellowship('aa')" style="--card-gradient: linear-gradient(135deg, #1E3A5F 0%, #15294A 100%);">
+                        <span class="fellowship-emoji">🔵</span>
+                        <h3>AA</h3>
+                        <p>Alcoholics Anonymous</p>
+                        <span class="fellowship-tag">12-Step</span>
+                    </button>
+                    <button class="fellowship-card" onclick="showFellowship('na')" style="--card-gradient: linear-gradient(135deg, #5B3A8C 0%, #3D2660 100%);">
+                        <span class="fellowship-emoji">🌈</span>
+                        <h3>NA</h3>
+                        <p>Narcotics Anonymous</p>
+                        <span class="fellowship-tag">12-Step</span>
+                    </button>
+                    <button class="fellowship-card" onclick="showFellowship('ma')" style="--card-gradient: linear-gradient(135deg, #4A7C59 0%, #356B45 100%);">
+                        <span class="fellowship-emoji">🌿</span>
+                        <h3>MA</h3>
+                        <p>Marijuana Anonymous</p>
+                        <span class="fellowship-tag">12-Step</span>
+                    </button>
+                    <button class="fellowship-card" onclick="showFellowship('dharma')" style="--card-gradient: linear-gradient(135deg, #BF6A3A 0%, #A0522D 100%);">
+                        <span class="fellowship-emoji">☸️</span>
+                        <h3>Recovery Dharma</h3>
+                        <p>Buddhist-Inspired Recovery</p>
+                        <span class="fellowship-tag">Mindfulness</span>
+                    </button>
+                    <button class="fellowship-card" onclick="showFellowship('smart')" style="--card-gradient: linear-gradient(135deg, #C9952B 0%, #A67B1F 100%);">
+                        <span class="fellowship-emoji">🧠</span>
+                        <h3>SMART Recovery</h3>
+                        <p>Self-Management &amp; Recovery Training</p>
+                        <span class="fellowship-tag">Science-Based</span>
+                    </button>
+                </div>
 
-                <a href="https://www.crystalmeth.org/" target="_blank" rel="noopener" class="resource-card">
-                    <div class="resource-icon literature">📖</div>
-                    <h3>CMA Literature</h3>
-                    <p>Access recovery literature, pamphlets, and resources from CMA.</p>
-                </a>
-
-                <a href="https://www.jftna.org/jft/" target="_blank" rel="noopener" class="resource-card">
-                    <div class="resource-icon meditation">🧘</div>
-                    <h3>Daily Meditation</h3>
-                    <p>Just for Today daily meditations from NA World Services.</p>
-                </a>
-
-                <a href="tel:1-800-662-4357" class="resource-card">
-                    <div class="resource-icon hotline">📞</div>
-                    <h3>SAMHSA Helpline</h3>
-                    <p>24/7 treatment referral and information service: 1-800-662-4357</p>
-                </a>
-            </div>
-
-            <div style="margin-top: 3rem; text-align: center;">
-                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem; box-shadow: var(--glass-shadow);">
-                    <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 1rem; color: var(--warm-brown);">Boston CMA Community</h3>
-                    <p style="color: var(--sage-dark); margin-bottom: 1.5rem;">Connect with your local fellowship</p>
-                    <a href="https://www.cmaboston.org" target="_blank" rel="noopener" class="btn btn-primary">Find Boston Meetings</a>
+                <!-- Universal Resources -->
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support Lines</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card">
+                            <div class="resource-icon hotline">📞</div>
+                            <h3>SAMHSA Helpline</h3>
+                            <p>24/7 treatment referral and information: 1-800-662-4357</p>
+                        </a>
+                        <a href="tel:988" class="resource-card">
+                            <div class="resource-icon hotline">🆘</div>
+                            <h3>988 Crisis Lifeline</h3>
+                            <p>24/7 suicide and crisis support. Call or text 988.</p>
+                        </a>
+                    </div>
                 </div>
             </div>
+
+            <!-- CMA Detail -->
+            <div id="fellowship-cma" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #2D5A3D;">
+                    <span class="fellowship-header-emoji">💎</span>
+                    <div>
+                        <h3>Crystal Meth Anonymous</h3>
+                        <p>A 12-step fellowship for those seeking recovery from crystal meth addiction</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://www.cmaboston.org/meetings" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find CMA Meetings</h3>
+                        <p>Find Crystal Meth Anonymous meetings in Boston, including virtual options.</p>
+                    </a>
+                    <a href="https://www.crystalmeth.org/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">📖</div>
+                        <h3>CMA Literature &amp; Resources</h3>
+                        <p>Access recovery literature, pamphlets, and resources from CMA World Services.</p>
+                    </a>
+                    <a href="https://www.cmaboston.org" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">🏠</div>
+                        <h3>Boston CMA Community</h3>
+                        <p>Connect with the Boston CMA fellowship and local recovery community.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AA Detail -->
+            <div id="fellowship-aa" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #1E3A5F;">
+                    <span class="fellowship-header-emoji">🔵</span>
+                    <div>
+                        <h3>Alcoholics Anonymous</h3>
+                        <p>A worldwide fellowship of people who help each other achieve and maintain sobriety</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://aaboston.org/meetings" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find AA Meetings — Boston</h3>
+                        <p>Search for Alcoholics Anonymous meetings in the Greater Boston area.</p>
+                    </a>
+                    <a href="https://aaboston.org/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">🏠</div>
+                        <h3>AA Boston Resources</h3>
+                        <p>Events, literature, and community resources from AA Greater Boston.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NA Detail -->
+            <div id="fellowship-na" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #5B3A8C;">
+                    <span class="fellowship-header-emoji">🌈</span>
+                    <div>
+                        <h3>Narcotics Anonymous</h3>
+                        <p>A community-based fellowship for recovering addicts — "the only requirement is a desire to stop using"</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://nerna.org/find-a-meeting/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find NA Meetings — New England</h3>
+                        <p>Search for Narcotics Anonymous meetings across the New England region.</p>
+                    </a>
+                    <a href="https://nerna.org/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">🏠</div>
+                        <h3>New England Region of NA</h3>
+                        <p>Regional events, service committees, and New England NA community.</p>
+                    </a>
+                    <a href="https://na.org/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">🌐</div>
+                        <h3>NA World Services</h3>
+                        <p>Literature, resources, and information from NA World Services.</p>
+                    </a>
+                    <a href="https://www.jftna.org/jft/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meditation">🧘</div>
+                        <h3>Just for Today — Daily Meditation</h3>
+                        <p>Daily recovery meditations from NA World Services.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MA Detail -->
+            <div id="fellowship-ma" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #4A7C59;">
+                    <span class="fellowship-header-emoji">🌿</span>
+                    <div>
+                        <h3>Marijuana Anonymous</h3>
+                        <p>A 12-step fellowship for those who want to stop using marijuana</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://marijuana-anonymous.org/meetings/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find MA Meetings</h3>
+                        <p>Search for Marijuana Anonymous meetings, including online options.</p>
+                    </a>
+                    <a href="https://marijuana-anonymous.org/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">🌐</div>
+                        <h3>MA World Services</h3>
+                        <p>Literature, information, and resources from Marijuana Anonymous.</p>
+                    </a>
+                    <a href="https://anewleafpublications.org/reflections/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meditation">📖</div>
+                        <h3>Daily Reflections</h3>
+                        <p>Daily meditations and reflections for marijuana recovery.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recovery Dharma Detail -->
+            <div id="fellowship-dharma" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #BF6A3A;">
+                    <span class="fellowship-header-emoji">☸️</span>
+                    <div>
+                        <h3>Recovery Dharma</h3>
+                        <p>A Buddhist-inspired path to recovery from all addictions — grounded in mindfulness and compassion</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://recoverydharma.org/meetings/?region=massachusetts" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find Meetings — Massachusetts</h3>
+                        <p>Search for Recovery Dharma meetings in Massachusetts and virtual options.</p>
+                    </a>
+                    <a href="https://recoverydharma.org/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">🌐</div>
+                        <h3>Recovery Dharma Home</h3>
+                        <p>Learn about the Recovery Dharma program and community.</p>
+                    </a>
+                    <a href="https://recoverydharma.org/resources/meditations/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meditation">🧘</div>
+                        <h3>Guided Meditations</h3>
+                        <p>Free guided meditations for recovery and mindfulness practice.</p>
+                    </a>
+                    <a href="https://recoverydharma.org/about/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">📖</div>
+                        <h3>About Recovery Dharma</h3>
+                        <p>Learn about the Four Truths, the Eightfold Path, and how the program works.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMART Recovery Detail -->
+            <div id="fellowship-smart" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #C9952B;">
+                    <span class="fellowship-header-emoji">🧠</span>
+                    <div>
+                        <h3>SMART Recovery</h3>
+                        <p>A science-based program using cognitive behavioral tools for lasting recovery</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://meetings.smartrecovery.org/meetings/?coordinates=50&location=Boston%2C+MA" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find Meetings — Boston</h3>
+                        <p>Search for SMART Recovery meetings near Boston and online options.</p>
+                    </a>
+                    <a href="https://smartrecovery.org/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">🌐</div>
+                        <h3>SMART Recovery Home</h3>
+                        <p>Learn about the SMART Recovery 4-Point Program.</p>
+                    </a>
+                    <a href="https://smartrecovery.org/what-is-smart-recovery" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">❓</div>
+                        <h3>What is SMART Recovery?</h3>
+                        <p>An overview of how SMART Recovery uses science-based tools for change.</p>
+                    </a>
+                    <a href="https://smartrecovery.org/handbooks" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">📖</div>
+                        <h3>Handbooks &amp; Tools</h3>
+                        <p>Cost-benefit analysis, hierarchy of values, and other recovery toolbox exercises.</p>
+                    </a>
+                    <a href="https://smartrecovery.org/about" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">ℹ️</div>
+                        <h3>About SMART Recovery</h3>
+                        <p>The history, mission, and science behind SMART Recovery.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
