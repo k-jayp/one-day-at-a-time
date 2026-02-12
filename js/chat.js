@@ -5,6 +5,16 @@ let chatHistory = [];
 let isWaitingForResponse = false;
 let userRecoveryContext = null;
 
+// Format timestamp for messages
+function formatTimestamp() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    return `${hours}:${minutes} ${ampm}`;
+}
+
 // Build recovery context string to send with first message
 function buildRecoveryContext() {
     const parts = [];
@@ -68,16 +78,20 @@ function addMessageToChat(content, role) {
     const messagesContainer = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `chat-message ${role}`;
+    const time = formatTimestamp();
 
     if (role === 'assistant') {
         const formatted = formatMonaMessage(content);
-        messageDiv.innerHTML = `<img src="mona.png" alt="Mona" class="mona-avatar-msg"><div class="mona-msg-content">${formatted}</div>`;
+        messageDiv.innerHTML = `<img src="mona.png" alt="Mona" class="mona-avatar-msg"><div class="mona-msg-content">${formatted}<span class="msg-time">${time}</span></div>`;
+    } else if (role === 'user') {
+        messageDiv.innerHTML = `${escapeHtml(content)}<span class="msg-time">${time}</span>`;
     } else {
         messageDiv.textContent = content;
     }
 
     messagesContainer.appendChild(messageDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // Smooth scroll to bottom
+    messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
 }
 
 function showTypingIndicator() {
@@ -85,9 +99,9 @@ function showTypingIndicator() {
     const typingDiv = document.createElement('div');
     typingDiv.className = 'typing-indicator';
     typingDiv.id = 'typingIndicator';
-    typingDiv.innerHTML = '<img src="mona.png" alt="Mona" class="mona-avatar-msg"><span>🐾</span><span>🐾</span><span>🐾</span>';
+    typingDiv.innerHTML = '<img src="mona.png" alt="Mona" class="mona-avatar-msg"><span class="typing-label">Mona is typing</span><div class="typing-dots"><span></span><span></span><span></span></div>';
     messagesContainer.appendChild(typingDiv);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    messagesContainer.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
 }
 
 function hideTypingIndicator() {
@@ -145,12 +159,12 @@ async function sendChatMessage() {
             addMessageToChat(assistantMessage, 'assistant');
             chatHistory.push({ role: 'assistant', content: assistantMessage });
         } else if (data.error) {
-            addMessageToChat("*whimpers softly* I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357. 🐾", 'assistant');
+            addMessageToChat("I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357.", 'assistant');
             console.error('API Error:', data.error);
         }
     } catch (error) {
         hideTypingIndicator();
-        addMessageToChat("*whimpers softly* I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357. 🐾", 'assistant');
+        addMessageToChat("I'm having trouble connecting right now. Please try again in a moment, or reach out to a fellow or sponsor. You can also call SAMHSA at 1-800-662-4357.", 'assistant');
         console.error('Chat error:', error);
     }
 
@@ -169,25 +183,25 @@ function sendQuickPrompt(prompt) {
 }
 window.sendQuickPrompt = sendQuickPrompt;
 
-// Contextual follow-up prompts that appear after each Mona response
+// Contextual follow-up prompts — clean labels, no emojis
 const FOLLOW_UP_SETS = [
     [
-        { emoji: '🧘', label: 'Guide me through a breathing exercise', prompt: 'Can you guide me through a quick breathing exercise right now?' },
-        { emoji: '🌿', label: 'Grounding exercise', prompt: 'Can you walk me through a grounding exercise? I need to get out of my head.' },
-        { emoji: '💛', label: 'Tell me more', prompt: 'Can you tell me more about that?' },
-        { emoji: '📝', label: 'Help me journal', prompt: 'Can you help me process what I\'m feeling by journaling about it?' },
+        { label: 'Guide me through breathing', prompt: 'Can you guide me through a quick breathing exercise right now?' },
+        { label: 'Grounding exercise', prompt: 'Can you walk me through a grounding exercise? I need to get out of my head.' },
+        { label: 'Tell me more', prompt: 'Can you tell me more about that?' },
+        { label: 'Help me journal', prompt: 'Can you help me process what I\'m feeling by journaling about it?' },
     ],
     [
-        { emoji: '🐾', label: 'Just sit with me', prompt: 'I don\'t need advice right now. Can you just sit with me for a moment?' },
-        { emoji: '🙏', label: 'Gratitude practice', prompt: 'Can you help me do a quick gratitude practice right now?' },
-        { emoji: '📞', label: 'Help me reach out', prompt: 'I think I should reach out to someone. Can you help me figure out who to call?' },
-        { emoji: '💪', label: 'Daily affirmation', prompt: 'Can you give me a recovery affirmation for today?' },
+        { label: 'Just sit with me', prompt: 'I don\'t need advice right now. Can you just sit with me for a moment?' },
+        { label: 'Gratitude practice', prompt: 'Can you help me do a quick gratitude practice right now?' },
+        { label: 'Help me reach out', prompt: 'I think I should reach out to someone. Can you help me figure out who to call?' },
+        { label: 'Daily affirmation', prompt: 'Can you give me a recovery affirmation for today?' },
     ],
     [
-        { emoji: '🗺️', label: 'Find a meeting', prompt: 'Can you help me find a recovery meeting near me?' },
-        { emoji: '📖', label: 'Step work help', prompt: 'Can you help me think through some step work?' },
-        { emoji: '🌅', label: 'Body scan', prompt: 'Can you guide me through a quick body scan meditation?' },
-        { emoji: '😰', label: 'Relapse prevention', prompt: 'I\'m worried about relapse. Can you help me make a plan?' },
+        { label: 'Find a meeting', prompt: 'Can you help me find a recovery meeting near me?' },
+        { label: 'Step work help', prompt: 'Can you help me think through some step work?' },
+        { label: 'Body scan', prompt: 'Can you guide me through a quick body scan meditation?' },
+        { label: 'Relapse prevention', prompt: 'I\'m worried about relapse. Can you help me make a plan?' },
     ]
 ];
 let followUpIndex = 0;
@@ -201,12 +215,54 @@ function showFollowUpPrompts() {
     set.forEach(item => {
         const btn = document.createElement('button');
         btn.className = 'quick-prompt-btn';
-        btn.textContent = `${item.emoji} ${item.label}`;
+        btn.textContent = item.label;
         btn.onclick = () => sendQuickPrompt(item.prompt);
         container.appendChild(btn);
     });
     container.style.display = 'flex';
 }
+
+// Toolkit toggle
+function toggleToolkit() {
+    const exercises = document.getElementById('guidedExercises');
+    const chevron = document.getElementById('toolkitChevron');
+    const isOpen = exercises.style.display === 'flex';
+    exercises.style.display = isOpen ? 'none' : 'flex';
+    chevron.classList.toggle('open', !isOpen);
+}
+window.toggleToolkit = toggleToolkit;
+
+// Welcome-back message for returning users
+function showWelcomeBack() {
+    const cleanTimeEl = document.getElementById('cleanTimeDisplay');
+    if (cleanTimeEl && cleanTimeEl.textContent && !cleanTimeEl.textContent.includes('Set your')) {
+        const timeText = cleanTimeEl.textContent.trim();
+        // Add a personalized welcome-back as Mona's second message
+        const messagesContainer = document.getElementById('chatMessages');
+        const welcomeDiv = document.createElement('div');
+        welcomeDiv.className = 'chat-message assistant';
+        welcomeDiv.innerHTML = `<img src="mona.png" alt="Mona" class="mona-avatar-msg"><div class="mona-msg-content">Welcome back! <strong>${timeText}</strong> in recovery — that's something to be proud of. I'm right here whenever you need me.</div>`;
+        messagesContainer.appendChild(welcomeDiv);
+    }
+}
+
+// Initialize welcome-back after auth state resolves
+function initMonaWelcome() {
+    // Wait a bit for Firebase auth and clean time to load
+    setTimeout(() => {
+        const cleanTimeEl = document.getElementById('cleanTimeDisplay');
+        if (cleanTimeEl && cleanTimeEl.textContent && !cleanTimeEl.textContent.includes('Set your')) {
+            showWelcomeBack();
+        }
+    }, 3000);
+}
+// Run on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMonaWelcome);
+} else {
+    initMonaWelcome();
+}
+
 function handleChatKeydown(event) {
     const input = event.target;
 

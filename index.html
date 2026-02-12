@@ -405,11 +405,12 @@
             <div class="chat-container">
                 <div class="chat-header">
                     <div class="mona-header">
-                        <img src="mona.png" alt="Mona - Recovery Support Companion" class="mona-avatar-header">
-                        <div>
-                            <h3>🐾 Chat with Mona</h3>
-                            <p>Your recovery support companion — always here, never judges</p>
+                        <div class="mona-avatar-ring">
+                            <img src="mona.png" alt="Mona - Recovery Support Companion" class="mona-avatar-header">
+                            <span class="mona-status-dot"></span>
                         </div>
+                        <h3>Chat with Mona</h3>
+                        <p>Your recovery support companion — always here, never judges</p>
                     </div>
                 </div>
 
@@ -419,33 +420,41 @@
                     </div>
                     <div class="chat-message assistant">
                         <img src="mona.png" alt="Mona" class="mona-avatar-msg">
-                        <div>Hey there, friend! 🐾 It's Mona. I'm curled up right here with you. Whether you're having a tough moment, need a little encouragement, or just want someone to sit with — I'm not going anywhere. How are you doing today?</div>
+                        <div class="mona-msg-content">Hey there, friend! It's Mona. I'm curled up right here with you. Whether you're having a tough moment, need a little encouragement, or just want someone to sit with — I'm not going anywhere. How are you doing today?</div>
                     </div>
                 </div>
 
-                <div class="guided-exercises">
+                <!-- Toolkit toggle for guided exercises -->
+                <div class="toolkit-bar">
+                    <button class="toolkit-toggle" id="toolkitToggle" onclick="toggleToolkit()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                        Wellness Toolkit
+                        <span class="toolkit-chevron" id="toolkitChevron">&#9662;</span>
+                    </button>
+                </div>
+                <div class="guided-exercises" id="guidedExercises" style="display: none;">
                     <button class="exercise-btn" onclick="startGuidedExercise('breathing')">
-                        <span class="exercise-icon">🫁</span> Breathing
+                        Breathing
                     </button>
                     <button class="exercise-btn" onclick="startGuidedExercise('grounding')">
-                        <span class="exercise-icon">🌍</span> Grounding
+                        Grounding
                     </button>
                     <button class="exercise-btn" onclick="startGuidedExercise('bodyscan')">
-                        <span class="exercise-icon">🧘</span> Body Scan
+                        Body Scan
                     </button>
                     <button class="exercise-btn" onclick="startGuidedExercise('urgesurf')">
-                        <span class="exercise-icon">🌊</span> Urge Surfing
+                        Urge Surfing
                     </button>
                 </div>
                 <div class="quick-prompts" id="quickPrompts">
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m having a craving right now')">🫤 Having a craving</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I need some encouragement today')">💛 Need encouragement</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m feeling triggered')">⚡ Feeling triggered</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Can you help me with a gratitude reflection?')">🙏 Gratitude reflection</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Give me a recovery affirmation for today')">💪 Daily affirmation</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Can you help me find a recovery meeting near me?')">🗺️ Find a meeting</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Celebrate a milestone with me')">🎉 Celebrate a win</button>
-                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m worried about relapse. Can you help me make a plan?')">🛡️ Relapse prevention</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m having a craving right now')">Having a craving</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I need some encouragement today')">Need encouragement</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m feeling triggered')">Feeling triggered</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Can you help me with a gratitude reflection?')">Gratitude reflection</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Give me a recovery affirmation for today')">Daily affirmation</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Can you help me find a recovery meeting near me?')">Find a meeting</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Celebrate a milestone with me')">Celebrate a win</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m worried about relapse. Can you help me make a plan?')">Relapse prevention</button>
                 </div>
 
                 <div class="chat-input-area">
