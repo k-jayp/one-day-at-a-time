@@ -24,44 +24,47 @@
 
 /* ========== COMPACT HEADER — Horizontal row ========== */
 .chat-header {
-    padding: 0.75rem 1.25rem;
+    padding: 0.6rem 1.25rem;
     background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%);
     color: white;
     flex-shrink: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .mona-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.85rem;
+    gap: 1rem;
 }
 
-/* Avatar with glow ring */
+/* Avatar with glow ring — oversized, overflows header */
 .mona-avatar-ring {
     position: relative;
     display: inline-block;
     flex-shrink: 0;
+    margin: -0.4rem 0;
 }
 
 .mona-avatar-header {
-    width: 48px;
-    height: 48px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 0 14px rgba(255, 255, 255, 0.2), 0 2px 8px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 /* Online status dot */
 .mona-status-dot {
     position: absolute;
-    bottom: 1px;
-    right: 1px;
-    width: 12px;
-    height: 12px;
+    bottom: 3px;
+    right: 3px;
+    width: 13px;
+    height: 13px;
     background: #4ade80;
     border-radius: 50%;
-    border: 2px solid var(--sage);
+    border: 2.5px solid var(--sage);
     box-shadow: 0 0 6px rgba(74, 222, 128, 0.5);
 }
 
