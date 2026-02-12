@@ -791,16 +791,53 @@
     right: 0;
     height: 4px;
     background: var(--card-gradient);
+    transition: opacity 0.3s ease;
+}
+
+.fellowship-card:hover::before {
+    opacity: 0;
 }
 
 .fellowship-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 50px rgba(92, 74, 61, 0.18), 0 0 0 1px rgba(255,255,255,0.2);
+    background: var(--card-gradient);
+    box-shadow: 0 20px 50px rgba(92, 74, 61, 0.22), 0 0 0 1px rgba(255,255,255,0.2);
 }
 
-.fellowship-emoji {
-    font-size: 2.5rem;
+.fellowship-card:hover h3,
+.fellowship-card:hover p {
+    color: #fff;
+}
+
+.fellowship-card:hover .fellowship-tag {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+.fellowship-card:hover .fellowship-badge {
+    background: rgba(255,255,255,0.25) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.fellowship-card:active {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(92, 74, 61, 0.25);
+}
+
+.fellowship-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    color: #fff;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
     margin-bottom: 0.25rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .fellowship-card h3 {
@@ -878,9 +915,20 @@
     border-left: 5px solid var(--header-accent, var(--sage));
 }
 
-.fellowship-header-emoji {
-    font-size: 2.5rem;
+.fellowship-header-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    color: #fff;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .fellowship-header h3 {

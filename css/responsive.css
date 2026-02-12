@@ -66,10 +66,10 @@
     .community-container { padding: 1.5rem; }
     .fellowship-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
     .fellowship-card { padding: 1.5rem; }
-    .fellowship-emoji { font-size: 2rem; }
+    .fellowship-badge { width: 48px; height: 48px; font-size: 0.9rem; }
     .fellowship-card h3 { font-size: 1.25rem; }
     .fellowship-header { flex-direction: column; text-align: center; padding: 1.5rem; }
-    .fellowship-header-emoji { font-size: 2rem; }
+    .fellowship-header-badge { width: 44px; height: 44px; font-size: 0.85rem; }
     .streak-badges { gap: 0.5rem; }
     .milestone-badge { width: 55px; height: 55px; font-size: 1.2rem; }
     .mood-timeline { flex-wrap: wrap; }

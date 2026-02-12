@@ -478,39 +478,39 @@
             <div id="fellowshipSelector" class="fellowship-selector">
                 <div class="fellowship-grid">
                     <button class="fellowship-card" onclick="showFellowship('cma')" style="--card-gradient: linear-gradient(135deg, #2D5A3D 0%, #1E4D2E 100%);">
-                        <span class="fellowship-emoji">💎</span>
-                        <h3>CMA</h3>
-                        <p>Crystal Meth Anonymous</p>
+                        <span class="fellowship-badge" style="background: #2D5A3D;">CMA</span>
+                        <h3>Crystal Meth Anonymous</h3>
+                        <p>Recovery from crystal meth addiction</p>
                         <span class="fellowship-tag">12-Step</span>
                     </button>
                     <button class="fellowship-card" onclick="showFellowship('aa')" style="--card-gradient: linear-gradient(135deg, #1E3A5F 0%, #15294A 100%);">
-                        <span class="fellowship-emoji">🔵</span>
-                        <h3>AA</h3>
-                        <p>Alcoholics Anonymous</p>
+                        <span class="fellowship-badge" style="background: #1E3A5F;">AA</span>
+                        <h3>Alcoholics Anonymous</h3>
+                        <p>Worldwide fellowship for sobriety</p>
                         <span class="fellowship-tag">12-Step</span>
                     </button>
                     <button class="fellowship-card" onclick="showFellowship('na')" style="--card-gradient: linear-gradient(135deg, #5B3A8C 0%, #3D2660 100%);">
-                        <span class="fellowship-emoji">🌈</span>
-                        <h3>NA</h3>
-                        <p>Narcotics Anonymous</p>
+                        <span class="fellowship-badge" style="background: #5B3A8C;">NA</span>
+                        <h3>Narcotics Anonymous</h3>
+                        <p>Recovery from drug addiction</p>
                         <span class="fellowship-tag">12-Step</span>
                     </button>
                     <button class="fellowship-card" onclick="showFellowship('ma')" style="--card-gradient: linear-gradient(135deg, #4A7C59 0%, #356B45 100%);">
-                        <span class="fellowship-emoji">🌿</span>
-                        <h3>MA</h3>
-                        <p>Marijuana Anonymous</p>
+                        <span class="fellowship-badge" style="background: #4A7C59;">MA</span>
+                        <h3>Marijuana Anonymous</h3>
+                        <p>Freedom from marijuana dependence</p>
                         <span class="fellowship-tag">12-Step</span>
                     </button>
                     <button class="fellowship-card" onclick="showFellowship('dharma')" style="--card-gradient: linear-gradient(135deg, #BF6A3A 0%, #A0522D 100%);">
-                        <span class="fellowship-emoji">☸️</span>
+                        <span class="fellowship-badge" style="background: #BF6A3A;">RD</span>
                         <h3>Recovery Dharma</h3>
-                        <p>Buddhist-Inspired Recovery</p>
+                        <p>Buddhist-inspired path to recovery</p>
                         <span class="fellowship-tag">Mindfulness</span>
                     </button>
                     <button class="fellowship-card" onclick="showFellowship('smart')" style="--card-gradient: linear-gradient(135deg, #C9952B 0%, #A67B1F 100%);">
-                        <span class="fellowship-emoji">🧠</span>
+                        <span class="fellowship-badge" style="background: #C9952B;">SR</span>
                         <h3>SMART Recovery</h3>
-                        <p>Self-Management &amp; Recovery Training</p>
+                        <p>Science-based tools for lasting change</p>
                         <span class="fellowship-tag">Science-Based</span>
                     </button>
                 </div>
@@ -537,7 +537,7 @@
             <div id="fellowship-cma" class="fellowship-detail hidden">
                 <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
                 <div class="fellowship-header" style="--header-accent: #2D5A3D;">
-                    <span class="fellowship-header-emoji">💎</span>
+                    <span class="fellowship-header-badge" style="background: #2D5A3D;">CMA</span>
                     <div>
                         <h3>Crystal Meth Anonymous</h3>
                         <p>A 12-step fellowship for those seeking recovery from crystal meth addiction</p>
@@ -573,7 +573,7 @@
             <div id="fellowship-aa" class="fellowship-detail hidden">
                 <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
                 <div class="fellowship-header" style="--header-accent: #1E3A5F;">
-                    <span class="fellowship-header-emoji">🔵</span>
+                    <span class="fellowship-header-badge" style="background: #1E3A5F;">AA</span>
                     <div>
                         <h3>Alcoholics Anonymous</h3>
                         <p>A worldwide fellowship of people who help each other achieve and maintain sobriety</p>
@@ -604,7 +604,7 @@
             <div id="fellowship-na" class="fellowship-detail hidden">
                 <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
                 <div class="fellowship-header" style="--header-accent: #5B3A8C;">
-                    <span class="fellowship-header-emoji">🌈</span>
+                    <span class="fellowship-header-badge" style="background: #5B3A8C;">NA</span>
                     <div>
                         <h3>Narcotics Anonymous</h3>
                         <p>A community-based fellowship for recovering addicts — "the only requirement is a desire to stop using"</p>
@@ -645,7 +645,7 @@
             <div id="fellowship-ma" class="fellowship-detail hidden">
                 <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
                 <div class="fellowship-header" style="--header-accent: #4A7C59;">
-                    <span class="fellowship-header-emoji">🌿</span>
+                    <span class="fellowship-header-badge" style="background: #4A7C59;">MA</span>
                     <div>
                         <h3>Marijuana Anonymous</h3>
                         <p>A 12-step fellowship for those who want to stop using marijuana</p>
@@ -681,7 +681,7 @@
             <div id="fellowship-dharma" class="fellowship-detail hidden">
                 <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
                 <div class="fellowship-header" style="--header-accent: #BF6A3A;">
-                    <span class="fellowship-header-emoji">☸️</span>
+                    <span class="fellowship-header-badge" style="background: #BF6A3A;">RD</span>
                     <div>
                         <h3>Recovery Dharma</h3>
                         <p>A Buddhist-inspired path to recovery from all addictions — grounded in mindfulness and compassion</p>
@@ -722,7 +722,7 @@
             <div id="fellowship-smart" class="fellowship-detail hidden">
                 <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
                 <div class="fellowship-header" style="--header-accent: #C9952B;">
-                    <span class="fellowship-header-emoji">🧠</span>
+                    <span class="fellowship-header-badge" style="background: #C9952B;">SR</span>
                     <div>
                         <h3>SMART Recovery</h3>
                         <p>A science-based program using cognitive behavioral tools for lasting recovery</p>
