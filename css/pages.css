@@ -1735,6 +1735,11 @@
     color: var(--forest);
 }
 
+.event-tag.special {
+    background: rgba(191, 106, 58, 0.15);
+    color: var(--terracotta);
+}
+
 .event-details h3 {
     font-family: var(--font-heading);
     font-size: 1.6rem;

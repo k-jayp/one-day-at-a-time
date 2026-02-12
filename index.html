@@ -226,7 +226,15 @@
                     <a class="btn btn-secondary" onclick="showPage('jft')">Today's Meditation</a>
                 </div>
 
-                <!-- Featured Event -->
+                <!-- Featured Events -->
+                <div class="featured-event" onclick="showPage('events')">
+                    <div class="featured-event-badge">This Weekend</div>
+                    <div class="featured-event-content">
+                        <h3>SEMRU 2026 — SE Mass Annual Round Up</h3>
+                        <p>Feb 13–16 &middot; Mansfield, MA &middot; Recovery, fellowship, speakers &amp; workshops</p>
+                        <span class="featured-event-link">View Details &rarr;</span>
+                    </div>
+                </div>
                 <div class="featured-event" onclick="showPage('events')">
                     <div class="featured-event-badge">Upcoming</div>
                     <div class="featured-event-content">
@@ -895,6 +903,42 @@
             </div>
 
             <div class="events-grid">
+                <!-- SEMRU 2026 -->
+                <div class="event-card event-featured">
+                    <div class="event-flyer">
+                        <img src="semru-flyer.jpg" alt="SEMRU 2026 — Southeastern Massachusetts Annual Round Up, February 13-16, 2026" loading="lazy">
+                    </div>
+                    <div class="event-details">
+                        <div class="event-tag special">Feb 13–16, 2026</div>
+                        <h3>Southeastern Mass Annual Round Up</h3>
+                        <div class="event-info">
+                            <div class="event-info-row">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                <div>
+                                    <p><strong>Thursday, Feb 13</strong> at 3:00 PM</p>
+                                    <p>through <strong>Monday, Feb 16</strong> at 12:00 PM</p>
+                                </div>
+                            </div>
+                            <div class="event-info-row">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <div>
+                                    <p>31 Hampshire Street</p>
+                                    <p>Mansfield, MA 02048</p>
+                                </div>
+                            </div>
+                            <div class="event-info-row">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                                <p>A weekend of recovery, fellowship, speakers, and workshops</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem;">
+                            <a href="https://maps.google.com/?q=31+Hampshire+Street+Mansfield+MA+02048" target="_blank" rel="noopener" class="btn btn-primary" style="display: inline-block;">Get Directions</a>
+                            <a href="https://semru.org" target="_blank" rel="noopener" class="btn btn-secondary" style="display: inline-block;">Visit SEMRU.org</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sunday Meeting -->
                 <div class="event-card event-featured">
                     <div class="event-flyer">
                         <img src="sunday-meeting-flyer.jpg" alt="Sunday Meeting at K-Street Clubhouse — Every Sunday, Speaker Topic Meeting 6-7 PM, Fellowship Movie Night 7:30-9:30 PM" loading="lazy">
@@ -937,7 +981,16 @@
                 <p>Anonymous words of hope and encouragement</p>
             </div>
 
-            <!-- Pinned Event -->
+            <!-- Pinned Events -->
+            <div class="community-pinned-event" onclick="showPage('events')">
+                <img src="semru-flyer.jpg" alt="SEMRU 2026 Flyer" class="pinned-event-thumb">
+                <div class="pinned-event-info">
+                    <span class="pinned-badge">This Weekend</span>
+                    <strong>SEMRU 2026 — SE Mass Annual Round Up</strong>
+                    <p>Feb 13–16 &middot; Mansfield, MA &middot; Speakers, workshops &amp; fellowship</p>
+                </div>
+                <span class="pinned-event-arrow">&rarr;</span>
+            </div>
             <div class="community-pinned-event" onclick="showPage('events')">
                 <img src="sunday-meeting-flyer.jpg" alt="Sunday Meeting Flyer" class="pinned-event-thumb">
                 <div class="pinned-event-info">
