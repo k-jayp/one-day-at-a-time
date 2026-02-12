@@ -111,6 +111,21 @@
     .privacy-table { font-size: 0.8rem; }
     .privacy-table th, .privacy-table td { padding: 0.5rem 0.75rem; }
 
+    /* Wellness page mobile */
+    .wellness-container { padding: 1.5rem; }
+    .wellness-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .wellness-card { padding: 1.5rem; }
+    .wellness-badge { width: 44px; height: 44px; }
+    .wellness-badge svg { width: 22px; height: 22px; }
+    .wellness-card h3 { font-size: 1.15rem; }
+
+    /* Metta circles on small screens */
+    .metta-visual { width: 150px; height: 150px; }
+    .metta-heart { font-size: 2rem; }
+
+    /* Visualization orb */
+    .viz-orb { width: 60px; height: 60px; }
+
     /* Cookie banner mobile */
     .cookie-banner { padding: 1rem 1.25rem; }
     .cookie-banner-content { flex-direction: column; text-align: center; gap: 1rem; }

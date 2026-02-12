@@ -1503,3 +1503,109 @@
 .privacy-table tr:nth-child(even) td {
     background: rgba(230, 221, 210, 0.3);
 }
+
+/* ========== WELLNESS TOOLKIT PAGE ========== */
+.wellness-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 3rem;
+}
+
+.wellness-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.wellness-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--glass-shadow);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.wellness-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(45, 90, 61, 0.18), 0 0 0 1px rgba(255,255,255,0.2);
+    border-color: var(--sage);
+}
+
+.wellness-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--warm-brown);
+    margin: 0;
+}
+
+.wellness-card p {
+    color: var(--sage-dark);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.wellness-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    color: white;
+}
+
+.wellness-badge.calming { background: linear-gradient(135deg, var(--sage) 0%, var(--forest) 100%); }
+.wellness-badge.grounding { background: linear-gradient(135deg, #6B7280 0%, #374151 100%); }
+.wellness-badge.body { background: linear-gradient(135deg, #5B3A8C 0%, #3D2660 100%); }
+.wellness-badge.craving { background: linear-gradient(135deg, var(--terracotta) 0%, var(--rust) 100%); }
+.wellness-badge.relaxation { background: linear-gradient(135deg, #1E3A5F 0%, #15294A 100%); }
+.wellness-badge.compassion { background: linear-gradient(135deg, #C9527A 0%, #9B3A5C 100%); }
+
+.wellness-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+}
+
+.wellness-duration {
+    font-size: 0.8rem;
+    color: var(--sage-dark);
+    font-weight: 500;
+}
+
+.wellness-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.65rem;
+    border-radius: 20px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.wellness-tag.calming { background: rgba(45, 90, 61, 0.12); color: var(--forest); }
+.wellness-tag.grounding { background: rgba(107, 114, 128, 0.12); color: #374151; }
+.wellness-tag.body { background: rgba(91, 58, 140, 0.12); color: #5B3A8C; }
+.wellness-tag.craving { background: rgba(191, 106, 58, 0.12); color: var(--rust); }
+.wellness-tag.relaxation { background: rgba(30, 58, 95, 0.12); color: #1E3A5F; }
+.wellness-tag.compassion { background: rgba(201, 82, 122, 0.12); color: #9B3A5C; }

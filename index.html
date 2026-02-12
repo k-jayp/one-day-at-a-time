@@ -63,7 +63,8 @@
             <li><a data-page="jft">Just for Today</a></li>
             <li><a data-page="gratitude">Gratitude</a></li>
             <li><a data-page="journal">Journal</a></li>
-            <li><a data-page="support">Support</a></li>
+            <li><a data-page="support">Mona</a></li>
+            <li><a data-page="wellness">Wellness</a></li>
             <li><a data-page="resources">Resources</a></li>
             <li><a data-page="community">Community</a></li>
         </ul>
@@ -435,18 +436,13 @@
                     </button>
                 </div>
                 <div class="guided-exercises" id="guidedExercises" style="display: none;">
-                    <button class="exercise-btn" onclick="startGuidedExercise('breathing')">
-                        Breathing
-                    </button>
-                    <button class="exercise-btn" onclick="startGuidedExercise('grounding')">
-                        Grounding
-                    </button>
-                    <button class="exercise-btn" onclick="startGuidedExercise('bodyscan')">
-                        Body Scan
-                    </button>
-                    <button class="exercise-btn" onclick="startGuidedExercise('urgesurf')">
-                        Urge Surfing
-                    </button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('breathing')">Breathing</button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('grounding')">Grounding</button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('bodyscan')">Body Scan</button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('urgesurf')">Urge Surfing</button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('pmr')">Muscle Relax</button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('lovingkindness')">Loving-Kindness</button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('visualization')">Visualization</button>
                 </div>
                 <div class="quick-prompts" id="quickPrompts">
                     <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m having a craving right now')">Having a craving</button>
@@ -473,6 +469,102 @@
                         </svg>
                     </button>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wellness Toolkit Page -->
+    <section id="wellness" class="page">
+        <div class="wellness-container">
+            <div class="page-header">
+                <h2>Wellness Toolkit</h2>
+                <p>Guided exercises for mind, body, and recovery</p>
+            </div>
+
+            <div class="wellness-grid">
+                <button class="wellness-card" onclick="openMeditationOverlay('breathing')">
+                    <div class="wellness-badge calming">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                    </div>
+                    <h3>4-7-8 Breathing</h3>
+                    <p>A calming breath pattern to reduce anxiety and restore balance</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~2 min</span>
+                        <span class="wellness-tag calming">Calming</span>
+                    </div>
+                </button>
+
+                <button class="wellness-card" onclick="openMeditationOverlay('grounding')">
+                    <div class="wellness-badge grounding">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V2M2 12h20M7 7l10 10M17 7L7 17"/></svg>
+                    </div>
+                    <h3>5-4-3-2-1 Grounding</h3>
+                    <p>Engage your senses to anchor yourself in the present moment</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">Self-paced</span>
+                        <span class="wellness-tag grounding">Grounding</span>
+                    </div>
+                </button>
+
+                <button class="wellness-card" onclick="openMeditationOverlay('bodyscan')">
+                    <div class="wellness-badge body">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/></svg>
+                    </div>
+                    <h3>Body Scan</h3>
+                    <p>Slowly release tension from head to toe with guided awareness</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~1.5 min</span>
+                        <span class="wellness-tag body">Body</span>
+                    </div>
+                </button>
+
+                <button class="wellness-card" onclick="openMeditationOverlay('urgesurf')">
+                    <div class="wellness-badge craving">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12c2-3 4-5 6-5s4 4 6 4 4-4 6-4 2 2 2 5"/><path d="M2 20c2-3 4-5 6-5s4 4 6 4 4-4 6-4"/></svg>
+                    </div>
+                    <h3>Urge Surfing</h3>
+                    <p>Ride the wave of a craving without acting on it</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~2 min</span>
+                        <span class="wellness-tag craving">Craving</span>
+                    </div>
+                </button>
+
+                <button class="wellness-card" onclick="openMeditationOverlay('pmr')">
+                    <div class="wellness-badge relaxation">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <h3>Muscle Relaxation</h3>
+                    <p>Progressively tense and release muscle groups to melt away stress</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~1.5 min</span>
+                        <span class="wellness-tag relaxation">Relaxation</span>
+                    </div>
+                </button>
+
+                <button class="wellness-card" onclick="openMeditationOverlay('lovingkindness')">
+                    <div class="wellness-badge compassion">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <h3>Loving-Kindness</h3>
+                    <p>Cultivate compassion for yourself and others through guided phrases</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~2 min</span>
+                        <span class="wellness-tag compassion">Compassion</span>
+                    </div>
+                </button>
+
+                <button class="wellness-card" onclick="openMeditationOverlay('visualization')">
+                    <div class="wellness-badge calming">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    </div>
+                    <h3>Safe Place</h3>
+                    <p>Visualize a peaceful sanctuary to find calm and safety within</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~1.5 min</span>
+                        <span class="wellness-tag calming">Calming</span>
+                    </div>
+                </button>
             </div>
         </div>
     </section>
