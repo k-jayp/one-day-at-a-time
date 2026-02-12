@@ -1,0 +1,774 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    onAuthStateChanged,
+    signOut,
+    updateProfile
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    getDocs,
+    deleteDoc,
+    serverTimestamp,
+    limit
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCPpKot45iQ98d-ttTjNN-eK3yCrB3N4so",
+    authDomain: "one-day-at-a-time-1aa24.firebaseapp.com",
+    projectId: "one-day-at-a-time-1aa24",
+    storageBucket: "one-day-at-a-time-1aa24.firebasestorage.app",
+    messagingSenderId: "175811323890",
+    appId: "1:175811323890:web:a25bd2f4352ae67a8bad6b",
+    measurementId: "G-DL2TB10RC3"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const googleProvider = new GoogleAuthProvider();
+
+let currentUser = null;
+
+// Make currentUser accessible globally
+window.getCurrentUser = () => currentUser;
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    updateUIForAuthState(user);
+    if (user) {
+        loadUserData();
+    }
+});
+
+function updateUIForAuthState(user) {
+    // Unified nav elements
+    const avatarWrapper = document.getElementById('avatarDropdownWrapper');
+    const signInBtn = document.getElementById('signInBtn');
+    // Content sections
+    const cleanTimeSection = document.getElementById('cleanTimeSection');
+    const cleanTimePrompt = document.getElementById('cleanTimePrompt');
+    const gratitudeFormSection = document.getElementById('gratitudeFormSection');
+    const gratitudeSignInPrompt = document.getElementById('gratitudeSignInPrompt');
+    const pastEntriesSection = document.getElementById('pastEntriesSection');
+    const journalFormSection = document.getElementById('journalFormSection');
+    const journalSignInPrompt = document.getElementById('journalSignInPrompt');
+    const journalEntriesSection = document.getElementById('journalEntriesSection');
+    const welcomeUser = document.getElementById('welcomeUser');
+    // Community wall elements
+    const wallPostForm = document.getElementById('wallPostForm');
+    const wallSignInPrompt = document.getElementById('wallSignInPrompt');
+
+    if (user) {
+        // Show signed-in UI
+        avatarWrapper.style.display = 'block';
+        signInBtn.style.display = 'none';
+
+        // Set avatar initial and dropdown info
+        const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
+        document.getElementById('avatarTrigger').textContent = initial;
+        document.getElementById('avatarDropdownName').textContent = user.displayName || 'Recovery Friend';
+        document.getElementById('avatarDropdownEmail').textContent = user.email || '';
+
+        // Welcome message
+        welcomeUser.textContent = `Welcome back, ${user.displayName || 'friend'}!`;
+
+        // Show logged-in content
+        cleanTimeSection.style.display = 'block';
+        cleanTimePrompt.style.display = 'none';
+        gratitudeFormSection.style.display = 'block';
+        gratitudeSignInPrompt.style.display = 'none';
+        pastEntriesSection.style.display = 'block';
+        journalFormSection.style.display = 'block';
+        journalSignInPrompt.style.display = 'none';
+        journalEntriesSection.style.display = 'block';
+        if (wallPostForm) wallPostForm.style.display = 'block';
+        if (wallSignInPrompt) wallSignInPrompt.style.display = 'none';
+
+        // Navigate to appropriate page
+        const hash = window.location.hash;
+        if (hash.startsWith('#shared?data=')) {
+            handleSharedView();
+        } else if (hash === '#auth') {
+            showPage('home');
+        }
+    } else {
+        // Show signed-out UI
+        avatarWrapper.style.display = 'none';
+        signInBtn.style.display = 'block';
+
+        // Clear welcome message
+        welcomeUser.textContent = '';
+
+        // Show signed-out content
+        cleanTimeSection.style.display = 'none';
+        cleanTimePrompt.style.display = 'block';
+        gratitudeFormSection.style.display = 'none';
+        gratitudeSignInPrompt.style.display = 'block';
+        pastEntriesSection.style.display = 'none';
+        journalFormSection.style.display = 'none';
+        journalSignInPrompt.style.display = 'block';
+        journalEntriesSection.style.display = 'none';
+        if (wallPostForm) wallPostForm.style.display = 'none';
+        if (wallSignInPrompt) wallSignInPrompt.style.display = 'block';
+
+        // Handle shared view (allow without auth)
+        const hash = window.location.hash;
+        if (hash.startsWith('#shared?data=')) {
+            handleSharedView();
+        }
+    }
+}
+
+window.signUpWithEmail = async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+    
+    try {
+        hideAuthError();
+        
+        // Execute reCAPTCHA Enterprise verification
+        const recaptchaToken = await new Promise((resolve, reject) => {
+            grecaptcha.enterprise.ready(async () => {
+                try {
+                    const token = await grecaptcha.enterprise.execute(
+                        '6LfUIVksAAAAAKznNk7dviglWBcLxX_s054Kuw5M', 
+                        { action: 'signup' }
+                    );
+                    resolve(token);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
+        
+        if (!recaptchaToken) {
+            showAuthError('Security verification failed. Please try again.');
+            return;
+        }
+        
+        // Proceed with account creation
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name });
+        showToast('Account created! Welcome! 🎉');
+        showPage('home');
+    } catch (error) {
+        if (error.message?.includes('reCAPTCHA') || error.message?.includes('grecaptcha')) {
+            showAuthError('Security verification failed. Please refresh and try again.');
+        } else {
+            showAuthError(getErrorMessage(error.code));
+        }
+    }
+}
+
+window.signInWithEmail = async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('signinEmail').value;
+    const password = document.getElementById('signinPassword').value;
+    
+    try {
+        hideAuthError();
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast('Welcome back! 🙏');
+        showPage('home');
+    } catch (error) {
+        showAuthError(getErrorMessage(error.code));
+    }
+}
+
+window.signInWithGoogle = async function() {
+    try {
+        hideAuthError();
+        await signInWithPopup(auth, googleProvider);
+        showToast('Welcome! 🙏');
+        showPage('home');
+    } catch (error) {
+        console.error('Google sign-in error:', error.code, error.message);
+        showAuthError(getErrorMessage(error.code));
+    }
+}
+
+window.signOutUser = async function() {
+    try {
+        await signOut(auth);
+        showToast('Signed out. Take care! 💚');
+        showPage('home');
+    } catch (error) {
+        showToast('Error signing out');
+    }
+}
+
+async function loadUserData() {
+    if (!currentUser) return;
+    await loadCleanDate();
+    await loadGratitudeEntries();
+    await loadJournalEntries();
+    await loadCheckinWidget();
+}
+
+async function loadCleanDate() {
+    if (!currentUser) return;
+    try {
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().cleanDate) {
+            updateCleanTimeDisplay(docSnap.data().cleanDate);
+            updateStreakDisplay(docSnap.data().cleanDate);
+        } else {
+            document.getElementById('cleanTimeDisplay').textContent = 'Set your date →';
+        }
+    } catch (error) {
+        console.error('Error loading clean date:', error);
+    }
+}
+
+window.saveCleanDate = async function() {
+    if (!currentUser) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return;
+    }
+    const dateInput = document.getElementById('cleanDateInput').value;
+    if (!dateInput) {
+        showToast('Please select a date');
+        return;
+    }
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), { cleanDate: dateInput }, { merge: true });
+        updateCleanTimeDisplay(dateInput);
+        updateStreakDisplay(dateInput);
+        document.getElementById('cleanDateSetup').classList.remove('show');
+        showToast('Sobriety date saved! 🎉');
+    } catch (error) {
+        showToast('Error saving clean date');
+        console.error(error);
+    }
+}
+
+function updateCleanTimeDisplay(cleanDate) {
+    document.getElementById('cleanTimeDisplay').textContent = calculateCleanTime(cleanDate);
+}
+
+function calculateCleanTime(cleanDate) {
+    const now = new Date();
+    const clean = new Date(cleanDate);
+    const diff = now - clean;
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const years = Math.floor(days / 365);
+    const months = Math.floor((days % 365) / 30);
+    const remainingDays = days % 30;
+    
+    if (years > 0) return `${years}y ${months}m ${remainingDays}d`;
+    if (months > 0) return `${months}m ${remainingDays}d`;
+    return `${days} days`;
+}
+
+window.toggleCleanDateSetup = function() {
+    if (!currentUser) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return;
+    }
+    document.getElementById('cleanDateSetup').classList.toggle('show');
+}
+
+async function loadGratitudeEntries() {
+    if (!currentUser) return;
+    const container = document.getElementById('entriesGrid');
+    
+    try {
+        const q = query(collection(db, 'users', currentUser.uid, 'gratitude'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            container.innerHTML = '<p style="color: var(--sage-dark); text-align: center; padding: 2rem;">No entries yet. Start by writing what you\'re grateful for today!</p>';
+            return;
+        }
+        
+        let html = '';
+        querySnapshot.forEach((doc) => {
+            const entry = doc.data();
+            const date = entry.createdAt?.toDate() || new Date();
+            const dateStr = date.toISOString();
+            // Store items as escaped JSON for the share function
+            const itemsJson = JSON.stringify(entry.items).replace(/'/g, "\\'");
+            html += `
+                <div class="entry-card">
+                    <div class="entry-date">${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <ul class="entry-list">${entry.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+                    <div class="entry-actions">
+                        <button class="share-entry-btn" onclick="shareGratitudeEntry('${doc.id}', '${dateStr}')">Share</button>
+                        <button class="delete-entry-btn" onclick="deleteGratitudeEntry('${doc.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading gratitude entries:', error);
+        container.innerHTML = '<p style="color: var(--terracotta); text-align: center; padding: 2rem;">Error loading entries</p>';
+    }
+}
+
+window.saveGratitudeEntry = async function(items) {
+    if (!currentUser) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return null;
+    }
+    try {
+        // Ensure user document exists first
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
+        
+        // Now add the gratitude entry
+        const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'gratitude'), {
+            items: items,
+            createdAt: serverTimestamp()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving gratitude:', error);
+        throw error;
+    }
+}
+
+window.deleteGratitudeEntry = async function(entryId) {
+    if (!currentUser) return;
+    if (confirm('Are you sure you want to delete this entry?')) {
+        try {
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'gratitude', entryId));
+            showToast('Entry deleted');
+            loadGratitudeEntries();
+        } catch (error) {
+            showToast('Error deleting entry');
+            console.error(error);
+        }
+    }
+}
+
+window.shareGratitudeEntry = async function(entryId, dateStr) {
+    if (!currentUser) return;
+    try {
+        // Fetch the entry from user's gratitude collection
+        const entryRef = doc(db, 'users', currentUser.uid, 'gratitude', entryId);
+        const entrySnap = await getDoc(entryRef);
+        
+        if (!entrySnap.exists()) {
+            showToast('Entry not found');
+            return;
+        }
+        
+        const entry = entrySnap.data();
+        
+        // Save to public shared collection
+        const sharedRef = await addDoc(collection(db, 'shared'), {
+            items: entry.items,
+            date: dateStr,
+            sharedBy: currentUser.uid,
+            sharedAt: serverTimestamp()
+        });
+        
+        // Create short share URL
+        const shareUrl = `${window.location.origin}${window.location.pathname}#shared?id=${sharedRef.id}`;
+        navigator.clipboard.writeText(shareUrl).then(() => showToast('Share link copied! 📋'));
+    } catch (error) {
+        showToast('Error creating share link');
+        console.error(error);
+    }
+}
+
+window.createSharedGratitude = async function(items) {
+    if (!currentUser) return null;
+    try {
+        const sharedRef = await addDoc(collection(db, 'shared'), {
+            items: items,
+            date: new Date().toISOString(),
+            sharedBy: currentUser.uid,
+            sharedAt: serverTimestamp()
+        });
+        return sharedRef.id;
+    } catch (error) {
+        console.error('Error creating shared gratitude:', error);
+        throw error;
+    }
+}
+
+async function loadJournalEntries() {
+    if (!currentUser) return;
+    const container = document.getElementById('journalEntriesContainer');
+    
+    try {
+        const q = query(collection(db, 'users', currentUser.uid, 'journal'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            container.innerHTML = '<p style="color: var(--sage-dark); text-align: center; padding: 2rem;">No journal entries yet. Start writing!</p>';
+            return;
+        }
+        
+        let html = '';
+        querySnapshot.forEach((doc) => {
+            const entry = doc.data();
+            const date = entry.createdAt?.toDate() || new Date();
+            html += `
+                <div class="journal-entry-card">
+                    <div class="journal-entry-header">
+                        <div>
+                            <h4 class="journal-entry-title">${escapeHtml(entry.title || 'Untitled')}</h4>
+                            <div class="journal-entry-date">${date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                        </div>
+                        <span class="journal-entry-mood">${entry.mood || ''}</span>
+                    </div>
+                    <p class="journal-entry-content">${escapeHtml(entry.content)}</p>
+                    <div class="entry-actions">
+                        <button class="delete-entry-btn" onclick="deleteJournalEntry('${doc.id}')">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading journal entries:', error);
+        container.innerHTML = '<p style="color: var(--terracotta); text-align: center; padding: 2rem;">Error loading entries</p>';
+    }
+}
+
+window.saveJournalEntry = async function(title, content, mood) {
+    if (!currentUser) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return null;
+    }
+    try {
+        // Ensure user document exists first
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
+        
+        // Now add the journal entry
+        const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'journal'), {
+            title: title,
+            content: content,
+            mood: mood,
+            createdAt: serverTimestamp()
+        });
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving journal:', error);
+        throw error;
+    }
+}
+
+window.deleteJournalEntry = async function(entryId) {
+    if (!currentUser) return;
+    if (confirm('Are you sure you want to delete this journal entry?')) {
+        try {
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'journal', entryId));
+            showToast('Journal entry deleted');
+            loadJournalEntries();
+        } catch (error) {
+            showToast('Error deleting entry');
+            console.error(error);
+        }
+    }
+}
+
+function getErrorMessage(code) {
+    switch (code) {
+        case 'auth/email-already-in-use': return 'This email is already registered. Try signing in.';
+        case 'auth/invalid-email': return 'Please enter a valid email address.';
+        case 'auth/weak-password': return 'Password should be at least 6 characters.';
+        case 'auth/user-not-found': return 'No account found with this email.';
+        case 'auth/wrong-password': return 'Incorrect password. Please try again.';
+        case 'auth/invalid-credential': return 'Invalid email or password.';
+        case 'auth/popup-closed-by-user': return 'Sign-in popup was closed. Please try again.';
+        case 'auth/unauthorized-domain': return 'This domain is not authorized for sign-in. Please contact support.';
+        case 'auth/popup-blocked': return 'Sign-in popup was blocked. Please allow popups for this site.';
+        case 'auth/cancelled-popup-request': return 'Sign-in was cancelled. Please try again.';
+        case 'auth/network-request-failed': return 'Network error. Please check your connection and try again.';
+        default: return 'An error occurred. Please try again.';
+    }
+}
+
+function showAuthError(message) {
+    const errorEl = document.getElementById('authError');
+    errorEl.textContent = message;
+    errorEl.classList.add('show');
+}
+
+function hideAuthError() {
+    document.getElementById('authError').classList.remove('show');
+}
+
+// Function to load shared gratitude by ID (needs Firestore access)
+window.loadSharedGratitude = async function(shareId) {
+    try {
+        const sharedRef = doc(db, 'shared', shareId);
+        const sharedSnap = await getDoc(sharedRef);
+        
+        if (!sharedSnap.exists()) {
+            return null;
+        }
+        
+        return sharedSnap.data();
+    } catch (error) {
+        console.error('Error loading shared gratitude:', error);
+        throw error;
+    }
+}
+
+window.loadGratitudeEntries = loadGratitudeEntries;
+window.loadJournalEntries = loadJournalEntries;
+
+// ========== STREAK & MILESTONE SYSTEM ==========
+const MILESTONES = [
+    { days: 1, icon: '🌱', label: '1 Day' },
+    { days: 7, icon: '🌿', label: '1 Week' },
+    { days: 30, icon: '🌳', label: '30 Days' },
+    { days: 60, icon: '🔥', label: '60 Days' },
+    { days: 90, icon: '💎', label: '90 Days' },
+    { days: 180, icon: '🌟', label: '6 Months' },
+    { days: 365, icon: '👑', label: '1 Year' },
+    { days: 730, icon: '🏆', label: '2 Years' },
+    { days: 1825, icon: '🎖️', label: '5 Years' },
+];
+
+function updateStreakDisplay(cleanDate) {
+    const container = document.getElementById('streakContainer');
+    if (!cleanDate) { container.style.display = 'none'; return; }
+    container.style.display = 'block';
+    const days = Math.floor((new Date() - new Date(cleanDate)) / (1000*60*60*24));
+    document.getElementById('streakDays').textContent = days;
+    const badgesContainer = document.getElementById('streakBadges');
+    badgesContainer.innerHTML = '';
+    MILESTONES.forEach(m => {
+        const earned = days >= m.days;
+        const badge = document.createElement('div');
+        badge.className = `milestone-badge ${earned ? 'earned' : 'unearned'}`;
+        badge.innerHTML = `<span>${m.icon}</span><span class="badge-label">${m.label}</span>`;
+        badgesContainer.appendChild(badge);
+    });
+    checkAndCelebrateMilestone(days);
+}
+window.updateStreakDisplay = updateStreakDisplay;
+
+async function checkAndCelebrateMilestone(days) {
+    if (!currentUser) return;
+    const milestone = MILESTONES.find(m => m.days === days);
+    if (!milestone) return;
+    try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const lastCelebrated = userDoc.data()?.lastCelebratedMilestone || 0;
+        if (days > lastCelebrated) {
+            await setDoc(doc(db, 'users', currentUser.uid), { lastCelebratedMilestone: days }, { merge: true });
+            triggerConfetti();
+            showToast(`Milestone reached: ${milestone.label}! ${milestone.icon}`);
+        }
+    } catch (e) { console.error('Milestone check error:', e); }
+}
+
+function triggerConfetti() {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const particles = [];
+    const colors = ['#C67B5C','#8FA68A','#D4A853','#A65D45','#E8A889','#6B8B66'];
+    for (let i = 0; i < 150; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            w: Math.random() * 10 + 5,
+            h: Math.random() * 6 + 3,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            vx: (Math.random() - 0.5) * 4,
+            vy: Math.random() * 3 + 2,
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 10,
+        });
+    }
+    let frame = 0;
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy; p.rotation += p.rotationSpeed; p.vy += 0.05;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation * Math.PI / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+            ctx.restore();
+        });
+        frame++;
+        if (frame < 180) requestAnimationFrame(animate);
+        else canvas.remove();
+    }
+    animate();
+}
+window.triggerConfetti = triggerConfetti;
+
+// ========== DAILY CHECK-IN ==========
+let selectedCheckinMood = null;
+
+window.selectCheckinMood = function(btn) {
+    document.querySelectorAll('.checkin-mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedCheckinMood = { mood: btn.dataset.mood, emoji: btn.dataset.emoji };
+    document.getElementById('checkinSubmitBtn').disabled = false;
+};
+
+window.submitCheckin = async function() {
+    if (!currentUser || !selectedCheckinMood) return;
+    const note = document.getElementById('checkinNote').value.trim();
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid, 'checkins', today), {
+            mood: selectedCheckinMood.mood,
+            emoji: selectedCheckinMood.emoji,
+            note: note,
+            date: today,
+            createdAt: serverTimestamp()
+        });
+        showToast('Check-in saved! ' + selectedCheckinMood.emoji);
+        showCheckinComplete(selectedCheckinMood.emoji);
+        loadMoodTimeline();
+    } catch (error) {
+        console.error('Error saving check-in:', error);
+        showToast('Error saving check-in');
+    }
+};
+
+function showCheckinComplete(emoji) {
+    document.getElementById('checkinForm').style.display = 'none';
+    document.getElementById('checkinAlready').style.display = 'block';
+    document.getElementById('checkinTodayMood').textContent = emoji;
+}
+
+async function loadCheckinWidget() {
+    if (!currentUser) return;
+    const widget = document.getElementById('checkinWidget');
+    widget.style.display = 'block';
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        const todayDoc = await getDoc(doc(db, 'users', currentUser.uid, 'checkins', today));
+        if (todayDoc.exists()) {
+            showCheckinComplete(todayDoc.data().emoji);
+        } else {
+            document.getElementById('checkinForm').style.display = 'block';
+            document.getElementById('checkinAlready').style.display = 'none';
+        }
+    } catch (e) { console.error('Error loading check-in:', e); }
+    loadMoodTimeline();
+}
+window.loadCheckinWidget = loadCheckinWidget;
+
+async function loadMoodTimeline() {
+    if (!currentUser) return;
+    const container = document.getElementById('moodTimeline');
+    container.innerHTML = '';
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        days.push(d.toISOString().split('T')[0]);
+    }
+    try {
+        const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        for (const dateStr of days) {
+            const checkinDoc = await getDoc(doc(db, 'users', currentUser.uid, 'checkins', dateStr));
+            const d = new Date(dateStr + 'T00:00:00');
+            const isToday = dateStr === new Date().toISOString().split('T')[0];
+            const dayEl = document.createElement('div');
+            dayEl.className = 'mood-day';
+            dayEl.innerHTML = `
+                <div class="mood-day-emoji ${isToday ? 'today' : ''}">${checkinDoc.exists() ? checkinDoc.data().emoji : '·'}</div>
+                <span class="mood-day-label">${dayNames[d.getDay()]}</span>
+            `;
+            container.appendChild(dayEl);
+        }
+    } catch (e) { console.error('Error loading mood timeline:', e); }
+}
+
+// ========== COMMUNITY WALL ==========
+async function loadCommunityWall() {
+    const feedContainer = document.getElementById('wallFeed');
+    try {
+        const q = query(collection(db, 'communityWall'), orderBy('createdAt', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            feedContainer.innerHTML = '<p style="color: var(--sage-dark); text-align: center; padding: 2rem; column-span: all;">Be the first to share a word of encouragement!</p>';
+            return;
+        }
+        let html = '';
+        snapshot.forEach(d => {
+            const data = d.data();
+            const date = data.createdAt?.toDate();
+            const timeAgo = date ? getTimeAgo(date) : '';
+            html += `
+                <div class="wall-message">
+                    <p class="wall-message-text">${escapeHtml(data.message)}</p>
+                    <div class="wall-message-footer">
+                        <span>${timeAgo}</span>
+                        <span class="wall-message-mood">${data.mood || ''}</span>
+                    </div>
+                </div>
+            `;
+        });
+        feedContainer.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading community wall:', error);
+        feedContainer.innerHTML = '<p style="color: var(--terracotta); text-align: center;">Error loading messages</p>';
+    }
+}
+window.loadCommunityWall = loadCommunityWall;
+
+window.submitWallPost = async function() {
+    if (!currentUser) { showPage('auth'); return; }
+    const input = document.getElementById('wallPostInput');
+    const message = input.value.trim();
+    if (!message || message.length > 280) return;
+    try {
+        await addDoc(collection(db, 'communityWall'), {
+            message: message,
+            mood: window._selectedWallMood || '',
+            createdAt: serverTimestamp()
+        });
+        input.value = '';
+        document.querySelectorAll('.wall-mood-btn').forEach(b => b.classList.remove('selected'));
+        window._selectedWallMood = '';
+        document.getElementById('wallCharCount').textContent = '0/280';
+        showToast('Message shared! Thank you for the encouragement 💚');
+        loadCommunityWall();
+    } catch (error) {
+        console.error('Error posting to wall:', error);
+        showToast('Error sharing message');
+    }
+};
+
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return 'just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + 'm ago';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + 'h ago';
+    const d = Math.floor(hours / 24);
+    if (d < 7) return d + 'd ago';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+window.getTimeAgo = getTimeAgo;

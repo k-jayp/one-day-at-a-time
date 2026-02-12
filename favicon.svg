@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#8FA68A"/>
+  
+  <!-- Stem -->
+  <path d="M16 26 Q16 18 16 14" stroke="#FDF6E3" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  
+  <!-- Left leaf -->
+  <path d="M16 16 Q10 14 8 8 Q14 10 16 16" fill="#FDF6E3"/>
+  
+  <!-- Right leaf -->
+  <path d="M16 12 Q22 10 24 5 Q18 7 16 12" fill="#FDF6E3"/>
+  
+  <!-- Small soil/ground arc -->
+  <path d="M11 26 Q16 28 21 26" stroke="#5C4A3D" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

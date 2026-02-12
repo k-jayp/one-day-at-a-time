@@ -1,0 +1,300 @@
+/* ========== FULL-SCREEN MEDITATION OVERLAY ========== */
+#meditationOverlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(ellipse at center, rgba(30, 40, 30, 0.92) 0%, rgba(20, 16, 12, 0.97) 100%);
+    z-index: 5000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    overflow: hidden;
+}
+
+#meditationOverlay.active {
+    opacity: 1;
+}
+
+/* Shared controls */
+.med-close-btn,
+.med-mute-btn {
+    position: absolute;
+    top: 1.5rem;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.7);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 5001;
+}
+
+.med-close-btn { right: 1.5rem; }
+.med-mute-btn { left: 1.5rem; }
+
+.med-close-btn:hover,
+.med-mute-btn:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    transform: scale(1.05);
+}
+
+.med-phase-label {
+    position: absolute;
+    top: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.4);
+}
+
+.med-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 200px;
+}
+
+.med-instruction {
+    font-family: var(--font-heading);
+    font-size: clamp(1.4rem, 5vw, 2.4rem);
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    transition: opacity 0.5s ease;
+    padding: 0 2rem;
+    max-width: 600px;
+}
+
+.med-sub-instruction {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    transition: opacity 0.5s ease;
+    padding: 0 2rem;
+    min-height: 1.5em;
+}
+
+.med-counter {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+}
+
+.med-progress {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 3px;
+    background: rgba(255,255,255,0.08);
+}
+
+.med-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--terracotta), var(--burnt-sienna));
+    transition: width 0.5s ease;
+    border-radius: 0 2px 2px 0;
+}
+
+@keyframes medFadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.med-fade-in {
+    animation: medFadeIn 0.6s ease forwards;
+}
+
+/* Completion state */
+.med-complete-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    animation: medFadeIn 0.6s ease forwards;
+}
+
+/* ---- Breathing Orb ---- */
+.breathing-orb {
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%,
+        rgba(74, 124, 89, 0.95),
+        rgba(45, 90, 61, 0.8),
+        rgba(30, 77, 46, 0.6));
+    box-shadow:
+        0 0 60px rgba(74, 124, 89, 0.3),
+        0 0 120px rgba(74, 124, 89, 0.15),
+        inset 0 0 30px rgba(255,255,255,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.breathing-orb.inhale {
+    animation: orbInhale 4s ease-in-out forwards;
+}
+
+.breathing-orb.hold {
+    animation: orbHold 7s ease-in-out;
+}
+
+.breathing-orb.exhale {
+    animation: orbExhale 8s ease-in-out forwards;
+}
+
+@keyframes orbInhale {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 60px rgba(74,124,89,0.3), 0 0 120px rgba(74,124,89,0.15);
+    }
+    to {
+        transform: scale(1.8);
+        box-shadow: 0 0 100px rgba(74,124,89,0.5), 0 0 200px rgba(74,124,89,0.25), 0 0 300px rgba(74,124,89,0.1);
+    }
+}
+
+@keyframes orbHold {
+    0%, 100% { transform: scale(1.8); box-shadow: 0 0 100px rgba(74,124,89,0.5), 0 0 200px rgba(74,124,89,0.25); }
+    50% { transform: scale(1.85); box-shadow: 0 0 110px rgba(74,124,89,0.55), 0 0 220px rgba(74,124,89,0.28); }
+}
+
+@keyframes orbExhale {
+    from {
+        transform: scale(1.8);
+        box-shadow: 0 0 100px rgba(74,124,89,0.5), 0 0 200px rgba(74,124,89,0.25);
+    }
+    to {
+        transform: scale(1);
+        box-shadow: 0 0 40px rgba(74,124,89,0.25), 0 0 80px rgba(74,124,89,0.1);
+    }
+}
+
+/* Countdown ring around orb */
+.breathing-ring {
+    position: absolute;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.06);
+}
+
+/* ---- Grounding Senses ---- */
+.grounding-step {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+}
+
+.grounding-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.grounding-items {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 1.5rem 0 1rem;
+}
+
+.grounding-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    background: transparent;
+    transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.grounding-dot.filled {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    box-shadow: 0 0 12px rgba(191, 106, 58, 0.5);
+    transform: scale(1.15);
+}
+
+.grounding-tap-hint {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 0.5rem;
+    animation: gentlePulse 2s ease-in-out infinite;
+}
+
+@keyframes gentlePulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.7; }
+}
+
+/* Grounding progress segments */
+.grounding-progress {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.grounding-segment {
+    width: 40px; height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.12);
+    transition: background 0.4s ease;
+}
+
+.grounding-segment.done {
+    background: var(--sage);
+}
+
+.grounding-segment.active {
+    background: var(--terracotta);
+}
+
+/* ---- Body Scan ---- */
+.bodyscan-figure {
+    max-height: 55vh;
+    width: auto;
+    max-width: 200px;
+}
+
+.bodyscan-region {
+    fill: rgba(255,255,255,0.1);
+    stroke: rgba(255,255,255,0.15);
+    stroke-width: 0.5;
+    transition: all 0.8s ease;
+}
+
+.bodyscan-region.active {
+    fill: rgba(74, 124, 89, 0.45);
+    stroke: rgba(74, 124, 89, 0.8);
+    stroke-width: 1;
+    filter: drop-shadow(0 0 15px rgba(74, 124, 89, 0.5)) drop-shadow(0 0 30px rgba(74, 124, 89, 0.25));
+}
+
+/* ---- Urge Surfing Wave ---- */
+.wave-canvas {
+    border-radius: 12px;
+    max-width: 100%;
+}
+
+/* ========== END MEDITATION OVERLAY ========== */

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We Do Recover | One Day at a Time</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PQHXP9Z4DC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PQHXP9Z4DC');
+    </script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=6LfUIVksAAAAAKznNk7dviglWBcLxX_s054Kuw5M"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Open+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/meditation.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <nav>
+        <div class="logo" onclick="showPage('home')">
+            <div class="logo-main">We Do Recover</div>
+            <div class="logo-sub">One Day at a Time</div>
+        </div>
+        <ul class="nav-links" id="navLinks">
+            <li><a class="active" data-page="home">Home</a></li>
+            <li><a data-page="jft">Just for Today</a></li>
+            <li><a data-page="gratitude">Gratitude</a></li>
+            <li><a data-page="journal">Journal</a></li>
+            <li><a data-page="support">Support</a></li>
+            <li><a data-page="resources">Resources</a></li>
+            <li><a data-page="community">Community</a></li>
+        </ul>
+        <!-- Sign In Button (shown when signed out) -->
+        <button class="sign-in-btn" id="signInBtn" style="display: none;" onclick="showPage('auth')">Sign In</button>
+        <!-- Avatar Dropdown (shown when signed in) -->
+        <div class="avatar-dropdown-wrapper" id="avatarDropdownWrapper">
+            <button class="avatar-trigger" id="avatarTrigger" onclick="toggleAvatarDropdown()"></button>
+            <div class="avatar-dropdown" id="avatarDropdown">
+                <div class="avatar-dropdown-info">
+                    <div class="avatar-dropdown-name" id="avatarDropdownName"></div>
+                    <div class="avatar-dropdown-email" id="avatarDropdownEmail"></div>
+                </div>
+                <button class="sign-out-btn" onclick="signOutUser()">Sign Out</button>
+            </div>
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- Auth Page -->
+    <section id="auth" class="page">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>Welcome</h2>
+                    <p>Sign in to save your recovery journey</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</button>
+                    <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+                </div>
+
+                <div class="auth-error" id="authError"></div>
+
+                <form class="auth-form" id="signinForm" onsubmit="signInWithEmail(event)">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signinEmail" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signinPassword" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+                </form>
+
+                <form class="auth-form hidden" id="signupForm" onsubmit="signUpWithEmail(event)">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="signupName" required placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" required placeholder="your@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" required minlength="6" placeholder="At least 6 characters">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                    <p class="recaptcha-notice">
+                        Protected by reCAPTCHA.
+                        <a href="https://policies.google.com/privacy" target="_blank">Privacy</a> ·
+                        <a href="https://policies.google.com/terms" target="_blank">Terms</a>
+                    </p>
+                </form>
+
+                <div class="divider">or</div>
+
+                <button class="google-btn" onclick="signInWithGoogle()">
+                    <svg viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Home Page -->
+    <section id="home" class="page">
+        <div class="hero">
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+            <div class="floating-shape shape-3"></div>
+            <div class="hero-content">
+                <p class="welcome-user" id="welcomeUser"></p>
+                <h1>Recovery is a <span>journey</span>, not a destination</h1>
+                <p class="hero-tagline">Welcome to my space of healing, growth, and gratitude</p>
+
+                <!-- Recovery time display for logged in users -->
+                <div id="cleanTimeSection" style="display: none;">
+                    <div class="clean-time-display" onclick="toggleCleanDateSetup()" style="cursor: pointer;">
+                        <h3>Time in Recovery</h3>
+                        <div class="time" id="cleanTimeDisplay">Set your date →</div>
+                    </div>
+
+                    <div class="clean-date-setup" id="cleanDateSetup">
+                        <label>Set your sobriety date:</label>
+                        <input type="date" id="cleanDateInput">
+                        <button onclick="saveCleanDate()" class="btn btn-primary" style="margin-left: 0.5rem;">Save</button>
+                    </div>
+                </div>
+
+                <!-- Prompt for non-logged in users -->
+                <div id="cleanTimePrompt" style="display: none; margin-bottom: 2rem;">
+                    <div class="sign-in-prompt" style="display: inline-block; padding: 1.5rem 2.5rem;">
+                        <p style="margin-bottom: 1rem;">🕐 Track your time in recovery</p>
+                        <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Start</button>
+                    </div>
+                </div>
+
+                <!-- Streak & Milestones -->
+                <div class="streak-container" id="streakContainer" style="display: none;">
+                    <div class="streak-number" id="streakDays">0</div>
+                    <div class="streak-label">days of recovery</div>
+                    <div class="streak-badges" id="streakBadges"></div>
+                </div>
+
+                <!-- Daily Check-in Widget -->
+                <div class="checkin-widget" id="checkinWidget" style="display: none;">
+                    <h3>How are you today?</h3>
+                    <div id="checkinForm">
+                        <div class="checkin-moods" id="checkinMoods">
+                            <button class="checkin-mood-btn" data-mood="great" data-emoji="😊" onclick="selectCheckinMood(this)">😊</button>
+                            <button class="checkin-mood-btn" data-mood="good" data-emoji="🙂" onclick="selectCheckinMood(this)">🙂</button>
+                            <button class="checkin-mood-btn" data-mood="okay" data-emoji="😐" onclick="selectCheckinMood(this)">😐</button>
+                            <button class="checkin-mood-btn" data-mood="tough" data-emoji="😔" onclick="selectCheckinMood(this)">😔</button>
+                            <button class="checkin-mood-btn" data-mood="struggling" data-emoji="😢" onclick="selectCheckinMood(this)">😢</button>
+                            <button class="checkin-mood-btn" data-mood="grateful" data-emoji="🙏" onclick="selectCheckinMood(this)">🙏</button>
+                            <button class="checkin-mood-btn" data-mood="strong" data-emoji="💪" onclick="selectCheckinMood(this)">💪</button>
+                        </div>
+                        <textarea class="checkin-note" id="checkinNote" placeholder="Optional: a quick note about how you're feeling..." rows="2"></textarea>
+                        <button class="btn btn-primary" id="checkinSubmitBtn" onclick="submitCheckin()" disabled>Check In</button>
+                    </div>
+                    <div id="checkinAlready" class="checkin-already" style="display: none;">
+                        <p>You've checked in today! <span id="checkinTodayMood"></span></p>
+                    </div>
+                    <div class="mood-timeline" id="moodTimeline"></div>
+                </div>
+
+                <!-- Motivational Quote -->
+                <div class="daily-quote" id="dailyQuote">
+                    <blockquote id="quoteText"></blockquote>
+                    <cite id="quoteAuthor"></cite>
+                </div>
+
+                <div class="hero-cta">
+                    <a class="btn btn-primary" onclick="showPage('gratitude')">Write Gratitude</a>
+                    <a class="btn btn-secondary" onclick="showPage('jft')">Today's Meditation</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Just for Today Page -->
+    <section id="jft" class="page">
+        <div class="jft-container">
+            <div class="page-header">
+                <h2>Just for Today</h2>
+                <p>Daily meditation for recovery</p>
+            </div>
+
+            <div class="jft-card">
+                <div class="jft-date" id="jftDate"></div>
+
+                <!-- Loading state -->
+                <div id="jftLoading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- Content container (hidden until loaded) -->
+                <div id="jftContentContainer" style="display: none;">
+                    <h3 id="jftTitle" style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--warm-brown); margin-bottom: 1.5rem;"></h3>
+
+                    <div id="jftQuote" style="background: var(--sand); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; font-style: italic;">
+                        <p id="jftQuoteText" style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--warm-brown); margin-bottom: 0.5rem;"></p>
+                        <p id="jftQuoteSource" style="font-size: 0.9rem; color: var(--sage-dark); text-align: right;"></p>
+                    </div>
+
+                    <div id="jftBody" class="jft-content" style="white-space: pre-line;"></div>
+
+                    <div id="jftThought" style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%); border-radius: 12px; color: white;">
+                        <p style="font-family: var(--font-serif); font-size: 1.2rem;"></p>
+                    </div>
+                </div>
+
+                <!-- Error/fallback state -->
+                <div id="jftError" style="display: none;">
+                    <div class="jft-content">
+                        <p><em>"Just for today, I will try to live through this day only, and not tackle all my problems at once."</em></p>
+                        <br>
+                        <p>Click the link below to read today's full meditation from NA World Services:</p>
+                    </div>
+                </div>
+
+                <a href="https://www.jftna.org/jft/" target="_blank" rel="noopener" class="jft-link">
+                    Read on Official Site
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <p style="color: var(--sage-dark); font-size: 0.9rem;">Meditation content © NA World Services, Inc.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gratitude Page -->
+    <section id="gratitude" class="page">
+        <div class="gratitude-container">
+            <div class="page-header">
+                <h2>Gratitude List</h2>
+                <p>What are you grateful for today?</p>
+            </div>
+
+            <!-- Sign in prompt for non-logged in users -->
+            <div class="sign-in-prompt" id="gratitudeSignInPrompt" style="display: none;">
+                <h4>✨ Start Your Gratitude Practice</h4>
+                <p>Sign in to write and save your daily gratitude lists, and share them with your fellows.</p>
+                <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Write</button>
+            </div>
+
+            <!-- Gratitude form for logged in users -->
+            <div class="gratitude-input-section" id="gratitudeFormSection" style="display: none;">
+                <h3>✨ Today's Gratitude</h3>
+                <form class="gratitude-form" id="gratitudeForm">
+                    <div class="gratitude-items">
+                        <div class="gratitude-item-input"><span>1</span><input type="text" placeholder="I'm grateful for..." id="gratitude1"></div>
+                        <div class="gratitude-item-input"><span>2</span><input type="text" placeholder="I'm grateful for..." id="gratitude2"></div>
+                        <div class="gratitude-item-input"><span>3</span><input type="text" placeholder="I'm grateful for..." id="gratitude3"></div>
+                        <div class="gratitude-item-input"><span>4</span><input type="text" placeholder="I'm grateful for..." id="gratitude4"></div>
+                        <div class="gratitude-item-input"><span>5</span><input type="text" placeholder="I'm grateful for..." id="gratitude5"></div>
+                    </div>
+                    <div class="gratitude-actions">
+                        <button type="submit" class="btn btn-primary">Save Entry</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearGratitudeForm()">Clear</button>
+                    </div>
+                </form>
+
+                <div class="share-section" id="shareSection" style="display: none;">
+                    <h4>🔗 Share with your fellows</h4>
+                    <p style="font-size: 0.9rem; color: var(--sage-dark); margin-bottom: 1rem;">Copy this link to share your gratitude list:</p>
+                    <div class="share-link-container">
+                        <input type="text" class="share-link-input" id="shareLink" readonly>
+                        <button class="copy-btn" onclick="copyShareLink()">Copy</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Past entries (only for logged in users) -->
+            <div class="past-entries" id="pastEntriesSection" style="display: none;">
+                <h3>📚 Past Entries</h3>
+                <div class="entries-grid" id="entriesGrid">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shared Gratitude View -->
+    <section id="shared" class="page">
+        <div class="shared-view">
+            <div class="shared-card">
+                <h2>🙏 Gratitude Shared</h2>
+                <p class="shared-date" id="sharedDate"></p>
+                <ul class="shared-list" id="sharedList"></ul>
+                <div style="margin-top: 2rem;">
+                    <a class="btn btn-primary" onclick="showPage('auth')">Sign In to Write Your Own</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Journal Page -->
+    <section id="journal" class="page">
+        <div class="journal-container">
+            <div class="page-header">
+                <h2>My Journal</h2>
+                <p>A space for reflection and growth</p>
+            </div>
+
+            <!-- Sign in prompt for non-logged in users -->
+            <div class="sign-in-prompt" id="journalSignInPrompt" style="display: none;">
+                <h4>📝 Start Your Recovery Journal</h4>
+                <p>Sign in to write private journal entries, track your moods, and reflect on your journey.</p>
+                <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Write</button>
+            </div>
+
+            <!-- Journal form for logged in users -->
+            <div class="journal-editor" id="journalFormSection" style="display: none;">
+                <h3>📝 New Entry</h3>
+                <form id="journalForm">
+                    <input type="text" class="journal-title-input" id="journalTitle" placeholder="Entry title...">
+                    <div class="mood-selector">
+                        <label>How are you feeling?</label>
+                        <button type="button" class="mood-btn" data-mood="😊" onclick="selectMood(this)">😊</button>
+                        <button type="button" class="mood-btn" data-mood="😌" onclick="selectMood(this)">😌</button>
+                        <button type="button" class="mood-btn" data-mood="🤔" onclick="selectMood(this)">🤔</button>
+                        <button type="button" class="mood-btn" data-mood="😤" onclick="selectMood(this)">😤</button>
+                        <button type="button" class="mood-btn" data-mood="😢" onclick="selectMood(this)">😢</button>
+                        <button type="button" class="mood-btn" data-mood="🙏" onclick="selectMood(this)">🙏</button>
+                        <button type="button" class="mood-btn" data-mood="💪" onclick="selectMood(this)">💪</button>
+                    </div>
+                    <textarea class="journal-content-input" id="journalContent" placeholder="Write your thoughts..."></textarea>
+                    <div class="gratitude-actions">
+                        <button type="submit" class="btn btn-primary">Save Entry</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearJournalForm()">Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Past journal entries (only for logged in users) -->
+            <div class="journal-entries" id="journalEntriesSection" style="display: none;">
+                <h3>📖 Past Entries</h3>
+                <div id="journalEntriesContainer">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Chat Page -->
+    <section id="support" class="page">
+        <div class="crisis-banner">
+            🆘 In crisis? Call <a href="tel:988">988</a> (Suicide & Crisis Lifeline) or <a href="tel:1-800-662-4357">1-800-662-4357</a> (SAMHSA)
+        </div>
+        <div class="support-container">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="mona-header">
+                        <img src="mona.png" alt="Mona - Recovery Support Companion" class="mona-avatar-header">
+                        <div>
+                            <h3>🐾 Chat with Mona</h3>
+                            <p>Your recovery support companion — always here, never judges</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message system">
+                        Mona is an AI support companion inspired by a real emotional support Cavalier King Charles Spaniel. While she can offer encouragement and resources, she's not a replacement for sponsors, therapists, or medical professionals.
+                    </div>
+                    <div class="chat-message assistant">
+                        <img src="mona.png" alt="Mona" class="mona-avatar-msg">
+                        <div>Hey there, friend! 🐾 It's Mona. I'm curled up right here with you. Whether you're having a tough moment, need a little encouragement, or just want someone to sit with — I'm not going anywhere. How are you doing today?</div>
+                    </div>
+                </div>
+
+                <div class="guided-exercises">
+                    <button class="exercise-btn" onclick="startGuidedExercise('breathing')">
+                        <span class="exercise-icon">🫁</span> Breathing
+                    </button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('grounding')">
+                        <span class="exercise-icon">🌍</span> Grounding
+                    </button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('bodyscan')">
+                        <span class="exercise-icon">🧘</span> Body Scan
+                    </button>
+                    <button class="exercise-btn" onclick="startGuidedExercise('urgesurf')">
+                        <span class="exercise-icon">🌊</span> Urge Surfing
+                    </button>
+                </div>
+                <div class="quick-prompts" id="quickPrompts">
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m having a craving right now')">🫤 Having a craving</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I need some encouragement today')">💛 Need encouragement</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m feeling triggered')">⚡ Feeling triggered</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Can you help me with a gratitude reflection?')">🙏 Gratitude reflection</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Give me a recovery affirmation for today')">💪 Daily affirmation</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Can you help me find a recovery meeting near me?')">🗺️ Find a meeting</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('Celebrate a milestone with me')">🎉 Celebrate a win</button>
+                    <button class="quick-prompt-btn" onclick="sendQuickPrompt('I\'m worried about relapse. Can you help me make a plan?')">🛡️ Relapse prevention</button>
+                </div>
+
+                <div class="chat-input-area">
+                    <textarea
+                        class="chat-input"
+                        id="chatInput"
+                        placeholder="Talk to Mona..."
+                        rows="1"
+                        onkeydown="handleChatKeydown(event)"
+                    ></textarea>
+                    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Page -->
+    <section id="resources" class="page">
+        <div class="resources-container">
+            <div class="page-header">
+                <h2>Resources</h2>
+                <p>Support for your recovery journey</p>
+            </div>
+
+            <div class="resources-grid">
+                <a href="https://www.cmaboston.org/meetings" target="_blank" rel="noopener" class="resource-card">
+                    <div class="resource-icon meetings">📍</div>
+                    <h3>Find CMA Meetings</h3>
+                    <p>Find Crystal Meth Anonymous meetings near you, including virtual options.</p>
+                </a>
+
+                <a href="https://www.crystalmeth.org/" target="_blank" rel="noopener" class="resource-card">
+                    <div class="resource-icon literature">📖</div>
+                    <h3>CMA Literature</h3>
+                    <p>Access recovery literature, pamphlets, and resources from CMA.</p>
+                </a>
+
+                <a href="https://www.jftna.org/jft/" target="_blank" rel="noopener" class="resource-card">
+                    <div class="resource-icon meditation">🧘</div>
+                    <h3>Daily Meditation</h3>
+                    <p>Just for Today daily meditations from NA World Services.</p>
+                </a>
+
+                <a href="tel:1-800-662-4357" class="resource-card">
+                    <div class="resource-icon hotline">📞</div>
+                    <h3>SAMHSA Helpline</h3>
+                    <p>24/7 treatment referral and information service: 1-800-662-4357</p>
+                </a>
+            </div>
+
+            <div style="margin-top: 3rem; text-align: center;">
+                <div style="background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2rem; box-shadow: var(--glass-shadow);">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.5rem; margin-bottom: 1rem; color: var(--warm-brown);">Boston CMA Community</h3>
+                    <p style="color: var(--sage-dark); margin-bottom: 1.5rem;">Connect with your local fellowship</p>
+                    <a href="https://www.cmaboston.org" target="_blank" rel="noopener" class="btn btn-primary">Find Boston Meetings</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Wall Page -->
+    <section id="community" class="page">
+        <div class="community-container">
+            <div class="page-header">
+                <h2>Community Wall</h2>
+                <p>Anonymous words of hope and encouragement</p>
+            </div>
+
+            <div class="wall-post-form" id="wallPostForm" style="display: none;">
+                <textarea class="wall-post-input" id="wallPostInput" placeholder="Share a word of hope or encouragement..." rows="3" maxlength="280" oninput="updateWallCharCount()"></textarea>
+                <div class="wall-post-meta">
+                    <div class="wall-mood-select">
+                        <span style="font-size: 0.85rem; color: var(--sage-dark);">Mood:</span>
+                        <button class="wall-mood-btn" data-mood="🌟" onclick="selectWallMood(this)">🌟</button>
+                        <button class="wall-mood-btn" data-mood="💪" onclick="selectWallMood(this)">💪</button>
+                        <button class="wall-mood-btn" data-mood="🙏" onclick="selectWallMood(this)">🙏</button>
+                        <button class="wall-mood-btn" data-mood="❤️" onclick="selectWallMood(this)">❤️</button>
+                        <button class="wall-mood-btn" data-mood="🌈" onclick="selectWallMood(this)">🌈</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span class="wall-char-count" id="wallCharCount">0/280</span>
+                        <button class="btn btn-primary" onclick="submitWallPost()">Share</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sign-in-prompt" id="wallSignInPrompt" style="display: none;">
+                <h4>Share Your Hope</h4>
+                <p>Sign in to post anonymous encouragement to the community.</p>
+                <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Post</button>
+            </div>
+
+            <div class="wall-feed" id="wallFeed">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p class="quote">"Progress, not perfection"</p>
+        <p>Designed and developed with love by <a href="http://kidellpowell.com" target="_blank" rel="noopener" style="color: var(--terracotta); text-decoration: underline;">Kidell Powell</a> - for the recovery community</p>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+    <div id="meditationOverlay"></div>
+
+    <!-- Scripts: all type="module" ensures execution in order (firebase first) -->
+    <script type="module" src="js/firebase.js"></script>
+    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/chat.js"></script>
+    <script type="module" src="js/meditation.js"></script>
+</body>
+</html>

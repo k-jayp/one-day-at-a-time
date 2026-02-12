@@ -1,0 +1,87 @@
+/* Responsive — All @media queries consolidated */
+
+@media (max-width: 768px) {
+    /* Chat mobile */
+    .support-container {
+        padding: 1rem;
+        height: calc(100vh - 160px);
+    }
+
+    .chat-message {
+        max-width: 90%;
+    }
+
+    .quick-prompts {
+        padding: 0.75rem 1rem;
+        gap: 0.4rem;
+    }
+
+    .quick-prompt-btn {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .guided-exercises {
+        padding: 0.5rem 1rem;
+        gap: 0.4rem;
+    }
+
+    .exercise-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+    }
+
+    /* General mobile */
+    nav { padding: 1rem 1.5rem; }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(250, 246, 240, 0.95);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1rem;
+        border-bottom: 1px solid var(--sand);
+    }
+
+    .nav-links.open { display: flex; }
+
+    .mobile-menu-btn { display: block; }
+
+    .hero { padding: 2rem 1.5rem; }
+    .hero h1 { font-size: 2.5rem; }
+
+    .jft-container, .gratitude-container, .journal-container, .resources-container { padding: 1.5rem; }
+    .jft-card, .gratitude-input-section, .journal-editor { padding: 1.5rem; }
+    .page-header h2 { font-size: 2rem; }
+    .share-link-container { flex-direction: column; }
+    .auth-card { padding: 2rem 1.5rem; }
+    .avatar-dropdown { right: -0.5rem; min-width: 220px; }
+    .wall-feed { columns: 1; }
+    .community-container { padding: 1.5rem; }
+    .streak-badges { gap: 0.5rem; }
+    .milestone-badge { width: 55px; height: 55px; font-size: 1.2rem; }
+    .mood-timeline { flex-wrap: wrap; }
+    .checkin-widget { padding: 1.5rem; margin: 1.5rem 0.5rem; }
+
+    /* Meditation mobile */
+    .med-close-btn, .med-mute-btn {
+        width: 40px; height: 40px;
+        top: 1rem;
+        font-size: 1rem;
+    }
+    .med-close-btn { right: 1rem; }
+    .med-mute-btn { left: 1rem; }
+    .med-phase-label { top: 1.2rem; font-size: 0.75rem; }
+    .breathing-orb { width: 120px; height: 120px; }
+    .breathing-ring { width: 220px; height: 220px; }
+    .grounding-step { padding: 1.75rem 1.5rem; }
+    .grounding-icon { font-size: 2.5rem; }
+    .bodyscan-figure { max-height: 45vh; }
+    .med-instruction { font-size: 1.2rem; }
+}
