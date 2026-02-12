@@ -111,6 +111,19 @@
     .privacy-table { font-size: 0.8rem; }
     .privacy-table th, .privacy-table td { padding: 0.5rem 0.75rem; }
 
+    /* Events page mobile */
+    .events-container { padding: 1.5rem; }
+    .event-featured { grid-template-columns: 1fr; }
+    .event-flyer { max-width: 100%; }
+    .event-flyer img { border-radius: 24px 24px 0 0; max-height: 350px; }
+    .event-details { padding: 1.5rem; }
+    .event-details h3 { font-size: 1.3rem; }
+    .featured-event { flex-direction: column; text-align: center; padding: 1.25rem; }
+    .featured-event-content h3 { font-size: 0.95rem; }
+    .community-pinned-event { gap: 0.75rem; padding: 0.75rem 1rem; }
+    .pinned-event-thumb { width: 48px; height: 48px; }
+    .pinned-event-info strong { font-size: 0.85rem; }
+
     /* Wellness page mobile */
     .wellness-container { padding: 1.5rem; }
     .wellness-grid { grid-template-columns: 1fr; gap: 1rem; }

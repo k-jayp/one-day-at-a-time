@@ -66,6 +66,7 @@
             <li><a data-page="support">Mona</a></li>
             <li><a data-page="wellness">Wellness</a></li>
             <li><a data-page="resources">Resources</a></li>
+            <li><a data-page="events">Events</a></li>
             <li><a data-page="community">Community</a></li>
         </ul>
         <!-- Sign In Button (shown when signed out) -->
@@ -223,6 +224,16 @@
                 <div class="hero-cta">
                     <a class="btn btn-primary" onclick="showPage('gratitude')">Write Gratitude</a>
                     <a class="btn btn-secondary" onclick="showPage('jft')">Today's Meditation</a>
+                </div>
+
+                <!-- Featured Event -->
+                <div class="featured-event" onclick="showPage('events')">
+                    <div class="featured-event-badge">Upcoming</div>
+                    <div class="featured-event-content">
+                        <h3>Sunday Meeting at K-Street Clubhouse</h3>
+                        <p>Speaker Topic Meeting 6–7 PM &middot; Fellowship Movie Night 7:30–9:30 PM</p>
+                        <span class="featured-event-link">View Details &rarr;</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -693,6 +704,11 @@
                         <h3>AA Boston Resources</h3>
                         <p>Events, literature, and community resources from AA Greater Boston.</p>
                     </a>
+                    <a onclick="showPage('events')" class="resource-card" style="cursor: pointer;">
+                        <div class="resource-icon meetings">📅</div>
+                        <h3>Sunday Meeting</h3>
+                        <p>K-Street Clubhouse — Speaker Topic Meeting &amp; Fellowship Movie Night every Sunday.</p>
+                    </a>
                 </div>
                 <div class="universal-resources">
                     <h3>Crisis &amp; Support</h3>
@@ -870,12 +886,66 @@
         </div>
     </section>
 
+    <!-- Events Page -->
+    <section id="events" class="page">
+        <div class="events-container">
+            <div class="page-header">
+                <h2>Events</h2>
+                <p>Recovery meetings, gatherings, and fellowship</p>
+            </div>
+
+            <div class="events-grid">
+                <div class="event-card event-featured">
+                    <div class="event-flyer">
+                        <img src="sunday-meeting-flyer.jpg" alt="Sunday Meeting at K-Street Clubhouse — Every Sunday, Speaker Topic Meeting 6-7 PM, Fellowship Movie Night 7:30-9:30 PM" loading="lazy">
+                    </div>
+                    <div class="event-details">
+                        <div class="event-tag recurring">Every Sunday</div>
+                        <h3>K-Street Clubhouse Sunday Meeting</h3>
+                        <div class="event-info">
+                            <div class="event-info-row">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                <div>
+                                    <p><strong>6:00 PM – 7:00 PM</strong> — Speaker Topic Meeting</p>
+                                    <p><strong>7:30 PM – 9:30 PM</strong> — Fellowship Movie Night</p>
+                                </div>
+                            </div>
+                            <div class="event-info-row">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <div>
+                                    <p>60 Kilmarnock St, Suite 1000</p>
+                                    <p>Boston, MA 02215</p>
+                                </div>
+                            </div>
+                            <div class="event-info-row">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                <p>Popcorn, Pizza, Beverages, and Fellowship for all in attendance</p>
+                            </div>
+                        </div>
+                        <a href="https://maps.google.com/?q=60+Kilmarnock+St+Suite+1000+Boston+MA+02215" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top: 1rem; display: inline-block;">Get Directions</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Community Wall Page -->
     <section id="community" class="page">
         <div class="community-container">
             <div class="page-header">
                 <h2>Community Wall</h2>
                 <p>Anonymous words of hope and encouragement</p>
+            </div>
+
+            <!-- Pinned Event -->
+            <div class="community-pinned-event" onclick="showPage('events')">
+                <img src="sunday-meeting-flyer.jpg" alt="Sunday Meeting Flyer" class="pinned-event-thumb">
+                <div class="pinned-event-info">
+                    <span class="pinned-badge">Pinned</span>
+                    <strong>Sunday Meeting at K-Street Clubhouse</strong>
+                    <p>Every Sunday — Speaker Topic 6 PM &middot; Movie Night 7:30 PM</p>
+                </div>
+                <span class="pinned-event-arrow">&rarr;</span>
             </div>
 
             <div class="wall-post-form" id="wallPostForm" style="display: none;">
