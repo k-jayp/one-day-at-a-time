@@ -115,7 +115,7 @@
     .events-container { padding: 1.5rem; }
     .event-featured { grid-template-columns: 1fr; }
     .event-flyer { max-width: 100%; }
-    .event-flyer img { border-radius: 24px 24px 0 0; max-height: 350px; }
+    .event-flyer img { border-radius: 24px 24px 0 0; max-height: 400px; }
     .event-details { padding: 1.5rem; }
     .event-details h3 { font-size: 1.3rem; }
     .featured-event { flex-direction: column; text-align: center; padding: 1.25rem; }
