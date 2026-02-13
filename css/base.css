@@ -117,6 +117,7 @@ nav {
 
 .nav-links > li {
     position: relative;
+    padding: 0.5rem 0;
 }
 
 .nav-links a {
@@ -213,7 +214,7 @@ nav {
 .nav-dropdown {
     display: block;
     position: absolute;
-    top: calc(100% + 14px);
+    top: calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%) translateY(-6px);
     background: rgba(255, 255, 255, 0.96);
@@ -232,7 +233,19 @@ nav {
     transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
 }
 
+/* Invisible bridge covering the gap between trigger and dropdown */
 .nav-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: 0;
+    right: 0;
+    height: 16px;
+    background: transparent;
+}
+
+/* Small triangle arrow */
+.nav-dropdown::after {
     content: '';
     position: absolute;
     top: -6px;
