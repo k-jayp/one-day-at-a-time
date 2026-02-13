@@ -1,21 +1,61 @@
+// Parent mapping for dropdown nav highlighting
+const NAV_PARENT_MAP = {
+    'jft': true,
+    'daily-reflections': true,
+    'thought-for-the-day': true,
+    'gratitude': true,
+    'journal': true,
+    'events': true,
+    'community': true,
+};
+
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
+    const target = document.getElementById(pageId);
+    if (target) target.classList.add('active');
+
+    // Clear all nav active states
     document.querySelectorAll('.nav-links a[data-page]').forEach(link => {
         link.classList.remove('active');
         if (link.dataset.page === pageId) link.classList.add('active');
     });
+    document.querySelectorAll('.has-dropdown').forEach(dd => dd.classList.remove('active-parent'));
+
+    // Highlight parent dropdown if child page is active
+    if (NAV_PARENT_MAP[pageId]) {
+        const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
+        if (activeLink) {
+            const parentLi = activeLink.closest('.has-dropdown');
+            if (parentLi) parentLi.classList.add('active-parent');
+        }
+    }
+
+    // Close mobile menu and all dropdowns
     document.getElementById('navLinks').classList.remove('open');
+    document.querySelectorAll('.has-dropdown.open').forEach(dd => dd.classList.remove('open'));
+
     if (pageId !== 'shared') window.location.hash = pageId;
     window.scrollTo(0, 0);
+
+    // Page-specific callbacks
     if (pageId === 'community' && window.loadCommunityWall) {
         window.loadCommunityWall();
+    }
+    if (pageId === 'daily-reflections' && window.loadDailyReflections) {
+        window.loadDailyReflections();
+    }
+    if (pageId === 'thought-for-the-day' && window.loadThoughtForTheDay) {
+        window.loadThoughtForTheDay();
     }
 }
 window.showPage = showPage;
 
 function toggleMobileMenu() {
     document.getElementById('navLinks').classList.toggle('open');
+    // Close all dropdowns when closing the menu
+    if (!document.getElementById('navLinks').classList.contains('open')) {
+        document.querySelectorAll('.has-dropdown.open').forEach(dd => dd.classList.remove('open'));
+    }
 }
 window.toggleMobileMenu = toggleMobileMenu;
 
@@ -24,17 +64,37 @@ function toggleAvatarDropdown() {
 }
 window.toggleAvatarDropdown = toggleAvatarDropdown;
 
+// Close avatar dropdown and nav dropdowns on outside click
 document.addEventListener('click', (e) => {
     const wrapper = document.getElementById('avatarDropdownWrapper');
     if (wrapper && !wrapper.contains(e.target)) {
         document.getElementById('avatarDropdown').classList.remove('open');
     }
+    // Close nav dropdowns on outside click (desktop)
+    if (!e.target.closest('.has-dropdown') && !e.target.closest('.mobile-menu-btn')) {
+        document.querySelectorAll('.has-dropdown.open').forEach(dd => dd.classList.remove('open'));
+    }
 });
 
+// Page link click handlers
 document.querySelectorAll('.nav-links a[data-page]').forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
         showPage(link.dataset.page);
+    });
+});
+
+// Dropdown trigger handlers (mobile accordion)
+document.querySelectorAll('.nav-dropdown-trigger').forEach(trigger => {
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const parentLi = trigger.closest('.has-dropdown');
+        // Close other open dropdowns
+        document.querySelectorAll('.has-dropdown.open').forEach(dd => {
+            if (dd !== parentLi) dd.classList.remove('open');
+        });
+        parentLi.classList.toggle('open');
+        trigger.setAttribute('aria-expanded', parentLi.classList.contains('open') ? 'true' : 'false');
     });
 });
 
@@ -190,9 +250,93 @@ async function loadJFTContent() {
     }
 }
 
+// ========== DAILY REFLECTIONS (AA) ==========
+const DR_WORKER_URL = 'https://daily-reflections-proxy.kidell-powellj.workers.dev';
+let drLoaded = false;
+
+async function loadDailyReflections() {
+    if (drLoaded) return;
+    const loadingEl = document.getElementById('drLoading');
+    const contentEl = document.getElementById('drContentContainer');
+    const errorEl = document.getElementById('drError');
+
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('drDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+    try {
+        const response = await fetch(DR_WORKER_URL);
+        const data = await response.json();
+        if (data.success && data.content) {
+            document.getElementById('drTitle').textContent = data.title || 'Daily Reflection';
+            if (data.quote) {
+                document.getElementById('drQuoteText').textContent = '\u201C' + data.quote + '\u201D';
+                document.getElementById('drQuoteSource').textContent = data.quoteSource ? '\u2014 ' + data.quoteSource : '';
+                document.getElementById('drQuote').style.display = 'block';
+            } else {
+                document.getElementById('drQuote').style.display = 'none';
+            }
+            document.getElementById('drBody').textContent = data.content;
+            loadingEl.style.display = 'none';
+            contentEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            drLoaded = true;
+        } else {
+            throw new Error('Invalid response');
+        }
+    } catch (error) {
+        console.error('Error loading Daily Reflections:', error);
+        loadingEl.style.display = 'none';
+        contentEl.style.display = 'none';
+        errorEl.style.display = 'block';
+    }
+}
+window.loadDailyReflections = loadDailyReflections;
+
+// ========== THOUGHT FOR THE DAY (Hazelden) ==========
+const TFTD_WORKER_URL = 'https://thought-for-the-day-proxy.kidell-powellj.workers.dev';
+let tftdLoaded = false;
+
+async function loadThoughtForTheDay() {
+    if (tftdLoaded) return;
+    const loadingEl = document.getElementById('tftdLoading');
+    const contentEl = document.getElementById('tftdContentContainer');
+    const errorEl = document.getElementById('tftdError');
+
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('tftdDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+    try {
+        const response = await fetch(TFTD_WORKER_URL);
+        const data = await response.json();
+        if (data.success && data.content) {
+            document.getElementById('tftdTitle').textContent = data.title || 'Thought for the Day';
+            if (data.quote) {
+                document.getElementById('tftdQuoteText').textContent = '\u201C' + data.quote + '\u201D';
+                document.getElementById('tftdQuoteSource').textContent = data.quoteSource ? '\u2014 ' + data.quoteSource : '';
+                document.getElementById('tftdQuote').style.display = 'block';
+            } else {
+                document.getElementById('tftdQuote').style.display = 'none';
+            }
+            document.getElementById('tftdBody').textContent = data.content;
+            loadingEl.style.display = 'none';
+            contentEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            tftdLoaded = true;
+        } else {
+            throw new Error('Invalid response');
+        }
+    } catch (error) {
+        console.error('Error loading Thought for the Day:', error);
+        loadingEl.style.display = 'none';
+        contentEl.style.display = 'none';
+        errorEl.style.display = 'block';
+    }
+}
+window.loadThoughtForTheDay = loadThoughtForTheDay;
+
 document.getElementById('gratitudeForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     if (!window.getCurrentUser || !window.getCurrentUser()) {
         showToast('Please sign in first');
         showPage('auth');

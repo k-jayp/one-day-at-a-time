@@ -59,15 +59,64 @@
             <div class="logo-sub">One Day at a Time</div>
         </div>
         <ul class="nav-links" id="navLinks">
-            <li><a class="active" data-page="home">Home</a></li>
-            <li><a data-page="jft">Just for Today</a></li>
-            <li><a data-page="gratitude">Gratitude</a></li>
-            <li><a data-page="journal">Journal</a></li>
-            <li><a data-page="support">Mona</a></li>
-            <li><a data-page="wellness">Wellness</a></li>
-            <li><a data-page="resources">Resources</a></li>
-            <li><a data-page="events">Events</a></li>
-            <li><a data-page="community">Community</a></li>
+            <li>
+                <a class="active" data-page="home">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Home
+                </a>
+            </li>
+            <li class="has-dropdown">
+                <button class="nav-dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                    Daily Readings
+                    <svg class="nav-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <ul class="nav-dropdown">
+                    <li><a data-page="jft">Just for Today</a></li>
+                    <li><a data-page="daily-reflections">Daily Reflections</a></li>
+                    <li><a data-page="thought-for-the-day">Thought for the Day</a></li>
+                </ul>
+            </li>
+            <li class="has-dropdown">
+                <button class="nav-dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    My Journey
+                    <svg class="nav-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <ul class="nav-dropdown">
+                    <li><a data-page="gratitude">Gratitude List</a></li>
+                    <li><a data-page="journal">Journal Entries</a></li>
+                </ul>
+            </li>
+            <li>
+                <a data-page="support">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Mona
+                </a>
+            </li>
+            <li>
+                <a data-page="wellness">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    Wellness
+                </a>
+            </li>
+            <li>
+                <a data-page="resources">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Find Help
+                </a>
+            </li>
+            <li class="has-dropdown">
+                <button class="nav-dropdown-trigger" aria-expanded="false" aria-haspopup="true">
+                    <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Connect
+                    <svg class="nav-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <ul class="nav-dropdown">
+                    <li><a data-page="events">Events</a></li>
+                    <li><a data-page="community">Community Wall</a></li>
+                </ul>
+            </li>
         </ul>
         <!-- Sign In Button (shown when signed out) -->
         <button class="sign-in-btn" id="signInBtn" style="display: none;" onclick="showPage('auth')">Sign In</button>
@@ -302,6 +351,110 @@
         </div>
     </section>
 
+    <!-- Daily Reflections Page -->
+    <section id="daily-reflections" class="page">
+        <div class="jft-container">
+            <div class="page-header">
+                <h2>Daily Reflections</h2>
+                <p>A daily thought from AA literature</p>
+            </div>
+
+            <div class="jft-card">
+                <div class="jft-date" id="drDate"></div>
+
+                <div id="drLoading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <div id="drContentContainer" style="display: none;">
+                    <h3 id="drTitle" style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--warm-brown); margin-bottom: 1.5rem;"></h3>
+
+                    <div id="drQuote" style="background: var(--sand); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; font-style: italic;">
+                        <p id="drQuoteText" style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--warm-brown); margin-bottom: 0.5rem;"></p>
+                        <p id="drQuoteSource" style="font-size: 0.9rem; color: var(--sage-dark); text-align: right;"></p>
+                    </div>
+
+                    <div id="drBody" class="jft-content" style="white-space: pre-line;"></div>
+
+                    <div id="drThought" style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #1E3A5F 0%, #15294A 100%); border-radius: 12px; color: white; display: none;">
+                        <p style="font-family: var(--font-serif); font-size: 1.2rem;"></p>
+                    </div>
+                </div>
+
+                <div id="drError" style="display: none;">
+                    <div class="jft-content">
+                        <p><em>Today's Daily Reflection is available on the AA website.</em></p>
+                        <br>
+                        <p>Click the link below to read today's reflection from AA World Services:</p>
+                    </div>
+                </div>
+
+                <a href="https://www.aa.org/daily-reflections" target="_blank" rel="noopener" class="jft-link">
+                    Read on AA.org
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <p style="color: var(--sage-dark); font-size: 0.9rem;">Content from AA World Services, Inc.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Thought for the Day Page -->
+    <section id="thought-for-the-day" class="page">
+        <div class="jft-container">
+            <div class="page-header">
+                <h2>Thought for the Day</h2>
+                <p>From "Twenty-Four Hours a Day"</p>
+            </div>
+
+            <div class="jft-card">
+                <div class="jft-date" id="tftdDate"></div>
+
+                <div id="tftdLoading" class="loading">
+                    <div class="spinner"></div>
+                </div>
+
+                <div id="tftdContentContainer" style="display: none;">
+                    <h3 id="tftdTitle" style="font-family: var(--font-heading); font-size: 1.8rem; color: var(--warm-brown); margin-bottom: 1.5rem;"></h3>
+
+                    <div id="tftdQuote" style="background: var(--sand); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; font-style: italic;">
+                        <p id="tftdQuoteText" style="font-family: var(--font-serif); font-size: 1.3rem; color: var(--warm-brown); margin-bottom: 0.5rem;"></p>
+                        <p id="tftdQuoteSource" style="font-size: 0.9rem; color: var(--sage-dark); text-align: right;"></p>
+                    </div>
+
+                    <div id="tftdBody" class="jft-content" style="white-space: pre-line;"></div>
+
+                    <div id="tftdThought" style="margin-top: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, #C9952B 0%, #A67B1F 100%); border-radius: 12px; color: white; display: none;">
+                        <p style="font-family: var(--font-serif); font-size: 1.2rem;"></p>
+                    </div>
+                </div>
+
+                <div id="tftdError" style="display: none;">
+                    <div class="jft-content">
+                        <p><em>Today's thought is available from the Hazelden Betty Ford Foundation.</em></p>
+                        <br>
+                        <p>Click the link below to read today's thought:</p>
+                    </div>
+                </div>
+
+                <a href="https://www.hazeldenbettyford.org/thought-for-the-day" target="_blank" rel="noopener" class="jft-link">
+                    Read on Hazelden
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <p style="color: var(--sage-dark); font-size: 0.9rem;">From "Twenty-Four Hours a Day" by Hazelden Betty Ford Foundation.</p>
+            </div>
+        </div>
+    </section>
+
     <!-- Gratitude Page -->
     <section id="gratitude" class="page">
         <div class="gratitude-container">
@@ -372,7 +525,7 @@
     <section id="journal" class="page">
         <div class="journal-container">
             <div class="page-header">
-                <h2>My Journal</h2>
+                <h2>Journal Entries</h2>
                 <p>A space for reflection and growth</p>
             </div>
 
@@ -592,7 +745,7 @@
     <section id="resources" class="page">
         <div class="resources-container">
             <div class="page-header">
-                <h2>Resources</h2>
+                <h2>Find Help</h2>
                 <p>Find support for your recovery journey</p>
             </div>
 
@@ -634,6 +787,18 @@
                         <h3>SMART Recovery</h3>
                         <p>Science-based tools for lasting change</p>
                         <span class="fellowship-tag">Science-Based</span>
+                    </button>
+                    <button class="fellowship-card" onclick="showFellowship('refuge')" style="--card-gradient: linear-gradient(135deg, #6B8E7B 0%, #4A6B5A 100%);">
+                        <span class="fellowship-badge" style="background: #6B8E7B;">RR</span>
+                        <h3>Refuge Recovery</h3>
+                        <p>Buddhist-inspired freedom from addiction</p>
+                        <span class="fellowship-tag">Mindfulness</span>
+                    </button>
+                    <button class="fellowship-card" onclick="showFellowship('celebrate')" style="--card-gradient: linear-gradient(135deg, #8B4513 0%, #6B3410 100%);">
+                        <span class="fellowship-badge" style="background: #8B4513;">CR</span>
+                        <h3>Celebrate Recovery</h3>
+                        <p>Christ-centered recovery program</p>
+                        <span class="fellowship-tag">Faith-Based</span>
                     </button>
                 </div>
 
@@ -880,6 +1045,78 @@
                         <div class="resource-icon literature">ℹ️</div>
                         <h3>About SMART Recovery</h3>
                         <p>The history, mission, and science behind SMART Recovery.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refuge Recovery Detail -->
+            <div id="fellowship-refuge" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #6B8E7B;">
+                    <span class="fellowship-header-badge" style="background: #6B8E7B;">RR</span>
+                    <div>
+                        <h3>Refuge Recovery</h3>
+                        <p>A Buddhist-inspired path to freedom from addiction through mindfulness and meditation</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://refugerecoverymeetings.org/#/?region=massachusetts" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find Meetings &mdash; Massachusetts</h3>
+                        <p>Search for Refuge Recovery meetings in Massachusetts and nearby areas.</p>
+                    </a>
+                    <a href="https://www.refugerecovery.org/about" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">📖</div>
+                        <h3>About Refuge Recovery</h3>
+                        <p>Learn about the Four Noble Truths and the Buddhist-inspired approach to recovery.</p>
+                    </a>
+                    <a href="https://www.refugerecovery.org/audio-meditations" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meditation">🧘</div>
+                        <h3>Audio Meditations</h3>
+                        <p>Guided audio meditations for recovery, mindfulness, and compassion practice.</p>
+                    </a>
+                </div>
+                <div class="universal-resources">
+                    <h3>Crisis &amp; Support</h3>
+                    <div class="resources-grid">
+                        <a href="tel:1-800-662-4357" class="resource-card"><div class="resource-icon hotline">📞</div><h3>SAMHSA Helpline</h3><p>1-800-662-4357</p></a>
+                        <a href="tel:988" class="resource-card"><div class="resource-icon hotline">🆘</div><h3>988 Crisis Lifeline</h3><p>Call or text 988</p></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Celebrate Recovery Detail -->
+            <div id="fellowship-celebrate" class="fellowship-detail hidden">
+                <button class="fellowship-back-btn" onclick="showFellowshipSelector()">← All Fellowships</button>
+                <div class="fellowship-header" style="--header-accent: #8B4513;">
+                    <span class="fellowship-header-badge" style="background: #8B4513;">CR</span>
+                    <div>
+                        <h3>Celebrate Recovery</h3>
+                        <p>A Christ-centered 12-step program for anyone struggling with hurts, habits, and hang-ups</p>
+                    </div>
+                </div>
+                <div class="resources-grid">
+                    <a href="https://crlocator.com/?filter=Groups&s=boston&radius=25&type=All+Groups&language=English" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">📍</div>
+                        <h3>Find Groups &mdash; Boston</h3>
+                        <p>Search for Celebrate Recovery groups near Boston and surrounding areas.</p>
+                    </a>
+                    <a href="https://celebraterecovery.com/about/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon literature">📖</div>
+                        <h3>About Celebrate Recovery</h3>
+                        <p>Learn about the program, the 8 recovery principles, and how CR works.</p>
+                    </a>
+                    <a href="https://celebraterecovery.com/cr-community/" target="_blank" rel="noopener" class="resource-card">
+                        <div class="resource-icon meetings">🤝</div>
+                        <h3>CR Community</h3>
+                        <p>Connect with the Celebrate Recovery community and find support resources.</p>
                     </a>
                 </div>
                 <div class="universal-resources">
