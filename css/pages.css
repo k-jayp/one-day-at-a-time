@@ -2540,3 +2540,572 @@
     padding: 0.65rem 1.5rem !important;
     font-size: 0.85rem !important;
 }
+
+/* ============================================================
+   SAFETY PLAN — GUIDED JOURNEY OVERLAY
+   ============================================================ */
+
+/* Intro card for first-time users */
+.rpp-intro-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    text-align: center;
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+.rpp-intro-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2D5A3D, #4A8B5E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+}
+
+.rpp-intro-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--deep-brown);
+    margin-bottom: 1rem;
+}
+
+.rpp-intro-card p {
+    font-family: var(--font-body);
+    color: var(--sage-dark);
+    line-height: 1.7;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.rpp-intro-sub {
+    font-family: var(--font-serif) !important;
+    font-style: italic;
+    color: var(--terracotta) !important;
+    font-size: 1.05rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.rpp-begin-btn {
+    padding: 0.85rem 2.5rem !important;
+    font-size: 1.05rem !important;
+    border-radius: 50px !important;
+}
+
+/* Walkthrough again button */
+.rpp-walkthrough-again {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 auto 1.5rem;
+    padding: 0.65rem 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--sand);
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--sage-dark);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rpp-walkthrough-again:hover {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--forest);
+    border-color: var(--forest);
+    transform: translateY(-1px);
+}
+
+.rpp-walkthrough-again svg {
+    color: var(--forest);
+}
+
+/* ---- Journey overlay ---- */
+#rppJourneyOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #FAF6F0 0%, #F0E6D6 50%, #E8DDD0 100%);
+    z-index: 5000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#rppJourneyOverlay.active {
+    opacity: 1;
+}
+
+/* Close button */
+.rpp-journey-close {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(61, 50, 41, 0.15);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--sage-dark);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.rpp-journey-close:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--deep-brown);
+    transform: scale(1.05);
+}
+
+/* Progress dots */
+.rpp-journey-progress {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 5;
+}
+
+.rpp-journey-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(61, 50, 41, 0.15);
+    transition: all 0.4s ease;
+}
+
+.rpp-journey-dot.active {
+    transform: scale(1.3);
+}
+
+.rpp-journey-dot.completed {
+    background: var(--forest);
+}
+
+/* Dot colors per section */
+.rpp-journey-dot.active.dot-warningSigns { background: #E8A838; }
+.rpp-journey-dot.active.dot-triggers { background: #D2691E; }
+.rpp-journey-dot.active.dot-copingStrategies { background: #4A8B5E; }
+.rpp-journey-dot.active.dot-supportNetwork { background: #4A7FB5; }
+.rpp-journey-dot.active.dot-safePlaces { background: #5B9A6E; }
+.rpp-journey-dot.active.dot-emergencySteps { background: #C0392B; }
+.rpp-journey-dot.active.dot-reasonsToStay { background: #C06080; }
+
+/* Step container */
+.rpp-journey-step-wrapper {
+    width: 100%;
+    max-width: 560px;
+    padding: 0 1.5rem;
+    position: relative;
+    min-height: 400px;
+}
+
+.rpp-journey-step {
+    text-align: center;
+    animation: journeyFadeIn 0.5s ease forwards;
+}
+
+.rpp-journey-step.slide-out-left {
+    animation: journeySlideOutLeft 0.4s ease forwards;
+}
+
+.rpp-journey-step.slide-out-right {
+    animation: journeySlideOutRight 0.4s ease forwards;
+}
+
+.rpp-journey-step.slide-in-left {
+    animation: journeySlideInLeft 0.4s ease forwards;
+}
+
+.rpp-journey-step.slide-in-right {
+    animation: journeySlideInRight 0.4s ease forwards;
+}
+
+/* Step icon */
+.rpp-journey-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.rpp-journey-icon.icon-warningSigns { background: linear-gradient(135deg, #E8A838, #D4942A); }
+.rpp-journey-icon.icon-triggers { background: linear-gradient(135deg, #D2691E, #BF6A3A); }
+.rpp-journey-icon.icon-copingStrategies { background: linear-gradient(135deg, #4A8B5E, #2D5A3D); }
+.rpp-journey-icon.icon-supportNetwork { background: linear-gradient(135deg, #4A7FB5, #3566A0); }
+.rpp-journey-icon.icon-safePlaces { background: linear-gradient(135deg, #5B9A6E, #3D7A50); }
+.rpp-journey-icon.icon-emergencySteps { background: linear-gradient(135deg, #C0392B, #A52D22); }
+.rpp-journey-icon.icon-reasonsToStay { background: linear-gradient(135deg, #C06080, #A84D6B); }
+
+/* Step question */
+.rpp-journey-question {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 900;
+    color: var(--deep-brown);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.rpp-journey-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--sage-dark);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Input area */
+.rpp-journey-input-area {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.rpp-journey-input {
+    flex: 1;
+    padding: 0.85rem 1.25rem;
+    border: 2px solid rgba(61, 50, 41, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--deep-brown);
+    transition: all 0.3s ease;
+}
+
+.rpp-journey-input:focus {
+    outline: none;
+    border-color: var(--forest);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.1);
+}
+
+.rpp-journey-input::placeholder {
+    color: rgba(61, 50, 41, 0.35);
+}
+
+.rpp-journey-add-btn {
+    padding: 0.85rem 1.5rem;
+    background: var(--forest);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.rpp-journey-add-btn:hover {
+    background: #1e4a2e;
+    transform: translateY(-1px);
+}
+
+/* Contact dual-input */
+.rpp-journey-contact-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.rpp-journey-contact-row .rpp-journey-input {
+    flex: 1;
+}
+
+.rpp-journey-contact-row .rpp-journey-input.phone-input {
+    flex: 0.8;
+}
+
+/* Added items — pills */
+.rpp-journey-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    min-height: 40px;
+}
+
+.rpp-journey-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(61, 50, 41, 0.1);
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--deep-brown);
+    animation: journeyPillPop 0.3s ease forwards;
+}
+
+.rpp-journey-pill-remove {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(61, 50, 41, 0.1);
+    color: var(--sage-dark);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.rpp-journey-pill-remove:hover {
+    background: rgba(192, 57, 43, 0.15);
+    color: #C0392B;
+}
+
+/* Contact card pills */
+.rpp-journey-contact-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(74, 127, 181, 0.2);
+    border-radius: 16px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--deep-brown);
+    animation: journeyPillPop 0.3s ease forwards;
+}
+
+.rpp-journey-contact-pill .contact-name {
+    font-weight: 600;
+}
+
+.rpp-journey-contact-pill .contact-phone {
+    color: var(--sage-dark);
+    font-size: 0.82rem;
+}
+
+/* Numbered step pills */
+.rpp-journey-numbered-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.65rem 1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(61, 50, 41, 0.1);
+    border-radius: 14px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--deep-brown);
+    animation: journeyPillPop 0.3s ease forwards;
+    text-align: left;
+}
+
+.rpp-journey-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--terracotta), #D2691E);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.rpp-journey-numbered-pill .pill-text {
+    flex: 1;
+}
+
+/* Navigation */
+.rpp-journey-nav {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.rpp-journey-nav-btn {
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rpp-journey-back-btn {
+    background: transparent;
+    border: 1px solid rgba(61, 50, 41, 0.2);
+    color: var(--sage-dark);
+}
+
+.rpp-journey-back-btn:hover {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: var(--sage-dark);
+}
+
+.rpp-journey-next-btn {
+    background: var(--forest);
+    border: none;
+    color: white;
+}
+
+.rpp-journey-next-btn:hover:not(:disabled) {
+    background: #1e4a2e;
+    transform: translateY(-1px);
+}
+
+.rpp-journey-next-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Step counter label */
+.rpp-journey-counter {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    color: rgba(61, 50, 41, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+
+/* Completion screen */
+.rpp-journey-complete {
+    text-align: center;
+    animation: journeyFadeIn 0.6s ease forwards;
+}
+
+.rpp-journey-checkmark {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2D5A3D, #4A8B5E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    animation: journeyCheckPop 0.6s ease forwards;
+}
+
+.rpp-journey-checkmark svg {
+    width: 48px;
+    height: 48px;
+    color: white;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: journeyCheckDraw 0.8s ease 0.3s forwards;
+}
+
+.rpp-journey-complete h3 {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--deep-brown);
+    margin-bottom: 0.75rem;
+}
+
+.rpp-journey-complete p {
+    font-family: var(--font-body);
+    color: var(--sage-dark);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 420px;
+    margin: 0 auto 2rem;
+}
+
+.rpp-journey-view-btn {
+    padding: 0.85rem 2.5rem;
+    background: var(--forest);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rpp-journey-view-btn:hover {
+    background: #1e4a2e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+}
+
+/* Animations */
+@keyframes journeyFadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes journeySlideOutLeft {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-60px); }
+}
+
+@keyframes journeySlideInRight {
+    from { opacity: 0; transform: translateX(60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes journeySlideOutRight {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(60px); }
+}
+
+@keyframes journeySlideInLeft {
+    from { opacity: 0; transform: translateX(-60px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes journeyPillPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes journeyCheckPop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+@keyframes journeyCheckDraw {
+    to { stroke-dashoffset: 0; }
+}

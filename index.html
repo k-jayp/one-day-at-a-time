@@ -698,7 +698,28 @@
 
             <!-- Plan content -->
             <div id="rppContent" style="display: none;">
+
+                <!-- Intro card (first-time users) -->
+                <div id="rppIntroCard" class="rpp-intro-card">
+                    <div class="rpp-intro-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <h3>Build Your Safety Plan</h3>
+                    <p>In just a few minutes, we'll walk through 7 simple steps to create your personal safety net. You'll identify your warning signs, build your support network, and create a plan you can reach for when things get tough.</p>
+                    <p class="rpp-intro-sub">Build it when you're strong. Use it when you need it.</p>
+                    <button class="btn btn-primary rpp-begin-btn" onclick="openSafetyPlanJourney()">Begin Your Journey</button>
+                </div>
+
+                <!-- Walkthrough again button (return visitors) -->
+                <button id="rppWalkthroughAgain" class="rpp-walkthrough-again" style="display: none;" onclick="openSafetyPlanJourney()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Walk Through Again
+                </button>
+
                 <p class="rpp-last-updated" id="rppLastUpdated"></p>
+
+                <!-- Sections wrapper (shown when plan exists) -->
+                <div id="rppSectionsWrapper" style="display: none;">
 
                 <!-- Section 1: Warning Signs -->
                 <div class="rpp-section" data-section="warningSigns">
@@ -911,6 +932,7 @@
                     </div>
                 </div>
 
+                </div><!-- /rppSectionsWrapper -->
             </div><!-- /rppContent -->
         </div><!-- /rpp-container -->
     </section>
@@ -2018,6 +2040,7 @@
 
     <div class="toast" id="toast"></div>
     <div id="meditationOverlay"></div>
+    <div id="rppJourneyOverlay"></div>
 
     <!-- Scripts: all type="module" ensures execution in order (firebase first) -->
     <script type="module" src="js/firebase.js"></script>

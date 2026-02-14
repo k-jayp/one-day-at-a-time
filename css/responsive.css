@@ -216,6 +216,28 @@
     .rpp-reorder-btns { gap: 0.15rem; }
     .rpp-move-btn { width: 32px; height: 32px; }
 
+    /* Safety Plan journey overlay mobile */
+    .rpp-intro-card { padding: 2rem 1.5rem; }
+    .rpp-intro-icon { width: 64px; height: 64px; }
+    .rpp-intro-card h3 { font-size: 1.4rem; }
+    .rpp-journey-close { width: 40px; height: 40px; top: 1rem; right: 1rem; font-size: 1rem; }
+    .rpp-journey-step-wrapper { padding: 0 1rem; }
+    .rpp-journey-icon { width: 56px; height: 56px; }
+    .rpp-journey-icon svg { width: 26px; height: 26px; }
+    .rpp-journey-question { font-size: 1.3rem; }
+    .rpp-journey-subtitle { font-size: 0.88rem; }
+    .rpp-journey-input { padding: 0.75rem 1rem; font-size: 0.88rem; }
+    .rpp-journey-add-btn { padding: 0.75rem 1.25rem; font-size: 0.85rem; }
+    .rpp-journey-contact-row { flex-direction: column; }
+    .rpp-journey-contact-row .rpp-journey-input.phone-input { flex: 1; }
+    .rpp-journey-pill { font-size: 0.82rem; padding: 0.4rem 0.85rem; }
+    .rpp-journey-nav { flex-direction: column-reverse; gap: 0.5rem; }
+    .rpp-journey-nav-btn { width: 100%; text-align: center; }
+    .rpp-journey-dot { width: 8px; height: 8px; }
+    .rpp-journey-progress { gap: 0.4rem; }
+    .rpp-journey-complete h3 { font-size: 1.5rem; }
+    .rpp-walkthrough-again { font-size: 0.82rem; padding: 0.55rem 1.25rem; }
+
     /* Cookie banner mobile */
     .cookie-banner { padding: 1rem 1.25rem; }
     .cookie-banner-content { flex-direction: column; text-align: center; gap: 1rem; }

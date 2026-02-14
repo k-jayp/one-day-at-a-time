@@ -930,6 +930,12 @@ const RPP_SECTIONS = ['warningSigns', 'triggers', 'copingStrategies', 'supportNe
 let rppData = {};
 let rppEditDrafts = {};
 
+// Bridge so app.js can read/write rppData across module boundary
+Object.defineProperty(window, 'rppData', {
+    get() { return rppData; },
+    set(val) { rppData = val; }
+});
+
 async function loadSafetyPlan() {
     if (!currentUser) return;
     try {
@@ -947,6 +953,10 @@ async function loadSafetyPlan() {
             rppData = {};
             renderAllRppSections();
             document.getElementById('rppLastUpdated').textContent = '';
+        }
+        // Update view state (intro vs completed plan)
+        if (typeof window.updateSafetyPlanViewState === 'function') {
+            window.updateSafetyPlanViewState();
         }
     } catch (error) {
         console.error('Error loading safety plan:', error);
@@ -1165,3 +1175,24 @@ document.addEventListener('keydown', function(e) {
         window.addRppItem(sectionKey);
     }
 });
+
+// Save entire safety plan at once (from guided journey)
+async function saveSafetyPlanFull(data) {
+    if (!currentUser) return;
+    try {
+        const planRef = doc(db, 'users', currentUser.uid, 'safetyPlan', 'main');
+        const saveObj = { lastUpdated: serverTimestamp() };
+        RPP_SECTIONS.forEach(key => {
+            saveObj[key] = data[key] || [];
+        });
+        await setDoc(planRef, saveObj, { merge: true });
+
+        // Reload to update cache and re-render sections
+        await loadSafetyPlan();
+        showToast('Safety plan saved \uD83D\uDEE1\uFE0F');
+    } catch (error) {
+        console.error('Error saving full safety plan:', error);
+        showToast('Error saving \u2014 please try again');
+    }
+}
+window.saveSafetyPlanFull = saveSafetyPlanFull;

@@ -630,3 +630,455 @@ function showFellowshipSelector() {
     window.scrollTo(0, document.getElementById('resources').offsetTop);
 }
 window.showFellowshipSelector = showFellowshipSelector;
+
+/* ============================================================
+   SAFETY PLAN — GUIDED JOURNEY
+   ============================================================ */
+
+const JOURNEY_STEPS = [
+    {
+        key: 'warningSigns',
+        icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        question: 'What are your warning signs?',
+        subtitle: 'The red flags that tell you trouble might be ahead \u2014 like isolating, skipping meetings, or romanticizing the past.',
+        placeholder: 'e.g., Isolating from friends',
+        type: 'text'
+    },
+    {
+        key: 'triggers',
+        icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+        question: 'What triggers you?',
+        subtitle: 'People, places, things, and emotions that put you at risk. Knowing them is power.',
+        placeholder: 'e.g., Old neighborhoods, paydays',
+        type: 'text'
+    },
+    {
+        key: 'copingStrategies',
+        icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+        question: 'What helps you cope?',
+        subtitle: 'Healthy things you can do when the urge hits \u2014 call your sponsor, go to a meeting, exercise, breathe.',
+        placeholder: 'e.g., Call my sponsor',
+        type: 'text'
+    },
+    {
+        key: 'supportNetwork',
+        icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+        question: 'Who can you call?',
+        subtitle: 'Your sponsor, therapist, trusted friends, family \u2014 add their name and number so they\'re one tap away.',
+        placeholder: '',
+        type: 'contact'
+    },
+    {
+        key: 'safePlaces',
+        icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+        question: 'Where do you feel safe?',
+        subtitle: 'Physical spaces where you feel grounded \u2014 your home group, a friend\'s house, the gym, a place of worship.',
+        placeholder: 'e.g., My home group meeting hall',
+        type: 'text'
+    },
+    {
+        key: 'emergencySteps',
+        icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+        question: 'What\'s your emergency plan?',
+        subtitle: 'Step-by-step actions for when you\'re on the edge. Write them so you don\'t have to think \u2014 just follow the steps.',
+        placeholder: 'e.g., Step 1: Call my sponsor',
+        type: 'numbered'
+    },
+    {
+        key: 'reasonsToStay',
+        icon: '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+        question: 'Why does recovery matter?',
+        subtitle: 'Your children, your health, your goals, the life you\'re building. Write them down for the hard days.',
+        placeholder: 'e.g., My children need me present',
+        type: 'text'
+    }
+];
+
+let journeyDraft = {};
+let currentJourneyStep = 0;
+let journeyIsAnimating = false;
+
+function openSafetyPlanJourney() {
+    const overlay = document.getElementById('rppJourneyOverlay');
+    if (!overlay) return;
+
+    // Initialize draft from existing data or empty
+    const existing = window.rppData || {};
+    journeyDraft = {};
+    JOURNEY_STEPS.forEach(s => {
+        const val = existing[s.key];
+        if (Array.isArray(val) && val.length > 0) {
+            journeyDraft[s.key] = JSON.parse(JSON.stringify(val)); // deep copy
+        } else {
+            journeyDraft[s.key] = [];
+        }
+    });
+
+    currentJourneyStep = 0;
+    journeyIsAnimating = false;
+
+    // Build overlay shell
+    overlay.innerHTML = `
+        <button class="rpp-journey-close" onclick="closeSafetyPlanJourney()" title="Close">&times;</button>
+        <div class="rpp-journey-progress" id="rppJourneyProgress"></div>
+        <div class="rpp-journey-step-wrapper" id="rppJourneyStepWrapper"></div>
+    `;
+
+    renderJourneyProgress();
+    renderJourneyStep(0, 'none');
+
+    // Show overlay
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            overlay.classList.add('active');
+        });
+    });
+}
+window.openSafetyPlanJourney = openSafetyPlanJourney;
+
+function closeSafetyPlanJourney() {
+    const overlay = document.getElementById('rppJourneyOverlay');
+    if (!overlay) return;
+
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.innerHTML = '';
+    }, 600);
+}
+window.closeSafetyPlanJourney = closeSafetyPlanJourney;
+
+function renderJourneyProgress() {
+    const container = document.getElementById('rppJourneyProgress');
+    if (!container) return;
+
+    container.innerHTML = JOURNEY_STEPS.map((step, i) => {
+        let cls = 'rpp-journey-dot';
+        cls += ` dot-${step.key}`;
+        if (i === currentJourneyStep) cls += ' active';
+        if (i < currentJourneyStep) cls += ' completed';
+        return `<div class="${cls}"></div>`;
+    }).join('');
+}
+
+function renderJourneyStep(index, direction) {
+    const wrapper = document.getElementById('rppJourneyStepWrapper');
+    if (!wrapper) return;
+
+    const step = JOURNEY_STEPS[index];
+    const items = journeyDraft[step.key] || [];
+    const isLast = index === JOURNEY_STEPS.length - 1;
+    const isFirst = index === 0;
+
+    let inputHtml = '';
+    if (step.type === 'contact') {
+        inputHtml = `
+            <div class="rpp-journey-contact-row">
+                <input type="text" class="rpp-journey-input" id="rppJourneyNameInput"
+                       placeholder="Name (e.g., John — Sponsor)">
+                <input type="tel" class="rpp-journey-input phone-input" id="rppJourneyPhoneInput"
+                       placeholder="Phone number">
+                <button class="rpp-journey-add-btn" onclick="addJourneyContact()">Add</button>
+            </div>
+        `;
+    } else {
+        inputHtml = `
+            <div class="rpp-journey-input-area">
+                <input type="text" class="rpp-journey-input" id="rppJourneyTextInput"
+                       placeholder="${step.placeholder}">
+                <button class="rpp-journey-add-btn" onclick="addJourneyItem('${step.key}')">Add</button>
+            </div>
+        `;
+    }
+
+    let animClass = '';
+    if (direction === 'forward') animClass = 'slide-in-right';
+    else if (direction === 'back') animClass = 'slide-in-left';
+
+    const html = `
+        <div class="rpp-journey-step ${animClass}" id="rppJourneyCurrentStep">
+            <div class="rpp-journey-counter">Step ${index + 1} of ${JOURNEY_STEPS.length}</div>
+            <div class="rpp-journey-icon icon-${step.key}">
+                ${step.icon}
+            </div>
+            <h2 class="rpp-journey-question">${step.question}</h2>
+            <p class="rpp-journey-subtitle">${step.subtitle}</p>
+            ${inputHtml}
+            <div class="rpp-journey-items" id="rppJourneyItems">
+                ${renderJourneyItemsHtml(step.key)}
+            </div>
+            <div class="rpp-journey-nav">
+                ${!isFirst ? '<button class="rpp-journey-nav-btn rpp-journey-back-btn" onclick="prevJourneyStep()">Back</button>' : ''}
+                <button class="rpp-journey-nav-btn rpp-journey-next-btn" id="rppJourneyNextBtn"
+                        onclick="${isLast ? 'completeJourney()' : 'nextJourneyStep()'}"
+                        ${items.length === 0 ? 'disabled' : ''}>
+                    ${isLast ? 'Complete My Plan' : 'Next'}
+                </button>
+            </div>
+        </div>
+    `;
+
+    wrapper.innerHTML = html;
+
+    // Focus input
+    setTimeout(() => {
+        const textInput = document.getElementById('rppJourneyTextInput');
+        const nameInput = document.getElementById('rppJourneyNameInput');
+        if (textInput) textInput.focus();
+        else if (nameInput) nameInput.focus();
+    }, 400);
+
+    // Enter key handler
+    setTimeout(() => {
+        const textInput = document.getElementById('rppJourneyTextInput');
+        const nameInput = document.getElementById('rppJourneyNameInput');
+        const phoneInput = document.getElementById('rppJourneyPhoneInput');
+
+        if (textInput) {
+            textInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && textInput.value.trim()) {
+                    addJourneyItem(step.key);
+                }
+            });
+        }
+        if (phoneInput) {
+            phoneInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    addJourneyContact();
+                }
+            });
+        }
+        if (nameInput) {
+            nameInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const pi = document.getElementById('rppJourneyPhoneInput');
+                    if (pi) pi.focus();
+                }
+            });
+        }
+    }, 100);
+}
+
+function renderJourneyItemsHtml(key) {
+    const items = journeyDraft[key] || [];
+    if (items.length === 0) return '';
+
+    const step = JOURNEY_STEPS.find(s => s.key === key);
+
+    if (step.type === 'contact') {
+        return items.map((item, i) => `
+            <div class="rpp-journey-contact-pill">
+                <span class="contact-name">${escapeHtml(item.name)}</span>
+                <span class="contact-phone">${escapeHtml(item.phone || '')}</span>
+                <button class="rpp-journey-pill-remove" onclick="removeJourneyItem('${key}', ${i})">&times;</button>
+            </div>
+        `).join('');
+    }
+
+    if (step.type === 'numbered') {
+        return items.map((item, i) => `
+            <div class="rpp-journey-numbered-pill">
+                <span class="rpp-journey-step-num">${i + 1}</span>
+                <span class="pill-text">${escapeHtml(item)}</span>
+                <button class="rpp-journey-pill-remove" onclick="removeJourneyItem('${key}', ${i})">&times;</button>
+            </div>
+        `).join('');
+    }
+
+    // Default text pills
+    return items.map((item, i) => `
+        <div class="rpp-journey-pill">
+            <span>${escapeHtml(item)}</span>
+            <button class="rpp-journey-pill-remove" onclick="removeJourneyItem('${key}', ${i})">&times;</button>
+        </div>
+    `).join('');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function addJourneyItem(key) {
+    const input = document.getElementById('rppJourneyTextInput');
+    if (!input) return;
+    const val = input.value.trim();
+    if (!val) return;
+
+    if (!journeyDraft[key]) journeyDraft[key] = [];
+    journeyDraft[key].push(val);
+    input.value = '';
+    input.focus();
+
+    // Re-render items
+    const container = document.getElementById('rppJourneyItems');
+    if (container) container.innerHTML = renderJourneyItemsHtml(key);
+
+    // Update next button state
+    updateJourneyNextBtn();
+}
+window.addJourneyItem = addJourneyItem;
+
+function addJourneyContact() {
+    const nameInput = document.getElementById('rppJourneyNameInput');
+    const phoneInput = document.getElementById('rppJourneyPhoneInput');
+    if (!nameInput) return;
+
+    const name = nameInput.value.trim();
+    const phone = phoneInput ? phoneInput.value.trim() : '';
+    if (!name) return;
+
+    if (!journeyDraft.supportNetwork) journeyDraft.supportNetwork = [];
+    journeyDraft.supportNetwork.push({ name, phone });
+    nameInput.value = '';
+    if (phoneInput) phoneInput.value = '';
+    nameInput.focus();
+
+    const container = document.getElementById('rppJourneyItems');
+    if (container) container.innerHTML = renderJourneyItemsHtml('supportNetwork');
+
+    updateJourneyNextBtn();
+}
+window.addJourneyContact = addJourneyContact;
+
+function removeJourneyItem(key, index) {
+    if (!journeyDraft[key]) return;
+    journeyDraft[key].splice(index, 1);
+
+    const container = document.getElementById('rppJourneyItems');
+    if (container) container.innerHTML = renderJourneyItemsHtml(key);
+
+    updateJourneyNextBtn();
+}
+window.removeJourneyItem = removeJourneyItem;
+
+function updateJourneyNextBtn() {
+    const btn = document.getElementById('rppJourneyNextBtn');
+    if (!btn) return;
+    const step = JOURNEY_STEPS[currentJourneyStep];
+    const items = journeyDraft[step.key] || [];
+    btn.disabled = items.length === 0;
+}
+
+function nextJourneyStep() {
+    if (journeyIsAnimating) return;
+    if (currentJourneyStep >= JOURNEY_STEPS.length - 1) return;
+
+    journeyIsAnimating = true;
+    const currentStep = document.getElementById('rppJourneyCurrentStep');
+    if (currentStep) currentStep.className = 'rpp-journey-step slide-out-left';
+
+    setTimeout(() => {
+        currentJourneyStep++;
+        renderJourneyProgress();
+        renderJourneyStep(currentJourneyStep, 'forward');
+        journeyIsAnimating = false;
+    }, 400);
+}
+window.nextJourneyStep = nextJourneyStep;
+
+function prevJourneyStep() {
+    if (journeyIsAnimating) return;
+    if (currentJourneyStep <= 0) return;
+
+    journeyIsAnimating = true;
+    const currentStep = document.getElementById('rppJourneyCurrentStep');
+    if (currentStep) currentStep.className = 'rpp-journey-step slide-out-right';
+
+    setTimeout(() => {
+        currentJourneyStep--;
+        renderJourneyProgress();
+        renderJourneyStep(currentJourneyStep, 'back');
+        journeyIsAnimating = false;
+    }, 400);
+}
+window.prevJourneyStep = prevJourneyStep;
+
+function completeJourney() {
+    if (journeyIsAnimating) return;
+    journeyIsAnimating = true;
+
+    const currentStep = document.getElementById('rppJourneyCurrentStep');
+    if (currentStep) currentStep.className = 'rpp-journey-step slide-out-left';
+
+    setTimeout(() => {
+        const wrapper = document.getElementById('rppJourneyStepWrapper');
+        const progress = document.getElementById('rppJourneyProgress');
+        if (progress) progress.style.display = 'none';
+
+        if (wrapper) {
+            wrapper.innerHTML = `
+                <div class="rpp-journey-complete">
+                    <div class="rpp-journey-checkmark">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <h3>Your Plan Is Ready</h3>
+                    <p>You've built something powerful. This safety plan is yours \u2014 a lifeline you created from a place of strength. Come back to it whenever you need it.</p>
+                    <button class="rpp-journey-view-btn" onclick="finishJourney()">View My Plan</button>
+                </div>
+            `;
+        }
+        journeyIsAnimating = false;
+    }, 400);
+}
+window.completeJourney = completeJourney;
+
+async function finishJourney() {
+    // Save all sections to Firestore
+    if (typeof window.saveSafetyPlanFull === 'function') {
+        await window.saveSafetyPlanFull(journeyDraft);
+    }
+
+    closeSafetyPlanJourney();
+
+    // Let overlay close, then update view state
+    setTimeout(() => {
+        updateSafetyPlanViewState();
+    }, 650);
+}
+window.finishJourney = finishJourney;
+
+function updateSafetyPlanViewState() {
+    const introCard = document.getElementById('rppIntroCard');
+    const sectionsWrapper = document.getElementById('rppSectionsWrapper');
+    const walkthroughBtn = document.getElementById('rppWalkthroughAgain');
+    const lastUpdated = document.getElementById('rppLastUpdated');
+
+    // Check if plan has any data
+    const data = window.rppData || {};
+    const hasData = JOURNEY_STEPS.some(s => {
+        const val = data[s.key];
+        return Array.isArray(val) && val.length > 0;
+    });
+
+    if (hasData) {
+        // Show completed plan view
+        if (introCard) introCard.style.display = 'none';
+        if (sectionsWrapper) sectionsWrapper.style.display = 'block';
+        if (walkthroughBtn) walkthroughBtn.style.display = 'flex';
+        if (lastUpdated) lastUpdated.style.display = '';
+    } else {
+        // Show intro card (first-time user)
+        if (introCard) introCard.style.display = '';
+        if (sectionsWrapper) sectionsWrapper.style.display = 'none';
+        if (walkthroughBtn) walkthroughBtn.style.display = 'none';
+        if (lastUpdated) lastUpdated.style.display = 'none';
+    }
+}
+window.updateSafetyPlanViewState = updateSafetyPlanViewState;
+
+// Escape key to close journey overlay
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const overlay = document.getElementById('rppJourneyOverlay');
+        if (overlay && overlay.classList.contains('active')) {
+            closeSafetyPlanJourney();
+        }
+    }
+});
