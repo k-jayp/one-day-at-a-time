@@ -5,6 +5,7 @@ const NAV_PARENT_MAP = {
     'thought-for-the-day': true,
     'gratitude': true,
     'journal': true,
+    'urges': true,
     'events': true,
     'community': true,
 };
@@ -422,6 +423,79 @@ function clearJournalForm() {
     selectedMood = '';
 }
 window.clearJournalForm = clearJournalForm;
+
+// ========== URGE LOG ==========
+let selectedIntensity = null;
+let selectedTrigger = '';
+
+function selectIntensity(btn) {
+    document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedIntensity = parseInt(btn.dataset.intensity);
+}
+window.selectIntensity = selectIntensity;
+
+function selectTrigger(btn) {
+    document.querySelectorAll('.trigger-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTrigger = btn.dataset.trigger;
+}
+window.selectTrigger = selectTrigger;
+
+function toggleUrgeDetails() {
+    const fields = document.getElementById('urgeDetailFields');
+    const toggle = document.querySelector('.urge-detail-toggle');
+    const isOpen = fields.style.display !== 'none';
+    fields.style.display = isOpen ? 'none' : 'block';
+    toggle.classList.toggle('open', !isOpen);
+}
+window.toggleUrgeDetails = toggleUrgeDetails;
+
+document.getElementById('urgeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (!window.getCurrentUser || !window.getCurrentUser()) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return;
+    }
+
+    if (!selectedIntensity) {
+        showToast('Please select an intensity level');
+        return;
+    }
+
+    const triggerNote = document.getElementById('urgeTriggerNote').value.trim();
+    const situation = document.getElementById('urgeSituation').value.trim();
+    const copedHow = document.getElementById('urgeCopedHow').value.trim();
+    const nextTime = document.getElementById('urgeNextTime').value.trim();
+
+    try {
+        await window.saveUrgeEntry(selectedIntensity, selectedTrigger, triggerNote, situation, copedHow, nextTime);
+        clearUrgeForm();
+        window.loadUrgeEntries();
+        showToast('Urge logged — you rode that wave! 🌊');
+    } catch (error) {
+        showToast('Error saving urge entry');
+    }
+});
+
+function clearUrgeForm() {
+    document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.trigger-btn').forEach(b => b.classList.remove('selected'));
+    selectedIntensity = null;
+    selectedTrigger = '';
+    document.getElementById('urgeTriggerNote').value = '';
+    document.getElementById('urgeSituation').value = '';
+    document.getElementById('urgeCopedHow').value = '';
+    document.getElementById('urgeNextTime').value = '';
+    // Collapse detail fields
+    document.getElementById('urgeDetailFields').style.display = 'none';
+    const toggle = document.querySelector('.urge-detail-toggle');
+    if (toggle) toggle.classList.remove('open');
+}
+window.clearUrgeForm = clearUrgeForm;
+
 async function handleSharedView() {
     const hash = window.location.hash;
     

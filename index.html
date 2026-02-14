@@ -87,6 +87,7 @@
                 <ul class="nav-dropdown">
                     <li><a data-page="gratitude">Gratitude List</a></li>
                     <li><a data-page="journal">Journal Entries</a></li>
+                    <li><a data-page="urges">Urge Log</a></li>
                 </ul>
             </li>
             <li>
@@ -564,6 +565,106 @@
             <div class="journal-entries" id="journalEntriesSection" style="display: none;">
                 <h3>📖 Past Entries</h3>
                 <div id="journalEntriesContainer">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Urge Log Page -->
+    <section id="urges" class="page">
+        <div class="urge-container">
+            <div class="page-header">
+                <h2>Urge Log</h2>
+                <p>Track it. Ride it. Beat it.</p>
+            </div>
+
+            <!-- Sign in prompt -->
+            <div class="sign-in-prompt" id="urgeSignInPrompt" style="display: none;">
+                <h4>Track Your Urges</h4>
+                <p>Sign in to log urges, spot patterns, and celebrate every wave you ride.</p>
+                <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Start</button>
+            </div>
+
+            <!-- Insights banner -->
+            <div class="urge-summary" id="urgeSummary" style="display: none;">
+                <div class="urge-stat">
+                    <span class="urge-stat-number" id="urgeTotalCount">0</span>
+                    <span class="urge-stat-label">Waves Surfed</span>
+                </div>
+                <div class="urge-stat">
+                    <span class="urge-stat-number" id="urgeAvgIntensity">&mdash;</span>
+                    <span class="urge-stat-label">Avg Intensity</span>
+                </div>
+                <div class="urge-stat">
+                    <span class="urge-stat-number" id="urgeTopTrigger">&mdash;</span>
+                    <span class="urge-stat-label">Top Trigger</span>
+                </div>
+            </div>
+
+            <!-- Quick-log form -->
+            <div class="urge-form-section" id="urgeFormSection" style="display: none;">
+                <h3>Log an Urge</h3>
+                <form id="urgeForm">
+                    <!-- Intensity selector -->
+                    <div class="urge-field-group">
+                        <label>How intense? <span class="urge-required">*</span></label>
+                        <div class="intensity-selector">
+                            <button type="button" class="intensity-btn intensity-low" data-intensity="1" onclick="selectIntensity(this)">1</button>
+                            <button type="button" class="intensity-btn intensity-low" data-intensity="2" onclick="selectIntensity(this)">2</button>
+                            <button type="button" class="intensity-btn intensity-low" data-intensity="3" onclick="selectIntensity(this)">3</button>
+                            <button type="button" class="intensity-btn intensity-med" data-intensity="4" onclick="selectIntensity(this)">4</button>
+                            <button type="button" class="intensity-btn intensity-med" data-intensity="5" onclick="selectIntensity(this)">5</button>
+                            <button type="button" class="intensity-btn intensity-med" data-intensity="6" onclick="selectIntensity(this)">6</button>
+                            <button type="button" class="intensity-btn intensity-high" data-intensity="7" onclick="selectIntensity(this)">7</button>
+                            <button type="button" class="intensity-btn intensity-high" data-intensity="8" onclick="selectIntensity(this)">8</button>
+                            <button type="button" class="intensity-btn intensity-max" data-intensity="9" onclick="selectIntensity(this)">9</button>
+                            <button type="button" class="intensity-btn intensity-max" data-intensity="10" onclick="selectIntensity(this)">10</button>
+                        </div>
+                    </div>
+
+                    <!-- Trigger selector -->
+                    <div class="urge-field-group">
+                        <label>What triggered it?</label>
+                        <div class="trigger-grid">
+                            <button type="button" class="trigger-btn" data-trigger="Stress" onclick="selectTrigger(this)">Stress</button>
+                            <button type="button" class="trigger-btn" data-trigger="Social" onclick="selectTrigger(this)">Social</button>
+                            <button type="button" class="trigger-btn" data-trigger="Emotional" onclick="selectTrigger(this)">Emotional</button>
+                            <button type="button" class="trigger-btn" data-trigger="Place" onclick="selectTrigger(this)">Place</button>
+                            <button type="button" class="trigger-btn" data-trigger="Boredom" onclick="selectTrigger(this)">Boredom</button>
+                            <button type="button" class="trigger-btn" data-trigger="HALT" onclick="selectTrigger(this)">HALT</button>
+                            <button type="button" class="trigger-btn" data-trigger="Other" onclick="selectTrigger(this)">Other</button>
+                        </div>
+                    </div>
+
+                    <!-- Expandable detail section -->
+                    <button type="button" class="urge-detail-toggle" onclick="toggleUrgeDetails()">
+                        Add more detail
+                        <svg class="urge-detail-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="urge-detail-fields" id="urgeDetailFields" style="display: none;">
+                        <textarea id="urgeTriggerNote" placeholder="More about what triggered it..." rows="2"></textarea>
+                        <input type="text" id="urgeSituation" placeholder="Who or where was involved?">
+                        <input type="text" id="urgeCopedHow" placeholder="How did you cope?">
+                        <input type="text" id="urgeNextTime" placeholder="Ideas for next time?">
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="urge-actions">
+                        <button type="submit" class="btn btn-primary">Log It</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearUrgeForm()">Clear</button>
+                        <a class="urge-surf-link" onclick="showPage('wellness'); setTimeout(() => { if(window.openMeditationOverlay) window.openMeditationOverlay('urge-surfing'); }, 300);">
+                            Ride This Wave
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Past entries -->
+            <div class="urge-entries" id="urgeEntriesSection" style="display: none;">
+                <h3>Past Entries</h3>
+                <div id="urgeEntriesContainer">
                     <div class="loading"><div class="spinner"></div></div>
                 </div>
             </div>

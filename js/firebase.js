@@ -69,6 +69,11 @@ function updateUIForAuthState(user) {
     // Community wall elements
     const wallPostForm = document.getElementById('wallPostForm');
     const wallSignInPrompt = document.getElementById('wallSignInPrompt');
+    // Urge log elements
+    const urgeFormSection = document.getElementById('urgeFormSection');
+    const urgeSignInPrompt = document.getElementById('urgeSignInPrompt');
+    const urgeEntriesSection = document.getElementById('urgeEntriesSection');
+    const urgeSummary = document.getElementById('urgeSummary');
 
     if (user) {
         // Show signed-in UI
@@ -95,6 +100,10 @@ function updateUIForAuthState(user) {
         journalEntriesSection.style.display = 'block';
         if (wallPostForm) wallPostForm.style.display = 'block';
         if (wallSignInPrompt) wallSignInPrompt.style.display = 'none';
+        if (urgeFormSection) urgeFormSection.style.display = 'block';
+        if (urgeSignInPrompt) urgeSignInPrompt.style.display = 'none';
+        if (urgeEntriesSection) urgeEntriesSection.style.display = 'block';
+        if (urgeSummary) urgeSummary.style.display = 'flex';
 
         // Navigate to appropriate page
         const hash = window.location.hash;
@@ -122,6 +131,10 @@ function updateUIForAuthState(user) {
         journalEntriesSection.style.display = 'none';
         if (wallPostForm) wallPostForm.style.display = 'none';
         if (wallSignInPrompt) wallSignInPrompt.style.display = 'block';
+        if (urgeFormSection) urgeFormSection.style.display = 'none';
+        if (urgeSignInPrompt) urgeSignInPrompt.style.display = 'block';
+        if (urgeEntriesSection) urgeEntriesSection.style.display = 'none';
+        if (urgeSummary) urgeSummary.style.display = 'none';
 
         // Handle shared view (allow without auth)
         const hash = window.location.hash;
@@ -216,6 +229,7 @@ async function loadUserData() {
     await loadCleanDate();
     await loadGratitudeEntries();
     await loadJournalEntries();
+    await loadUrgeEntries();
     await loadCheckinWidget();
 }
 
@@ -479,6 +493,136 @@ window.deleteJournalEntry = async function(entryId) {
             await deleteDoc(doc(db, 'users', currentUser.uid, 'journal', entryId));
             showToast('Journal entry deleted');
             loadJournalEntries();
+        } catch (error) {
+            showToast('Error deleting entry');
+            console.error(error);
+        }
+    }
+}
+
+// ========== URGE LOG ==========
+window.saveUrgeEntry = async function(intensity, trigger, triggerNote, situation, copedHow, nextTime) {
+    if (!currentUser) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return null;
+    }
+    try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
+
+        const entryData = {
+            intensity: intensity,
+            trigger: trigger || '',
+            createdAt: serverTimestamp()
+        };
+        if (triggerNote) entryData.triggerNote = triggerNote;
+        if (situation) entryData.situation = situation;
+        if (copedHow) entryData.copedHow = copedHow;
+        if (nextTime) entryData.nextTime = nextTime;
+
+        const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'urges'), entryData);
+        return docRef.id;
+    } catch (error) {
+        console.error('Error saving urge entry:', error);
+        throw error;
+    }
+}
+
+async function loadUrgeEntries() {
+    if (!currentUser) return;
+    const container = document.getElementById('urgeEntriesContainer');
+
+    try {
+        const q = query(collection(db, 'users', currentUser.uid, 'urges'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+
+        // Compute summary stats
+        let totalCount = 0;
+        let intensitySum = 0;
+        const triggerCounts = {};
+
+        querySnapshot.forEach(() => totalCount++);
+
+        if (querySnapshot.empty) {
+            container.innerHTML = '<p style="color: var(--sage-dark); text-align: center; padding: 2rem;">No urges logged yet. Every wave you ride is a victory.</p>';
+            document.getElementById('urgeTotalCount').textContent = '0';
+            document.getElementById('urgeAvgIntensity').textContent = '\u2014';
+            document.getElementById('urgeTopTrigger').textContent = '\u2014';
+            return;
+        }
+
+        let html = '';
+        querySnapshot.forEach((docSnap) => {
+            const entry = docSnap.data();
+            const date = entry.createdAt?.toDate() || new Date();
+            intensitySum += entry.intensity;
+            if (entry.trigger) {
+                triggerCounts[entry.trigger] = (triggerCounts[entry.trigger] || 0) + 1;
+            }
+
+            // Color tier for badge
+            let tier = 'low';
+            if (entry.intensity >= 4 && entry.intensity <= 6) tier = 'med';
+            else if (entry.intensity >= 7 && entry.intensity <= 8) tier = 'high';
+            else if (entry.intensity >= 9) tier = 'max';
+
+            // Build detail row if any optional fields exist
+            let detailHtml = '';
+            if (entry.triggerNote || entry.situation || entry.copedHow || entry.nextTime) {
+                detailHtml = '<div class="urge-entry-details">';
+                if (entry.triggerNote) detailHtml += `<p><strong>Trigger detail:</strong> ${escapeHtml(entry.triggerNote)}</p>`;
+                if (entry.situation) detailHtml += `<p><strong>Situation:</strong> ${escapeHtml(entry.situation)}</p>`;
+                if (entry.copedHow) detailHtml += `<p><strong>How I coped:</strong> ${escapeHtml(entry.copedHow)}</p>`;
+                if (entry.nextTime) detailHtml += `<p><strong>Next time:</strong> ${escapeHtml(entry.nextTime)}</p>`;
+                detailHtml += '</div>';
+            }
+
+            html += `
+                <div class="urge-entry-card">
+                    <div class="urge-entry-header">
+                        <div class="urge-intensity-badge ${tier}">${entry.intensity}</div>
+                        <div class="urge-entry-meta">
+                            <span class="urge-entry-date">${date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+                            ${entry.trigger ? `<span class="urge-entry-trigger">${escapeHtml(entry.trigger)}</span>` : ''}
+                        </div>
+                        <button class="delete-entry-btn" onclick="deleteUrgeEntry('${docSnap.id}')">Delete</button>
+                    </div>
+                    ${detailHtml}
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+
+        // Update summary banner
+        document.getElementById('urgeTotalCount').textContent = totalCount;
+        document.getElementById('urgeAvgIntensity').textContent = (intensitySum / totalCount).toFixed(1);
+
+        // Find top trigger
+        let topTrigger = '\u2014';
+        let maxCount = 0;
+        for (const [trigger, count] of Object.entries(triggerCounts)) {
+            if (count > maxCount) {
+                maxCount = count;
+                topTrigger = trigger;
+            }
+        }
+        document.getElementById('urgeTopTrigger').textContent = topTrigger;
+
+    } catch (error) {
+        console.error('Error loading urge entries:', error);
+        container.innerHTML = '<p style="color: var(--terracotta); text-align: center; padding: 2rem;">Error loading entries</p>';
+    }
+}
+window.loadUrgeEntries = loadUrgeEntries;
+
+window.deleteUrgeEntry = async function(entryId) {
+    if (!currentUser) return;
+    if (confirm('Are you sure you want to delete this urge entry?')) {
+        try {
+            await deleteDoc(doc(db, 'users', currentUser.uid, 'urges', entryId));
+            showToast('Urge entry deleted');
+            loadUrgeEntries();
         } catch (error) {
             showToast('Error deleting entry');
             console.error(error);

@@ -113,7 +113,7 @@
     .hero { padding: 2rem 1.5rem; }
     .hero h1 { font-size: 2.5rem; }
 
-    .jft-container, .gratitude-container, .journal-container, .resources-container { padding: 1.5rem; }
+    .jft-container, .gratitude-container, .journal-container, .resources-container, .urge-container { padding: 1.5rem; }
     .jft-card, .gratitude-input-section, .journal-editor { padding: 1.5rem; }
     .page-header h2 { font-size: 2rem; }
     .share-link-container { flex-direction: column; }
@@ -182,6 +182,20 @@
 
     /* Visualization orb */
     .viz-orb { width: 60px; height: 60px; }
+
+    /* Urge Log mobile */
+    .urge-container { padding: 1.5rem; }
+    .urge-summary { flex-direction: column; gap: 0.75rem; padding: 1.25rem; }
+    .urge-stat { min-width: auto; }
+    .intensity-selector { gap: 0.5rem; }
+    .intensity-btn { width: 34px; height: 34px; font-size: 0.8rem; }
+    .trigger-grid { gap: 0.4rem; }
+    .trigger-btn { font-size: 0.78rem; padding: 0.4rem 0.85rem; }
+    .urge-actions { flex-direction: column; align-items: stretch; }
+    .urge-actions .btn { width: 100%; }
+    .urge-surf-link { justify-content: center; }
+    .urge-entry-header { flex-wrap: wrap; gap: 0.5rem; }
+    .urge-entry-meta { flex: 1 1 100%; order: 3; }
 
     /* Cookie banner mobile */
     .cookie-banner { padding: 1rem 1.25rem; }

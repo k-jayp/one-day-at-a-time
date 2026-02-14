@@ -1840,3 +1840,319 @@
     color: var(--sage);
     flex-shrink: 0;
 }
+
+/* ========== URGE LOG ========== */
+.urge-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Insights banner */
+.urge-summary {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
+}
+
+.urge-stat {
+    flex: 1;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.urge-stat-number {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.6rem;
+    color: var(--forest);
+}
+
+.urge-stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--sage-dark);
+}
+
+/* Form section */
+.urge-form-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 2rem;
+}
+
+.urge-form-section h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--warm-brown);
+    margin: 0 0 1.5rem;
+}
+
+.urge-field-group {
+    margin-bottom: 1.25rem;
+}
+
+.urge-field-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--warm-brown);
+    margin-bottom: 0.6rem;
+}
+
+.urge-required {
+    color: var(--terracotta);
+}
+
+/* Intensity buttons */
+.intensity-selector {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.intensity-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid var(--sand);
+    background: white;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--warm-brown);
+}
+
+.intensity-btn:hover {
+    transform: scale(1.1);
+}
+
+.intensity-btn.selected {
+    transform: scale(1.15);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.intensity-low { border-color: #8fbc8f; }
+.intensity-low.selected { background: #4a7c59; }
+.intensity-med { border-color: #d4a853; }
+.intensity-med.selected { background: #c9952b; }
+.intensity-high { border-color: #d48a5a; }
+.intensity-high.selected { background: #bf6a3a; }
+.intensity-max { border-color: #c45a5a; }
+.intensity-max.selected { background: #a83232; }
+
+/* Trigger buttons */
+.trigger-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.trigger-btn {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--sand);
+    background: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.trigger-btn:hover {
+    border-color: var(--terracotta);
+    color: var(--terracotta);
+}
+
+.trigger-btn.selected {
+    background: var(--terracotta);
+    border-color: var(--terracotta);
+    color: white;
+}
+
+/* Expandable detail section */
+.urge-detail-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--sage-dark);
+    cursor: pointer;
+    padding: 0.75rem 0 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.urge-detail-toggle:hover {
+    color: var(--terracotta);
+}
+
+.urge-detail-chevron {
+    transition: transform 0.3s ease;
+}
+
+.urge-detail-toggle.open .urge-detail-chevron {
+    transform: rotate(180deg);
+}
+
+.urge-detail-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-bottom: 0.5rem;
+}
+
+.urge-detail-fields textarea,
+.urge-detail-fields input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--sand);
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+    background: white;
+    transition: border-color 0.3s ease;
+}
+
+.urge-detail-fields textarea:focus,
+.urge-detail-fields input:focus {
+    outline: none;
+    border-color: var(--terracotta);
+}
+
+/* Actions row */
+.urge-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.urge-surf-link {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--terracotta);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    margin-left: auto;
+}
+
+.urge-surf-link:hover {
+    color: var(--rust);
+}
+
+/* Entry cards */
+.urge-entries h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--warm-brown);
+    margin: 0 0 1.25rem;
+}
+
+.urge-entry-card {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    box-shadow: var(--glass-shadow);
+    transition: var(--transition-smooth);
+}
+
+.urge-entry-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(92, 74, 61, 0.12);
+}
+
+.urge-entry-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.urge-intensity-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 0.8rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.urge-intensity-badge.low { background: #4a7c59; }
+.urge-intensity-badge.med { background: #c9952b; }
+.urge-intensity-badge.high { background: #bf6a3a; }
+.urge-intensity-badge.max { background: #a83232; }
+
+.urge-entry-meta {
+    flex: 1;
+}
+
+.urge-entry-trigger {
+    font-weight: 600;
+    color: var(--warm-brown);
+    font-size: 0.95rem;
+}
+
+.urge-entry-date {
+    font-size: 0.8rem;
+    color: var(--sage-dark);
+    margin-top: 0.15rem;
+}
+
+.urge-entry-detail {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--sand);
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+    line-height: 1.6;
+}
+
+.urge-entry-detail p {
+    margin: 0.25rem 0;
+}
+
+.urge-entry-detail strong {
+    color: var(--sage-dark);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
