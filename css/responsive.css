@@ -238,6 +238,16 @@
     .rpp-journey-complete h3 { font-size: 1.5rem; }
     .rpp-walkthrough-again { font-size: 0.82rem; padding: 0.55rem 1.25rem; }
 
+    /* Shared gratitude mobile */
+    .shared-card { padding: 1.5rem; }
+    .shared-card .btn {
+        display: block;
+        text-align: center;
+        padding: 0.85rem 1.25rem;
+        border-radius: 16px;
+        font-size: 0.9rem;
+    }
+
     /* Cookie banner mobile */
     .cookie-banner { padding: 1rem 1.25rem; }
     .cookie-banner-content { flex-direction: column; text-align: center; gap: 1rem; }
