@@ -295,15 +295,32 @@ function updateCleanTimeDisplay(cleanDate) {
 function calculateCleanTime(cleanDate) {
     const now = new Date();
     const clean = new Date(cleanDate);
-    const diff = now - clean;
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const years = Math.floor(days / 365);
-    const months = Math.floor((days % 365) / 30);
-    const remainingDays = days % 30;
-    
-    if (years > 0) return `${years}y ${months}m ${remainingDays}d`;
-    if (months > 0) return `${months}m ${remainingDays}d`;
-    return `${days} days`;
+
+    // Use actual calendar math instead of dividing by 30
+    let years = now.getFullYear() - clean.getFullYear();
+    let months = now.getMonth() - clean.getMonth();
+    let days = now.getDate() - clean.getDate();
+
+    // Borrow from months if days are negative
+    if (days < 0) {
+        months--;
+        // Days in the previous month
+        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        days += prevMonth.getDate();
+    }
+
+    // Borrow from years if months are negative
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    if (years > 0) return `${years}y ${months}m ${days}d`;
+    if (months > 0) return `${months}m ${days}d`;
+
+    // Total days for short durations
+    const totalDays = Math.floor((now - clean) / (1000 * 60 * 60 * 24));
+    return `${totalDays} days`;
 }
 
 window.toggleCleanDateSetup = function() {
