@@ -44,6 +44,14 @@ let currentUser = null;
 // Make currentUser accessible globally
 window.getCurrentUser = () => currentUser;
 
+// Utility: escape HTML to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+window.escapeHtml = escapeHtml;
+
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
     updateUIForAuthState(user);

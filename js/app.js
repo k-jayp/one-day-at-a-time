@@ -122,12 +122,12 @@ function showToast(message) {
 }
 window.showToast = showToast;
 
-function escapeHtml(text) {
+// escapeHtml is defined in firebase.js (loaded first) — reference it here for local use
+const escapeHtml = window.escapeHtml || function(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
-}
-window.escapeHtml = escapeHtml;
+};
 
 // ========== MOTIVATIONAL QUOTES ==========
 const RECOVERY_QUOTES = [
@@ -895,12 +895,6 @@ function renderJourneyItemsHtml(key) {
             <button class="rpp-journey-pill-remove" onclick="removeJourneyItem('${key}', ${i})">&times;</button>
         </div>
     `).join('');
-}
-
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
 }
 
 function addJourneyItem(key) {
