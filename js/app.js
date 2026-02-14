@@ -6,6 +6,7 @@ const NAV_PARENT_MAP = {
     'gratitude': true,
     'journal': true,
     'urges': true,
+    'safety-plan': true,
     'events': true,
     'community': true,
 };

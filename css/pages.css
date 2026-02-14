@@ -2156,3 +2156,387 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
+
+/* ========== SAFETY PLAN (RPP) ========== */
+.rpp-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 3rem;
+}
+
+.rpp-crisis-banner {
+    background: linear-gradient(135deg, var(--terracotta) 0%, #A65D45 100%);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.rpp-crisis-banner a {
+    color: white;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.rpp-crisis-banner a:hover {
+    opacity: 0.85;
+}
+
+.rpp-last-updated {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--sage-dark);
+    margin-bottom: 2rem;
+    font-style: italic;
+}
+
+/* Section card */
+.rpp-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--glass-shadow);
+    transition: var(--transition-smooth);
+}
+
+.rpp-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(92, 74, 61, 0.12);
+}
+
+.rpp-section-emergency {
+    border-left: 4px solid var(--terracotta);
+}
+
+/* Section header */
+.rpp-section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.rpp-section-header > div:nth-child(2) {
+    flex: 1;
+}
+
+.rpp-section-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--warm-brown);
+    margin: 0 0 0.25rem;
+}
+
+.rpp-section-desc {
+    font-size: 0.85rem;
+    color: var(--sage-dark);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* Section icons */
+.rpp-section-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.rpp-section-icon.warning { background: linear-gradient(135deg, #D4A853, #C9952B); }
+.rpp-section-icon.triggers { background: linear-gradient(135deg, var(--terracotta), #A65D45); }
+.rpp-section-icon.coping { background: linear-gradient(135deg, var(--sage), var(--forest)); }
+.rpp-section-icon.support { background: linear-gradient(135deg, #5B8FBF, #3D6B99); }
+.rpp-section-icon.safe { background: linear-gradient(135deg, #7A9F8A, #4A7C59); }
+.rpp-section-icon.emergency { background: linear-gradient(135deg, #C45A5A, #A83232); }
+.rpp-section-icon.reasons { background: linear-gradient(135deg, #C9527A, #9B3A5C); }
+
+/* Edit button (pencil) */
+.rpp-edit-btn {
+    background: none;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--sage-dark);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rpp-edit-btn:hover {
+    border-color: var(--terracotta);
+    color: var(--terracotta);
+    background: var(--blush);
+}
+
+/* Empty prompt */
+.rpp-empty-prompt {
+    color: var(--sage-dark);
+    font-size: 0.9rem;
+    font-style: italic;
+    line-height: 1.6;
+    padding: 0.5rem 0;
+}
+
+/* Display lists */
+.rpp-display-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rpp-display-list li {
+    position: relative;
+    padding: 0.6rem 0 0.6rem 1.5rem;
+    color: var(--warm-brown);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(230, 221, 210, 0.5);
+}
+
+.rpp-display-list li:last-child {
+    border-bottom: none;
+}
+
+.rpp-display-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.85em;
+    width: 6px;
+    height: 6px;
+    background: var(--sage);
+    border-radius: 50%;
+}
+
+/* Numbered list (emergency steps) */
+.rpp-numbered-list {
+    list-style: none;
+    counter-reset: step-counter;
+    padding: 0;
+}
+
+.rpp-numbered-list li {
+    counter-increment: step-counter;
+    padding-left: 2.5rem;
+}
+
+.rpp-numbered-list li::before {
+    content: counter(step-counter);
+    position: absolute;
+    left: 0;
+    top: 0.45em;
+    width: 24px;
+    height: 24px;
+    background: var(--terracotta);
+    color: white;
+    border-radius: 50%;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Contact list (support network) */
+.rpp-contact-list li {
+    padding-left: 0 !important;
+}
+
+.rpp-contact-list li::before {
+    display: none !important;
+}
+
+.rpp-contact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.rpp-contact-name {
+    font-weight: 600;
+    color: var(--warm-brown);
+}
+
+.rpp-contact-phone {
+    color: var(--terracotta);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.35rem 0.75rem;
+    background: var(--blush);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.rpp-contact-phone:hover {
+    background: var(--terracotta);
+    color: white;
+}
+
+/* Edit mode */
+.rpp-edit-list {
+    margin-bottom: 1rem;
+}
+
+.rpp-edit-empty {
+    color: var(--sage-dark);
+    font-size: 0.85rem;
+    font-style: italic;
+    padding: 0.5rem 0;
+}
+
+.rpp-edit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--sand);
+}
+
+.rpp-edit-item-text {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+}
+
+.rpp-step-number {
+    width: 24px;
+    height: 24px;
+    background: var(--terracotta);
+    color: white;
+    border-radius: 50%;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rpp-reorder-btns {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.rpp-move-btn {
+    background: none;
+    border: 1px solid var(--sand);
+    border-radius: 6px;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    color: var(--sage-dark);
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rpp-move-btn:hover {
+    border-color: var(--sage);
+    color: var(--sage);
+    background: rgba(74, 124, 89, 0.1);
+}
+
+.rpp-remove-btn {
+    background: none;
+    border: none;
+    color: var(--sage-dark);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 0.25rem;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.rpp-remove-btn:hover {
+    color: #DC2626;
+}
+
+/* Add row */
+.rpp-add-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.rpp-add-row-contact {
+    flex-wrap: wrap;
+}
+
+.rpp-add-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--sand);
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+    background: white;
+    transition: border-color 0.3s ease;
+    min-width: 0;
+}
+
+.rpp-add-input:focus {
+    outline: none;
+    border-color: var(--sage);
+}
+
+.rpp-phone-input {
+    max-width: 180px;
+}
+
+.rpp-add-btn {
+    padding: 0.75rem 1.25rem;
+    background: var(--sage);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.rpp-add-btn:hover {
+    background: var(--forest);
+}
+
+/* Save/Cancel buttons */
+.rpp-edit-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.rpp-save-btn, .rpp-cancel-btn {
+    padding: 0.65rem 1.5rem !important;
+    font-size: 0.85rem !important;
+}

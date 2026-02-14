@@ -74,6 +74,9 @@ function updateUIForAuthState(user) {
     const urgeSignInPrompt = document.getElementById('urgeSignInPrompt');
     const urgeEntriesSection = document.getElementById('urgeEntriesSection');
     const urgeSummary = document.getElementById('urgeSummary');
+    // Safety plan elements
+    const rppContent = document.getElementById('rppContent');
+    const rppSignInPrompt = document.getElementById('rppSignInPrompt');
 
     if (user) {
         // Show signed-in UI
@@ -104,6 +107,8 @@ function updateUIForAuthState(user) {
         if (urgeSignInPrompt) urgeSignInPrompt.style.display = 'none';
         if (urgeEntriesSection) urgeEntriesSection.style.display = 'block';
         if (urgeSummary) urgeSummary.style.display = 'flex';
+        if (rppContent) rppContent.style.display = 'block';
+        if (rppSignInPrompt) rppSignInPrompt.style.display = 'none';
 
         // Navigate to appropriate page
         const hash = window.location.hash;
@@ -135,6 +140,8 @@ function updateUIForAuthState(user) {
         if (urgeSignInPrompt) urgeSignInPrompt.style.display = 'block';
         if (urgeEntriesSection) urgeEntriesSection.style.display = 'none';
         if (urgeSummary) urgeSummary.style.display = 'none';
+        if (rppContent) rppContent.style.display = 'none';
+        if (rppSignInPrompt) rppSignInPrompt.style.display = 'block';
 
         // Handle shared view (allow without auth)
         const hash = window.location.hash;
@@ -230,6 +237,7 @@ async function loadUserData() {
     await loadGratitudeEntries();
     await loadJournalEntries();
     await loadUrgeEntries();
+    await loadSafetyPlan();
     await loadCheckinWidget();
 }
 
@@ -916,3 +924,244 @@ function getTimeAgo(date) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 window.getTimeAgo = getTimeAgo;
+
+// ========== SAFETY PLAN ==========
+const RPP_SECTIONS = ['warningSigns', 'triggers', 'copingStrategies', 'supportNetwork', 'safePlaces', 'emergencySteps', 'reasonsToStay'];
+let rppData = {};
+let rppEditDrafts = {};
+
+async function loadSafetyPlan() {
+    if (!currentUser) return;
+    try {
+        const planRef = doc(db, 'users', currentUser.uid, 'safetyPlan', 'main');
+        const planSnap = await getDoc(planRef);
+        if (planSnap.exists()) {
+            rppData = planSnap.data();
+            renderAllRppSections();
+            if (rppData.lastUpdated) {
+                const date = rppData.lastUpdated.toDate();
+                document.getElementById('rppLastUpdated').textContent =
+                    'Last updated ' + date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+            }
+        } else {
+            rppData = {};
+            renderAllRppSections();
+            document.getElementById('rppLastUpdated').textContent = '';
+        }
+    } catch (error) {
+        console.error('Error loading safety plan:', error);
+    }
+}
+window.loadSafetyPlan = loadSafetyPlan;
+
+function renderAllRppSections() {
+    RPP_SECTIONS.forEach(key => renderRppSection(key));
+}
+
+function renderRppSection(sectionKey) {
+    const display = document.getElementById('rppDisplay_' + sectionKey);
+    if (!display) return;
+    const items = rppData[sectionKey] || [];
+
+    if (items.length === 0) {
+        display.innerHTML = '<p class="rpp-empty-prompt">' + getEmptyPrompt(sectionKey) + '</p>';
+        return;
+    }
+
+    let html = '';
+    if (sectionKey === 'supportNetwork') {
+        html = '<ul class="rpp-display-list rpp-contact-list">';
+        items.forEach(contact => {
+            html += `<li class="rpp-contact-item">
+                <span class="rpp-contact-name">${escapeHtml(contact.name)}</span>
+                ${contact.phone ? `<a href="tel:${escapeHtml(contact.phone)}" class="rpp-contact-phone">${escapeHtml(contact.phone)}</a>` : ''}
+            </li>`;
+        });
+        html += '</ul>';
+    } else if (sectionKey === 'emergencySteps') {
+        html = '<ol class="rpp-display-list rpp-numbered-list">';
+        items.forEach(item => {
+            html += `<li>${escapeHtml(item)}</li>`;
+        });
+        html += '</ol>';
+    } else {
+        html = '<ul class="rpp-display-list">';
+        items.forEach(item => {
+            html += `<li>${escapeHtml(item)}</li>`;
+        });
+        html += '</ul>';
+    }
+    display.innerHTML = html;
+}
+
+function getEmptyPrompt(sectionKey) {
+    const prompts = {
+        warningSigns: 'What are your personal red flags? Things like isolating from friends, skipping meetings, romanticizing past use, or neglecting self-care.',
+        triggers: 'What triggers you? Old neighborhoods, certain people, paydays, loneliness, anger, celebrations \u2014 knowing your triggers is power.',
+        copingStrategies: 'What helps you get through? Call your sponsor, go to a meeting, exercise, breathe, pray, take a walk, play the tape forward.',
+        supportNetwork: 'Who can you call? Your sponsor, therapist, trusted friends, family members. Add their name and phone number so they\'re one tap away.',
+        safePlaces: 'Where can you go? Your home group meeting hall, a trusted friend\'s house, the gym, a place of worship \u2014 somewhere you feel grounded.',
+        emergencySteps: 'What do you do first? Step 1: Call your sponsor. Step 2: Get to a meeting. Step 3: Use the wellness toolkit. Write your plan so you don\'t have to think \u2014 just follow the steps.',
+        reasonsToStay: 'What keeps you going? Your children, your health, your goals, the life you\'re building. Write them down so you can read them when it\'s hard to remember.',
+    };
+    return prompts[sectionKey] || '';
+}
+
+window.toggleRppEdit = function(sectionKey) {
+    const displayEl = document.getElementById('rppDisplay_' + sectionKey);
+    const editEl = document.getElementById('rppEdit_' + sectionKey);
+    const isEditing = editEl.style.display !== 'none';
+
+    if (isEditing) {
+        cancelRppEdit(sectionKey);
+    } else {
+        displayEl.style.display = 'none';
+        editEl.style.display = 'block';
+        populateRppEditList(sectionKey);
+        const input = document.getElementById('rppInput_' + sectionKey) ||
+                      document.getElementById('rppInput_' + sectionKey + '_name');
+        if (input) input.focus();
+    }
+};
+
+window.cancelRppEdit = function(sectionKey) {
+    document.getElementById('rppDisplay_' + sectionKey).style.display = 'block';
+    document.getElementById('rppEdit_' + sectionKey).style.display = 'none';
+    rppEditDrafts[sectionKey] = null;
+};
+function cancelRppEdit(sectionKey) { window.cancelRppEdit(sectionKey); }
+
+function populateRppEditList(sectionKey) {
+    const items = rppData[sectionKey] ? JSON.parse(JSON.stringify(rppData[sectionKey])) : [];
+    rppEditDrafts[sectionKey] = items;
+    renderRppEditList(sectionKey);
+}
+
+function renderRppEditList(sectionKey) {
+    const container = document.getElementById('rppEditList_' + sectionKey);
+    const items = rppEditDrafts[sectionKey] || [];
+
+    if (items.length === 0) {
+        container.innerHTML = '<p class="rpp-edit-empty">No items yet. Add one below.</p>';
+        return;
+    }
+
+    let html = '';
+    if (sectionKey === 'supportNetwork') {
+        items.forEach((contact, i) => {
+            html += `<div class="rpp-edit-item rpp-edit-contact">
+                <span class="rpp-edit-item-text">${escapeHtml(contact.name)}${contact.phone ? ' \u2014 ' + escapeHtml(contact.phone) : ''}</span>
+                <button class="rpp-remove-btn" onclick="removeRppItem('${sectionKey}', ${i})" title="Remove">&times;</button>
+            </div>`;
+        });
+    } else if (sectionKey === 'emergencySteps') {
+        items.forEach((item, i) => {
+            html += `<div class="rpp-edit-item rpp-edit-step">
+                <span class="rpp-step-number">${i + 1}</span>
+                <span class="rpp-edit-item-text">${escapeHtml(item)}</span>
+                <div class="rpp-reorder-btns">
+                    ${i > 0 ? `<button class="rpp-move-btn" onclick="moveRppItem('${sectionKey}', ${i}, -1)" title="Move up">&uarr;</button>` : ''}
+                    ${i < items.length - 1 ? `<button class="rpp-move-btn" onclick="moveRppItem('${sectionKey}', ${i}, 1)" title="Move down">&darr;</button>` : ''}
+                </div>
+                <button class="rpp-remove-btn" onclick="removeRppItem('${sectionKey}', ${i})" title="Remove">&times;</button>
+            </div>`;
+        });
+    } else {
+        items.forEach((item, i) => {
+            html += `<div class="rpp-edit-item">
+                <span class="rpp-edit-item-text">${escapeHtml(item)}</span>
+                <button class="rpp-remove-btn" onclick="removeRppItem('${sectionKey}', ${i})" title="Remove">&times;</button>
+            </div>`;
+        });
+    }
+    container.innerHTML = html;
+}
+
+window.addRppItem = function(sectionKey) {
+    const input = document.getElementById('rppInput_' + sectionKey);
+    const value = input.value.trim();
+    if (!value) return;
+    if (!rppEditDrafts[sectionKey]) rppEditDrafts[sectionKey] = [];
+    rppEditDrafts[sectionKey].push(value);
+    input.value = '';
+    renderRppEditList(sectionKey);
+    input.focus();
+};
+
+window.addRppContact = function() {
+    const nameInput = document.getElementById('rppInput_supportNetwork_name');
+    const phoneInput = document.getElementById('rppInput_supportNetwork_phone');
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    if (!name) return;
+    if (!rppEditDrafts.supportNetwork) rppEditDrafts.supportNetwork = [];
+    rppEditDrafts.supportNetwork.push({ name, phone: phone || '' });
+    nameInput.value = '';
+    phoneInput.value = '';
+    renderRppEditList('supportNetwork');
+    nameInput.focus();
+};
+
+window.removeRppItem = function(sectionKey, index) {
+    if (!rppEditDrafts[sectionKey]) return;
+    rppEditDrafts[sectionKey].splice(index, 1);
+    renderRppEditList(sectionKey);
+};
+
+window.moveRppItem = function(sectionKey, index, direction) {
+    const items = rppEditDrafts[sectionKey];
+    if (!items) return;
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= items.length) return;
+    [items[index], items[newIndex]] = [items[newIndex], items[index]];
+    renderRppEditList(sectionKey);
+};
+
+window.saveRppSection = async function(sectionKey) {
+    if (!currentUser) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return;
+    }
+    const items = rppEditDrafts[sectionKey] || [];
+    try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
+
+        const planRef = doc(db, 'users', currentUser.uid, 'safetyPlan', 'main');
+        const updateData = {
+            [sectionKey]: items,
+            lastUpdated: serverTimestamp()
+        };
+        await setDoc(planRef, updateData, { merge: true });
+
+        rppData[sectionKey] = items;
+
+        document.getElementById('rppLastUpdated').textContent =
+            'Last updated ' + new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+        document.getElementById('rppDisplay_' + sectionKey).style.display = 'block';
+        document.getElementById('rppEdit_' + sectionKey).style.display = 'none';
+        renderRppSection(sectionKey);
+
+        showToast('Safety plan updated \uD83D\uDEE1\uFE0F');
+    } catch (error) {
+        console.error('Error saving safety plan section:', error);
+        showToast('Error saving \u2014 please try again');
+    }
+};
+
+// Handle Enter key on RPP add inputs
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    const target = e.target;
+    if (!target.classList.contains('rpp-add-input')) return;
+    e.preventDefault();
+    const id = target.id;
+    if (id === 'rppInput_supportNetwork_name' || id === 'rppInput_supportNetwork_phone') {
+        window.addRppContact();
+    } else {
+        const sectionKey = id.replace('rppInput_', '');
+        window.addRppItem(sectionKey);
+    }
+});

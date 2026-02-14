@@ -113,7 +113,7 @@
     .hero { padding: 2rem 1.5rem; }
     .hero h1 { font-size: 2.5rem; }
 
-    .jft-container, .gratitude-container, .journal-container, .resources-container, .urge-container { padding: 1.5rem; }
+    .jft-container, .gratitude-container, .journal-container, .resources-container, .urge-container, .rpp-container { padding: 1.5rem; }
     .jft-card, .gratitude-input-section, .journal-editor { padding: 1.5rem; }
     .page-header h2 { font-size: 2rem; }
     .share-link-container { flex-direction: column; }
@@ -196,6 +196,25 @@
     .urge-surf-link { justify-content: center; }
     .urge-entry-header { flex-wrap: wrap; gap: 0.5rem; }
     .urge-entry-meta { flex: 1 1 100%; order: 3; }
+
+    /* Safety Plan mobile */
+    .rpp-container { padding: 1.5rem; }
+    .rpp-section { padding: 1.5rem; margin-bottom: 1rem; }
+    .rpp-section-header { gap: 0.75rem; }
+    .rpp-section-icon { width: 36px; height: 36px; }
+    .rpp-section-icon svg { width: 18px; height: 18px; }
+    .rpp-section-header h3 { font-size: 1.1rem; }
+    .rpp-section-desc { font-size: 0.8rem; }
+    .rpp-add-row { flex-direction: column; }
+    .rpp-add-row-contact { flex-direction: column; }
+    .rpp-phone-input { max-width: 100%; }
+    .rpp-edit-actions { flex-direction: column; }
+    .rpp-edit-actions .btn { width: 100%; text-align: center; }
+    .rpp-contact-item { flex-direction: column; align-items: flex-start; }
+    .rpp-contact-phone { align-self: flex-start; }
+    .rpp-crisis-banner { font-size: 0.82rem; padding: 0.6rem 1rem; border-radius: 10px; }
+    .rpp-reorder-btns { gap: 0.15rem; }
+    .rpp-move-btn { width: 32px; height: 32px; }
 
     /* Cookie banner mobile */
     .cookie-banner { padding: 1rem 1.25rem; }
