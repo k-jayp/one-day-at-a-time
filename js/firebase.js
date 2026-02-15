@@ -1839,6 +1839,9 @@ async function saveProfile() {
 
         await setDoc(doc(db, 'users', currentUser.uid), profileData, { merge: true });
 
+        // Sync denormalized profile data on community milestone posts
+        syncCommunityPosts(profileData);
+
         // Cache preferred name for instant welcome message on next load
         if (profileData.preferredName) {
             localStorage.setItem('preferredName', profileData.preferredName);
@@ -1866,6 +1869,32 @@ async function saveProfile() {
     }
 }
 window.saveProfile = saveProfile;
+
+// Sync denormalized profile fields on all community milestone posts
+async function syncCommunityPosts(profileData) {
+    if (!currentUser) return;
+    try {
+        const q = query(collection(db, 'milestones'), where('uid', '==', currentUser.uid));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return;
+
+        const updates = {
+            preferredName: profileData.preferredName || currentUser.displayName || '',
+            fellowship: profileData.fellowship || '',
+            avatarType: profileData.avatarType || 'initial',
+            avatarColor: profileData.avatarColor || '',
+            avatarIcon: profileData.avatarIcon || '',
+            avatarUrl: profileData.avatarUrl || '',
+            lookingForSponsor: profileData.communityOptIn?.lookingForSponsor || false,
+            openToSponsoring: profileData.communityOptIn?.openToSponsoring || false,
+        };
+
+        const promises = snapshot.docs.map(d => updateDoc(d.ref, updates));
+        await Promise.all(promises);
+    } catch (e) {
+        console.error('Error syncing community posts:', e);
+    }
+}
 
 async function uploadProfilePhoto(blob) {
     if (!currentUser) return null;
