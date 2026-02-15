@@ -287,9 +287,9 @@
     .whats-new-panel { width: 100vw; }
 
     /* Community Hub mobile */
-    .community-tabs { border-radius: 12px; padding: 3px; }
-    .community-tab { padding: 0.5rem 0.25rem; font-size: 0.7rem; }
-    .community-tab-icon { font-size: 1rem; }
+    .community-drawer { width: 280px; left: -300px; }
+    .community-nav-bar { padding: 0.5rem 0.75rem; border-radius: 12px; }
+    .community-current-label { font-size: 0.95rem; }
     .milestone-card, .medallion-card, .gratitude-feed-card { padding: 1.25rem; border-radius: 16px; }
     .milestone-card-achievement { padding: 0.75rem; }
     .milestone-card-icon { font-size: 1.5rem; }

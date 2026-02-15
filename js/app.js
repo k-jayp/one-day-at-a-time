@@ -203,16 +203,43 @@ function updateWallCharCount() {
 }
 window.updateWallCharCount = updateWallCharCount;
 
-// ========== COMMUNITY HUB TAB SWITCHING ==========
+// ========== COMMUNITY HUB DRAWER + TAB SWITCHING ==========
 let _activeCommunityTab = 'milestones';
+
+const _communityTabLabels = {
+    'milestones': { icon: '🏆', label: 'Milestones' },
+    'support': { icon: '💬', label: 'Support Wall' },
+    'medallion': { icon: '🎖️', label: 'Medallions' },
+    'gratitude': { icon: '🙏', label: 'Gratitude' }
+};
+
+function toggleCommunityDrawer() {
+    const drawer = document.getElementById('communityDrawer');
+    const overlay = document.getElementById('communityDrawerOverlay');
+    if (!drawer || !overlay) return;
+    const isOpen = drawer.classList.contains('open');
+    drawer.classList.toggle('open', !isOpen);
+    overlay.classList.toggle('open', !isOpen);
+    document.body.style.overflow = isOpen ? '' : 'hidden';
+}
+window.toggleCommunityDrawer = toggleCommunityDrawer;
 
 function switchCommunityTab(tabName) {
     _activeCommunityTab = tabName;
 
-    // Update tab button styles
-    document.querySelectorAll('.community-tab').forEach(btn => {
+    // Update drawer item styles
+    document.querySelectorAll('.community-drawer-item').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === tabName);
     });
+
+    // Update nav bar current section label
+    const info = _communityTabLabels[tabName];
+    if (info) {
+        const iconEl = document.querySelector('.community-current-icon');
+        const labelEl = document.querySelector('.community-current-label');
+        if (iconEl) iconEl.textContent = info.icon;
+        if (labelEl) labelEl.textContent = info.label;
+    }
 
     // Show/hide tab content
     document.querySelectorAll('.community-tab-content').forEach(content => {
@@ -228,6 +255,13 @@ function switchCommunityTab(tabName) {
 
     const target = document.getElementById(tabMap[tabName]);
     if (target) target.classList.add('active');
+
+    // Close drawer
+    const drawer = document.getElementById('communityDrawer');
+    const overlay = document.getElementById('communityDrawerOverlay');
+    if (drawer) drawer.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+    document.body.style.overflow = '';
 
     // Lazy-load data for selected tab
     if (tabName === 'milestones' && window.loadMilestoneFeed) {
