@@ -1636,49 +1636,6 @@
                 </div>
             </div>
 
-            <!-- Community Drawer Overlay -->
-            <div class="community-drawer-overlay" id="communityDrawerOverlay" onclick="toggleCommunityDrawer()"></div>
-
-            <!-- Community Drawer Sidebar -->
-            <div class="community-drawer" id="communityDrawer">
-                <div class="community-drawer-header">
-                    <h4>Community</h4>
-                    <button class="community-drawer-close" onclick="toggleCommunityDrawer()" aria-label="Close menu">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                </div>
-                <nav class="community-drawer-nav">
-                    <button class="community-drawer-item active" data-tab="milestones" onclick="switchCommunityTab('milestones')">
-                        <span class="community-drawer-item-icon">🏆</span>
-                        <div class="community-drawer-item-text">
-                            <span class="community-drawer-item-label">Milestones</span>
-                            <span class="community-drawer-item-desc">Celebrate recovery achievements</span>
-                        </div>
-                    </button>
-                    <button class="community-drawer-item" data-tab="support" onclick="switchCommunityTab('support')">
-                        <span class="community-drawer-item-icon">💬</span>
-                        <div class="community-drawer-item-text">
-                            <span class="community-drawer-item-label">Support Wall</span>
-                            <span class="community-drawer-item-desc">Words of hope and encouragement</span>
-                        </div>
-                    </button>
-                    <button class="community-drawer-item" data-tab="medallion" onclick="switchCommunityTab('medallion')">
-                        <span class="community-drawer-item-icon">🎖️</span>
-                        <div class="community-drawer-item-text">
-                            <span class="community-drawer-item-label">Medallions</span>
-                            <span class="community-drawer-item-desc">Invitation to celebrations</span>
-                        </div>
-                    </button>
-                    <button class="community-drawer-item" data-tab="gratitude" onclick="switchCommunityTab('gratitude')">
-                        <span class="community-drawer-item-icon">🙏</span>
-                        <div class="community-drawer-item-text">
-                            <span class="community-drawer-item-label">Gratitude</span>
-                            <span class="community-drawer-item-desc">Shared gratitude from the community</span>
-                        </div>
-                    </button>
-                </nav>
-            </div>
-
             <!-- Tab 1: Milestone Celebrations -->
             <div class="community-tab-content active" id="communityTabMilestones">
                 <div class="community-feed" id="milestoneFeed">
@@ -1763,6 +1720,47 @@
             </div>
         </div>
     </section>
+
+    <!-- Community Drawer (outside section to avoid transform stacking context) -->
+    <div class="community-drawer-overlay" id="communityDrawerOverlay" onclick="toggleCommunityDrawer()"></div>
+    <div class="community-drawer" id="communityDrawer">
+        <div class="community-drawer-header">
+            <h4>Community</h4>
+            <button class="community-drawer-close" onclick="toggleCommunityDrawer()" aria-label="Close menu">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <nav class="community-drawer-nav">
+            <button class="community-drawer-item active" data-tab="milestones" onclick="switchCommunityTab('milestones')">
+                <span class="community-drawer-item-icon">🏆</span>
+                <div class="community-drawer-item-text">
+                    <span class="community-drawer-item-label">Milestones</span>
+                    <span class="community-drawer-item-desc">Celebrate recovery achievements</span>
+                </div>
+            </button>
+            <button class="community-drawer-item" data-tab="support" onclick="switchCommunityTab('support')">
+                <span class="community-drawer-item-icon">💬</span>
+                <div class="community-drawer-item-text">
+                    <span class="community-drawer-item-label">Support Wall</span>
+                    <span class="community-drawer-item-desc">Words of hope and encouragement</span>
+                </div>
+            </button>
+            <button class="community-drawer-item" data-tab="medallion" onclick="switchCommunityTab('medallion')">
+                <span class="community-drawer-item-icon">🎖️</span>
+                <div class="community-drawer-item-text">
+                    <span class="community-drawer-item-label">Medallions</span>
+                    <span class="community-drawer-item-desc">Invitation to celebrations</span>
+                </div>
+            </button>
+            <button class="community-drawer-item" data-tab="gratitude" onclick="switchCommunityTab('gratitude')">
+                <span class="community-drawer-item-icon">🙏</span>
+                <div class="community-drawer-item-text">
+                    <span class="community-drawer-item-label">Gratitude</span>
+                    <span class="community-drawer-item-desc">Shared gratitude from the community</span>
+                </div>
+            </button>
+        </nav>
+    </div>
 
     <!-- Privacy Policy Page -->
     <section id="privacy" class="page">

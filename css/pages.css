@@ -3762,10 +3762,10 @@
     width: 40px;
     height: 40px;
     border: none;
-    background: var(--warm-beige);
+    background: var(--cream);
     border-radius: 10px;
     cursor: pointer;
-    color: var(--deep-brown);
+    color: var(--warm-brown);
     transition: background 0.2s ease;
     flex-shrink: 0;
 }
@@ -3788,7 +3788,7 @@
     font-family: var(--font-heading);
     font-weight: 700;
     font-size: 1.05rem;
-    color: var(--deep-brown);
+    color: var(--warm-brown);
 }
 
 /* Community Drawer Overlay */
