@@ -105,8 +105,9 @@ function updateUIForAuthState(user) {
         document.getElementById('avatarDropdownName').textContent = user.displayName || 'Recovery Friend';
         document.getElementById('avatarDropdownEmail').textContent = user.email || '';
 
-        // Welcome message
-        welcomeUser.textContent = `Welcome back, ${user.displayName || 'friend'}!`;
+        // Welcome message — prefer stored preferred name, fall back to displayName
+        const preferredName = localStorage.getItem('preferredName') || user.displayName || 'friend';
+        welcomeUser.textContent = `Welcome back, ${preferredName}!`;
 
         // Home page: show auth content, hide guest showcase
         if (homeAuthContent) homeAuthContent.style.display = 'block';
@@ -244,6 +245,7 @@ window.signInWithGoogle = async function() {
 window.signOutUser = async function() {
     try {
         await signOut(auth);
+        localStorage.removeItem('preferredName');
         showToast('Signed out. Take care! 💚');
         showPage('home');
     } catch (error) {
@@ -1294,6 +1296,13 @@ async function loadProfileData() {
         const sg = document.getElementById('profileSharedGratitude');
         if (sg) sg.checked = opts.sharedGratitudeFeed || false;
 
+        // Cache preferred name and update welcome message
+        if (data.preferredName) {
+            localStorage.setItem('preferredName', data.preferredName);
+            const welcomeEl = document.getElementById('welcomeUser');
+            if (welcomeEl) welcomeEl.textContent = `Welcome back, ${data.preferredName}!`;
+        }
+
         // Update nav avatar
         updateNavAvatar(data);
     } catch (error) {
@@ -1338,6 +1347,13 @@ async function saveProfile() {
         };
 
         await setDoc(doc(db, 'users', currentUser.uid), profileData, { merge: true });
+
+        // Cache preferred name for instant welcome message on next load
+        if (profileData.preferredName) {
+            localStorage.setItem('preferredName', profileData.preferredName);
+        } else {
+            localStorage.removeItem('preferredName');
+        }
 
         updateNavAvatar(profileData);
 
