@@ -246,7 +246,8 @@ function populateMedallionMilestones() {
     const select = document.getElementById('medallionMilestone');
     if (!select || !window.MILESTONES) return;
     if (select.options.length > 1) return; // Already populated
-    window.MILESTONES.forEach(m => {
+    // Medallions are presented starting at 1 year — filter out anything under 365 days
+    window.MILESTONES.filter(m => m.days >= 365).forEach(m => {
         const option = document.createElement('option');
         option.value = m.days;
         option.textContent = `${m.icon} ${m.label}`;

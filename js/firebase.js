@@ -1099,7 +1099,11 @@ async function loadMilestoneFeed() {
         feedContainer.innerHTML = html;
     } catch (error) {
         console.error('Error loading milestones:', error);
-        feedContainer.innerHTML = '<p class="community-error">Error loading milestones</p>';
+        if (error.code === 'permission-denied' || error.code === 'failed-precondition') {
+            feedContainer.innerHTML = '<p class="community-empty">Milestone celebrations are being set up. Check back soon!</p>';
+        } else {
+            feedContainer.innerHTML = '<p class="community-error">Unable to load milestones right now.</p>';
+        }
     }
 }
 window.loadMilestoneFeed = loadMilestoneFeed;
@@ -1277,33 +1281,49 @@ async function loadSharedGratitudeFeed() {
     const feedContainer = document.getElementById('sharedGratitudeFeed');
     if (!feedContainer) return;
     try {
-        const q = query(collection(db, 'shared'), orderBy('sharedAt', 'desc'), limit(30));
+        const q = query(collection(db, 'shared'), orderBy('sharedAt', 'desc'), limit(50));
         const snapshot = await getDocs(q);
         if (snapshot.empty) {
             feedContainer.innerHTML = '<p class="community-empty">No shared gratitude yet. Share yours from the Gratitude page!</p>';
             return;
         }
+
+        // Build a cache of user data so we don't re-fetch the same user
+        const userCache = {};
+        // Track seen user+date combos to deduplicate
+        const seen = new Set();
         let html = '';
+
         for (const d of snapshot.docs) {
             const data = d.data();
-            const date = data.sharedAt?.toDate();
-            const timeAgo = date ? getTimeAgo(date) : '';
 
-            let displayName = 'A grateful person';
-            let avatarHtml = '<div class="community-avatar community-avatar-default">🙏</div>';
-            if (data.sharedBy) {
+            // Skip entries with no author
+            if (!data.sharedBy) continue;
+
+            // Deduplicate: only show the most recent share per user per date
+            const dedupeKey = `${data.sharedBy}_${data.date || ''}`;
+            if (seen.has(dedupeKey)) continue;
+            seen.add(dedupeKey);
+
+            // Fetch user data (with cache)
+            if (!(data.sharedBy in userCache)) {
                 try {
                     const userDoc = await getDoc(doc(db, 'users', data.sharedBy));
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        const opts = userData.communityOptIn || {};
-                        if (!opts.sharedGratitudeFeed) continue;
-                        displayName = userData.preferredName || 'A grateful person';
-                        avatarHtml = renderCommunityAvatar(userData);
-                    }
-                } catch (e) { /* fall back to default */ }
+                    userCache[data.sharedBy] = userDoc.exists() ? userDoc.data() : null;
+                } catch (e) {
+                    userCache[data.sharedBy] = null;
+                }
             }
 
+            const userData = userCache[data.sharedBy];
+
+            // Only show entries from users who have opted in to the community gratitude feed
+            if (!userData || !userData.communityOptIn?.sharedGratitudeFeed) continue;
+
+            const displayName = userData.preferredName || 'A grateful person';
+            const avatarHtml = renderCommunityAvatar(userData);
+            const date = data.sharedAt?.toDate();
+            const timeAgo = date ? getTimeAgo(date) : '';
             const items = (data.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('');
 
             html += `
@@ -1319,10 +1339,10 @@ async function loadSharedGratitudeFeed() {
                 </div>
             `;
         }
-        feedContainer.innerHTML = html || '<p class="community-empty">No shared gratitude lists are public yet.</p>';
+        feedContainer.innerHTML = html || '<p class="community-empty">No shared gratitude lists are public yet. Opt in from your Profile to share!</p>';
     } catch (error) {
         console.error('Error loading shared gratitude feed:', error);
-        feedContainer.innerHTML = '<p class="community-error">Error loading gratitude feed</p>';
+        feedContainer.innerHTML = '<p class="community-error">Unable to load gratitude feed right now.</p>';
     }
 }
 window.loadSharedGratitudeFeed = loadSharedGratitudeFeed;
