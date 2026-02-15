@@ -2226,62 +2226,6 @@
                 </div>
             </div>
 
-            <!-- Accessibility Section -->
-            <div class="profile-card">
-                <div class="profile-card-header">
-                    <div class="profile-card-icon a11y-icon">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                    </div>
-                    <div>
-                        <h3>Accessibility</h3>
-                        <p class="profile-card-desc">Customize your experience</p>
-                    </div>
-                </div>
-                <div class="profile-a11y-options">
-                    <div class="profile-a11y-row">
-                        <div class="profile-a11y-info">
-                            <span class="profile-a11y-label">Font Size</span>
-                            <span class="profile-a11y-desc">Adjust text size across the app</span>
-                        </div>
-                        <div class="profile-font-size-btns">
-                            <button class="profile-size-btn active" onclick="setFontSize('normal')" data-size="normal">A</button>
-                            <button class="profile-size-btn" onclick="setFontSize('large')" data-size="large">A</button>
-                            <button class="profile-size-btn" onclick="setFontSize('x-large')" data-size="x-large">A</button>
-                        </div>
-                    </div>
-                    <div class="profile-a11y-row">
-                        <div class="profile-a11y-info">
-                            <span class="profile-a11y-label">Reduced Motion</span>
-                            <span class="profile-a11y-desc">Minimize animations and transitions</span>
-                        </div>
-                        <label class="profile-toggle">
-                            <input type="checkbox" id="profileReducedMotion" onchange="toggleReducedMotion(this.checked)">
-                            <span class="profile-toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="profile-a11y-row">
-                        <div class="profile-a11y-info">
-                            <span class="profile-a11y-label">High Contrast</span>
-                            <span class="profile-a11y-desc">Increase contrast for better readability</span>
-                        </div>
-                        <label class="profile-toggle">
-                            <input type="checkbox" id="profileHighContrast" onchange="toggleHighContrast(this.checked)">
-                            <span class="profile-toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="profile-a11y-row">
-                        <div class="profile-a11y-info">
-                            <span class="profile-a11y-label">Dyslexia-Friendly Font</span>
-                            <span class="profile-a11y-desc">Switch to OpenDyslexic for easier reading</span>
-                        </div>
-                        <label class="profile-toggle">
-                            <input type="checkbox" id="profileDyslexiaFont" onchange="toggleDyslexiaFont(this.checked)">
-                            <span class="profile-toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
             <!-- Community Section -->
             <div class="profile-card">
                 <div class="profile-card-header">
@@ -2347,6 +2291,62 @@
                     <div class="profile-badge-preview" id="profileBadgePreview" style="display:none;">
                         <p class="profile-field-label" style="margin-top:0.75rem; margin-bottom:0.5rem; font-size:0.85rem; color:var(--sage-dark);">Your community badges:</p>
                         <div id="profileBadgePreviewBadges" style="display:flex; gap:0.5rem; flex-wrap:wrap;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessibility Section -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <div class="profile-card-icon a11y-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div>
+                        <h3>Accessibility</h3>
+                        <p class="profile-card-desc">Customize your experience</p>
+                    </div>
+                </div>
+                <div class="profile-a11y-options">
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Font Size</span>
+                            <span class="profile-a11y-desc">Adjust text size across the app</span>
+                        </div>
+                        <div class="profile-font-size-btns">
+                            <button class="profile-size-btn active" onclick="setFontSize('normal')" data-size="normal">A</button>
+                            <button class="profile-size-btn" onclick="setFontSize('large')" data-size="large">A</button>
+                            <button class="profile-size-btn" onclick="setFontSize('x-large')" data-size="x-large">A</button>
+                        </div>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Reduced Motion</span>
+                            <span class="profile-a11y-desc">Minimize animations and transitions</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileReducedMotion" onchange="toggleReducedMotion(this.checked)">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">High Contrast</span>
+                            <span class="profile-a11y-desc">Increase contrast for better readability</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileHighContrast" onchange="toggleHighContrast(this.checked)">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Dyslexia-Friendly Font</span>
+                            <span class="profile-a11y-desc">Switch to OpenDyslexic for easier reading</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileDyslexiaFont" onchange="toggleDyslexiaFont(this.checked)">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
                     </div>
                 </div>
             </div>
