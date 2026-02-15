@@ -49,6 +49,11 @@ function showPage(pageId) {
     if (pageId === 'thought-for-the-day' && window.loadThoughtForTheDay) {
         window.loadThoughtForTheDay();
     }
+    if (pageId === 'profile') {
+        if (typeof window.loadProfileData === 'function') window.loadProfileData();
+        if (typeof syncA11yUI === 'function') syncA11yUI();
+        if (typeof initProfilePage === 'function') initProfilePage();
+    }
 }
 window.showPage = showPage;
 
@@ -1076,3 +1081,273 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+/* ============================================================
+   MY PROFILE PAGE
+   ============================================================ */
+
+const AVATAR_COLORS = [
+    { name: 'Forest',     value: 'linear-gradient(135deg, #2D5A3D, #1E4D2E)' },
+    { name: 'Terracotta', value: 'linear-gradient(135deg, #BF6A3A, #A0522D)' },
+    { name: 'Ocean',      value: 'linear-gradient(135deg, #3D6B99, #2A4D6E)' },
+    { name: 'Sunrise',    value: 'linear-gradient(135deg, #D4880A, #C9952B)' },
+    { name: 'Lavender',   value: 'linear-gradient(135deg, #7B68AE, #5B4D8E)' },
+    { name: 'Rose',       value: 'linear-gradient(135deg, #C9527A, #9B3A5C)' },
+    { name: 'Sage',       value: 'linear-gradient(135deg, #4A7C59, #356B45)' },
+    { name: 'Midnight',   value: 'linear-gradient(135deg, #3D3229, #2A1F17)' },
+    { name: 'Amber',      value: 'linear-gradient(135deg, #D2691E, #8B3A1F)' },
+    { name: 'Teal',       value: 'linear-gradient(135deg, #2A7B7B, #1D5555)' },
+];
+
+const AVATAR_ICONS = {
+    lotus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 9.5 3 14 3 17a9 9 0 0 0 18 0c0-3-3.5-7.5-9-15z"/></svg>',
+    sunrise: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg>',
+    mountain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21l4-10 4 10"/><path d="M2 21h20"/><path d="M14.5 15l3.5-7 4 7"/></svg>',
+    tree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7"/><path d="M7 15l5-12 5 12H7z"/></svg>',
+    wave: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg>',
+    butterfly: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5.5 8C3 5 1 7 2 10s4 5 7 4c1-.3 2-1 3-2"/><path d="M18.5 8C21 5 23 7 22 10s-4 5-7 4c-1-.3-2-1-3-2"/><path d="M5.5 16C3 19 1 17 2 14"/><path d="M18.5 16c2.5 3 4.5 1 3.5-2"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    feather: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>',
+    compass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>',
+    dove: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8c0-3-2-6-6-6S6 5 6 8c0 2 1 4 3 5l-4 8h14l-4-8c2-1 3-3 3-5z"/><circle cx="12" cy="7" r="1"/></svg>',
+    phoenix: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-4-4-8-8-8-14 0-3 2-6 5-6 2 0 3 1.5 3 1.5S13 1 15 1c3 0 5 3 5 6 0 6-4 10-8 15z"/></svg>',
+    rainbow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a10 10 0 0 0-20 0"/><path d="M19 17a7 7 0 0 0-14 0"/><path d="M16 17a4 4 0 0 0-8 0"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c-4 0-8-3-8-8 0-6 8-14 8-14s8 8 8 14c0 5-4 8-8 8z"/><path d="M12 22c-2 0-4-1.5-4-4 0-3 4-7 4-7s4 4 4 7c0 2.5-2 4-4 4z"/></svg>',
+    leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13C4 6 11 2 17 2c0 6-3.5 10-6 13"/><path d="M4 20l7-7"/></svg>',
+};
+window.AVATAR_ICONS = AVATAR_ICONS;
+
+function initProfilePage() {
+    const colorGrid = document.getElementById('profileColorGrid');
+    if (colorGrid && colorGrid.children.length === 0) {
+        colorGrid.innerHTML = AVATAR_COLORS.map(c =>
+            `<button class="profile-color-swatch${window._profileAvatarColor === c.value ? ' selected' : ''}"
+                     style="background: ${c.value}" title="${c.name}"
+                     data-color="${c.value}" onclick="selectAvatarColor(this)"></button>`
+        ).join('');
+    }
+
+    const iconGrid = document.getElementById('profileIconGrid');
+    if (iconGrid && iconGrid.children.length === 0) {
+        iconGrid.innerHTML = Object.entries(AVATAR_ICONS).map(([key, svg]) =>
+            `<button class="profile-icon-btn${window._profileAvatarIcon === key ? ' selected' : ''}"
+                     data-icon="${key}" onclick="selectAvatarIcon(this)">${svg}</button>`
+        ).join('');
+    }
+
+    // Set active avatar tab
+    const activeTab = window._profileAvatarType || 'initial';
+    document.querySelectorAll('.profile-avatar-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === activeTab);
+    });
+    document.querySelectorAll('.profile-avatar-panel').forEach(p => p.classList.add('hidden'));
+    const activePanel = document.getElementById('avatarPanel' + activeTab.charAt(0).toUpperCase() + activeTab.slice(1));
+    if (activePanel) activePanel.classList.remove('hidden');
+
+    // Pronoun custom field toggle
+    const pronounsSelect = document.getElementById('profilePronouns');
+    if (pronounsSelect && !pronounsSelect._profileBound) {
+        pronounsSelect._profileBound = true;
+        pronounsSelect.addEventListener('change', () => {
+            const custom = document.getElementById('profilePronounsCustom');
+            if (pronounsSelect.value === 'custom') {
+                custom.classList.remove('hidden');
+                custom.focus();
+            } else {
+                custom.classList.add('hidden');
+            }
+        });
+    }
+
+    // Mantra char counter
+    const mantraInput = document.getElementById('profileMantra');
+    if (mantraInput && !mantraInput._profileBound) {
+        mantraInput._profileBound = true;
+        mantraInput.addEventListener('input', () => {
+            const count = document.getElementById('profileMantraCount');
+            if (count) count.textContent = mantraInput.value.length;
+        });
+    }
+
+    renderProfileAvatar();
+}
+
+function switchAvatarTab(tab) {
+    document.querySelectorAll('.profile-avatar-tab').forEach(t => t.classList.remove('active'));
+    const activeTab = document.querySelector(`.profile-avatar-tab[data-tab="${tab}"]`);
+    if (activeTab) activeTab.classList.add('active');
+
+    document.querySelectorAll('.profile-avatar-panel').forEach(p => p.classList.add('hidden'));
+    const panel = document.getElementById('avatarPanel' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (panel) panel.classList.remove('hidden');
+
+    window._profileAvatarType = tab;
+    renderProfileAvatar();
+}
+window.switchAvatarTab = switchAvatarTab;
+
+function selectAvatarColor(btn) {
+    document.querySelectorAll('.profile-color-swatch').forEach(s => s.classList.remove('selected'));
+    btn.classList.add('selected');
+    window._profileAvatarColor = btn.dataset.color;
+    renderProfileAvatar();
+}
+window.selectAvatarColor = selectAvatarColor;
+
+function selectAvatarIcon(btn) {
+    document.querySelectorAll('.profile-icon-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    window._profileAvatarIcon = btn.dataset.icon;
+    window._profileAvatarType = 'icon';
+    renderProfileAvatar();
+}
+window.selectAvatarIcon = selectAvatarIcon;
+
+function renderProfileAvatar() {
+    const preview = document.getElementById('profileAvatarPreview');
+    if (!preview) return;
+
+    const type = window._profileAvatarType || 'initial';
+    preview.innerHTML = '';
+    preview.style.backgroundImage = '';
+
+    if (type === 'photo' && window._profileAvatarUrl) {
+        preview.innerHTML = `<img src="${window._profileAvatarUrl}" alt="Profile photo">`;
+        preview.style.background = 'transparent';
+    } else if (type === 'icon' && window._profileAvatarIcon) {
+        const svg = AVATAR_ICONS[window._profileAvatarIcon] || '';
+        preview.innerHTML = svg;
+        preview.style.background = window._profileAvatarColor || 'linear-gradient(135deg, var(--terracotta), var(--rust))';
+        const svgEl = preview.querySelector('svg');
+        if (svgEl) {
+            svgEl.style.width = '40px';
+            svgEl.style.height = '40px';
+            svgEl.setAttribute('stroke', 'white');
+        }
+    } else {
+        const user = window.getCurrentUser ? window.getCurrentUser() : null;
+        const initial = (user?.displayName || user?.email || 'U').charAt(0).toUpperCase();
+        preview.textContent = initial;
+        preview.style.background = window._profileAvatarColor || 'linear-gradient(135deg, var(--terracotta), var(--rust))';
+    }
+}
+window.renderProfileAvatar = renderProfileAvatar;
+
+// Photo crop
+let cropImage = null;
+let cropZoom = 1;
+
+function handleProfilePhotoSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('Photo must be under 2MB');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        cropImage = new Image();
+        cropImage.onload = function() {
+            document.getElementById('profileCropArea').classList.remove('hidden');
+            document.getElementById('profileCropZoom').value = 1;
+            cropZoom = 1;
+            drawCropPreview();
+        };
+        cropImage.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+window.handleProfilePhotoSelect = handleProfilePhotoSelect;
+
+function updateCropZoom(value) {
+    cropZoom = parseFloat(value);
+    drawCropPreview();
+}
+window.updateCropZoom = updateCropZoom;
+
+function drawCropPreview() {
+    const canvas = document.getElementById('profileCropCanvas');
+    if (!canvas || !cropImage) return;
+    const ctx = canvas.getContext('2d');
+    const size = 200;
+    ctx.clearRect(0, 0, size, size);
+    const imgMin = Math.min(cropImage.width, cropImage.height);
+    const sourceSize = imgMin / cropZoom;
+    const sx = (cropImage.width - sourceSize) / 2;
+    const sy = (cropImage.height - sourceSize) / 2;
+    ctx.drawImage(cropImage, sx, sy, sourceSize, sourceSize, 0, 0, size, size);
+}
+
+async function confirmProfilePhoto() {
+    const canvas = document.getElementById('profileCropCanvas');
+    if (!canvas) return;
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    showToast('Uploading photo...');
+    const url = await window.uploadProfilePhoto(blob);
+    if (url) {
+        window._profileAvatarUrl = url;
+        window._profileAvatarType = 'photo';
+        renderProfileAvatar();
+        document.getElementById('profileCropArea').classList.add('hidden');
+        showToast('Photo uploaded!');
+    }
+}
+window.confirmProfilePhoto = confirmProfilePhoto;
+
+function cancelProfilePhoto() {
+    document.getElementById('profileCropArea').classList.add('hidden');
+    document.getElementById('profilePhotoInput').value = '';
+    cropImage = null;
+}
+window.cancelProfilePhoto = cancelProfilePhoto;
+
+// Accessibility toggles
+function setFontSize(size) {
+    document.body.classList.remove('font-large', 'font-x-large');
+    if (size === 'large') document.body.classList.add('font-large');
+    if (size === 'x-large') document.body.classList.add('font-x-large');
+    document.querySelectorAll('.profile-size-btn').forEach(b => b.classList.toggle('active', b.dataset.size === size));
+    localStorage.setItem('a11y-fontSize', size);
+}
+window.setFontSize = setFontSize;
+
+function toggleReducedMotion(enabled) {
+    document.body.classList.toggle('reduced-motion', enabled);
+    localStorage.setItem('a11y-reducedMotion', enabled);
+}
+window.toggleReducedMotion = toggleReducedMotion;
+
+function toggleHighContrast(enabled) {
+    document.body.classList.toggle('high-contrast', enabled);
+    localStorage.setItem('a11y-highContrast', enabled);
+}
+window.toggleHighContrast = toggleHighContrast;
+
+function toggleDyslexiaFont(enabled) {
+    document.body.classList.toggle('dyslexia-font', enabled);
+    localStorage.setItem('a11y-dyslexiaFont', enabled);
+}
+window.toggleDyslexiaFont = toggleDyslexiaFont;
+
+// Apply a11y prefs from localStorage instantly on page load
+function applyA11yFromLocalStorage() {
+    const fontSize = localStorage.getItem('a11y-fontSize');
+    if (fontSize === 'large') document.body.classList.add('font-large');
+    if (fontSize === 'x-large') document.body.classList.add('font-x-large');
+    if (localStorage.getItem('a11y-reducedMotion') === 'true') document.body.classList.add('reduced-motion');
+    if (localStorage.getItem('a11y-highContrast') === 'true') document.body.classList.add('high-contrast');
+    if (localStorage.getItem('a11y-dyslexiaFont') === 'true') document.body.classList.add('dyslexia-font');
+}
+applyA11yFromLocalStorage();
+
+function syncA11yUI() {
+    const fontSize = localStorage.getItem('a11y-fontSize') || 'normal';
+    document.querySelectorAll('.profile-size-btn').forEach(b => b.classList.toggle('active', b.dataset.size === fontSize));
+    const rm = document.getElementById('profileReducedMotion');
+    if (rm) rm.checked = localStorage.getItem('a11y-reducedMotion') === 'true';
+    const hc = document.getElementById('profileHighContrast');
+    if (hc) hc.checked = localStorage.getItem('a11y-highContrast') === 'true';
+    const df = document.getElementById('profileDyslexiaFont');
+    if (df) df.checked = localStorage.getItem('a11y-dyslexiaFont') === 'true';
+}

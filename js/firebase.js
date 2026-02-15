@@ -23,6 +23,12 @@ import {
     serverTimestamp,
     limit
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    getStorage,
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCPpKot45iQ98d-ttTjNN-eK3yCrB3N4so",
@@ -37,6 +43,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null;
@@ -247,6 +254,7 @@ async function loadUserData() {
     await loadUrgeEntries();
     await loadSafetyPlan();
     await loadCheckinWidget();
+    await loadProfileData();
 }
 
 async function loadCleanDate() {
@@ -1221,3 +1229,190 @@ async function saveSafetyPlanFull(data) {
     }
 }
 window.saveSafetyPlanFull = saveSafetyPlanFull;
+
+// ========== MY PROFILE ==========
+
+async function loadProfileData() {
+    if (!currentUser) return;
+    try {
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) return;
+        const data = docSnap.data();
+
+        // Populate personal info fields
+        const nameInput = document.getElementById('profilePreferredName');
+        if (nameInput) nameInput.value = data.preferredName || '';
+
+        const pronounsSelect = document.getElementById('profilePronouns');
+        const pronounsCustom = document.getElementById('profilePronounsCustom');
+        if (pronounsSelect) {
+            const val = data.pronouns || '';
+            if (['', 'he/him', 'she/her', 'they/them'].includes(val)) {
+                pronounsSelect.value = val;
+                if (pronounsCustom) pronounsCustom.classList.add('hidden');
+            } else {
+                pronounsSelect.value = 'custom';
+                if (pronounsCustom) {
+                    pronounsCustom.classList.remove('hidden');
+                    pronounsCustom.value = val;
+                }
+            }
+        }
+
+        const fellowshipSelect = document.getElementById('profileFellowship');
+        if (fellowshipSelect) fellowshipSelect.value = data.fellowship || '';
+
+        const mantraInput = document.getElementById('profileMantra');
+        if (mantraInput) {
+            mantraInput.value = data.mantra || '';
+            const countEl = document.getElementById('profileMantraCount');
+            if (countEl) countEl.textContent = (data.mantra || '').length;
+        }
+
+        // Avatar state
+        window._profileAvatarType = data.avatarType || 'initial';
+        window._profileAvatarColor = data.avatarColor || '';
+        window._profileAvatarIcon = data.avatarIcon || '';
+        window._profileAvatarUrl = data.avatarUrl || '';
+
+        if (typeof window.renderProfileAvatar === 'function') {
+            window.renderProfileAvatar();
+        }
+
+        // Community toggles
+        const opts = data.communityOptIn || {};
+        const pm = document.getElementById('profilePublicMilestones');
+        if (pm) pm.checked = opts.publicMilestones || false;
+        const op = document.getElementById('profileOpenToPartner');
+        if (op) op.checked = opts.openToPartner || false;
+        const sg = document.getElementById('profileSharedGratitude');
+        if (sg) sg.checked = opts.sharedGratitudeFeed || false;
+
+        // Update nav avatar
+        updateNavAvatar(data);
+    } catch (error) {
+        console.error('Error loading profile data:', error);
+    }
+}
+window.loadProfileData = loadProfileData;
+
+async function saveProfile() {
+    if (!currentUser) {
+        showToast('Please sign in first');
+        showPage('auth');
+        return;
+    }
+
+    const saveBtn = document.getElementById('profileSaveBtn');
+    const statusEl = document.getElementById('profileSaveStatus');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving...';
+
+    try {
+        let pronouns = document.getElementById('profilePronouns').value;
+        if (pronouns === 'custom') {
+            pronouns = (document.getElementById('profilePronounsCustom').value || '').trim();
+        }
+
+        const profileData = {
+            preferredName: (document.getElementById('profilePreferredName').value || '').trim(),
+            pronouns: pronouns,
+            fellowship: document.getElementById('profileFellowship').value || '',
+            mantra: (document.getElementById('profileMantra').value || '').trim().substring(0, 200),
+            avatarType: window._profileAvatarType || 'initial',
+            avatarColor: window._profileAvatarColor || '',
+            avatarIcon: window._profileAvatarIcon || '',
+            avatarUrl: window._profileAvatarUrl || '',
+            communityOptIn: {
+                publicMilestones: document.getElementById('profilePublicMilestones')?.checked || false,
+                openToPartner: document.getElementById('profileOpenToPartner')?.checked || false,
+                sharedGratitudeFeed: document.getElementById('profileSharedGratitude')?.checked || false,
+            },
+            lastProfileUpdate: serverTimestamp()
+        };
+
+        await setDoc(doc(db, 'users', currentUser.uid), profileData, { merge: true });
+
+        updateNavAvatar(profileData);
+
+        const welcomeEl = document.getElementById('welcomeUser');
+        if (welcomeEl) {
+            welcomeEl.textContent = `Welcome back, ${profileData.preferredName || currentUser.displayName || 'friend'}!`;
+        }
+
+        statusEl.textContent = 'Profile saved!';
+        showToast('Profile updated!');
+        setTimeout(() => { statusEl.textContent = ''; }, 3000);
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        showToast('Error saving profile');
+        statusEl.textContent = '';
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+    }
+}
+window.saveProfile = saveProfile;
+
+async function uploadProfilePhoto(blob) {
+    if (!currentUser) return null;
+    if (blob.size > 2 * 1024 * 1024) {
+        showToast('Photo must be under 2MB');
+        return null;
+    }
+    try {
+        const photoRef = storageRef(storage, `avatars/${currentUser.uid}/profile.jpg`);
+        await uploadBytes(photoRef, blob, { contentType: 'image/jpeg' });
+        const url = await getDownloadURL(photoRef);
+        return url;
+    } catch (error) {
+        console.error('Error uploading photo:', error);
+        showToast('Error uploading photo');
+        return null;
+    }
+}
+window.uploadProfilePhoto = uploadProfilePhoto;
+
+function updateNavAvatar(data) {
+    const trigger = document.getElementById('avatarTrigger');
+    if (!trigger) return;
+
+    trigger.textContent = '';
+    trigger.style.backgroundImage = '';
+    trigger.style.backgroundSize = '';
+    trigger.style.backgroundPosition = '';
+    trigger.innerHTML = '';
+
+    const type = data.avatarType || 'initial';
+
+    if (type === 'photo' && data.avatarUrl) {
+        trigger.style.backgroundImage = `url(${data.avatarUrl})`;
+        trigger.style.backgroundSize = 'cover';
+        trigger.style.backgroundPosition = 'center';
+    } else if (type === 'icon' && data.avatarIcon && window.AVATAR_ICONS) {
+        const iconSvg = window.AVATAR_ICONS[data.avatarIcon] || '';
+        if (iconSvg) {
+            trigger.innerHTML = iconSvg;
+            const svgEl = trigger.querySelector('svg');
+            if (svgEl) {
+                svgEl.style.width = '20px';
+                svgEl.style.height = '20px';
+                svgEl.setAttribute('stroke', 'white');
+            }
+        }
+        trigger.style.background = data.avatarColor || 'linear-gradient(135deg, var(--terracotta), var(--rust))';
+    } else {
+        const initial = (data.preferredName || currentUser?.displayName || currentUser?.email || 'U').charAt(0).toUpperCase();
+        trigger.textContent = initial;
+        if (data.avatarColor) {
+            trigger.style.background = data.avatarColor;
+        }
+    }
+
+    const nameEl = document.getElementById('avatarDropdownName');
+    if (nameEl) {
+        nameEl.textContent = data.preferredName || currentUser?.displayName || 'Recovery Friend';
+    }
+}
+window.updateNavAvatar = updateNavAvatar;

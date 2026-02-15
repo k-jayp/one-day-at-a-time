@@ -36,6 +36,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Open+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/opendyslexic" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/pages.css">
     <link rel="stylesheet" href="css/chat.css">
@@ -131,6 +132,10 @@
                     <div class="avatar-dropdown-name" id="avatarDropdownName"></div>
                     <div class="avatar-dropdown-email" id="avatarDropdownEmail"></div>
                 </div>
+                <button class="profile-dropdown-link" onclick="showPage('profile'); document.getElementById('avatarDropdown').classList.remove('open');">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    My Profile
+                </button>
                 <button class="sign-out-btn" onclick="signOutUser()">Sign Out</button>
             </div>
         </div>
@@ -2024,6 +2029,220 @@
                     Email: <a href="mailto:privacy@kidellpowell.com">privacy@kidellpowell.com</a><br>
                     Website: <a href="http://kidellpowell.com" target="_blank" rel="noopener">kidellpowell.com</a></p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- My Profile Page -->
+    <section id="profile" class="page">
+        <div class="profile-container">
+            <div class="page-header">
+                <h2>My Profile</h2>
+                <p>Make this space yours</p>
+            </div>
+
+            <!-- Avatar Section -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <div class="profile-card-icon avatar-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div>
+                        <h3>Your Avatar</h3>
+                        <p class="profile-card-desc">How you appear in the community</p>
+                    </div>
+                </div>
+                <div class="profile-avatar-preview">
+                    <div class="profile-avatar-circle" id="profileAvatarPreview"></div>
+                </div>
+                <div class="profile-avatar-tabs">
+                    <button class="profile-avatar-tab active" onclick="switchAvatarTab('initial')" data-tab="initial">Initial</button>
+                    <button class="profile-avatar-tab" onclick="switchAvatarTab('icon')" data-tab="icon">Icon</button>
+                    <button class="profile-avatar-tab" onclick="switchAvatarTab('photo')" data-tab="photo">Photo</button>
+                </div>
+                <div class="profile-avatar-panel" id="avatarPanelInitial">
+                    <p class="profile-field-label">Pick your color</p>
+                    <div class="profile-color-grid" id="profileColorGrid"></div>
+                </div>
+                <div class="profile-avatar-panel hidden" id="avatarPanelIcon">
+                    <p class="profile-field-label">Choose an icon</p>
+                    <div class="profile-icon-grid" id="profileIconGrid"></div>
+                </div>
+                <div class="profile-avatar-panel hidden" id="avatarPanelPhoto">
+                    <p class="profile-field-label">Upload a photo</p>
+                    <div class="profile-photo-upload">
+                        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhotoSelect(this)">
+                        <button class="btn btn-secondary profile-upload-btn" onclick="document.getElementById('profilePhotoInput').click()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Choose Photo
+                        </button>
+                        <p class="profile-photo-hint">JPG or PNG, max 2MB. Will be cropped to a circle.</p>
+                    </div>
+                    <div class="profile-crop-area hidden" id="profileCropArea">
+                        <canvas id="profileCropCanvas" width="200" height="200"></canvas>
+                        <input type="range" id="profileCropZoom" min="1" max="3" step="0.05" value="1" oninput="updateCropZoom(this.value)">
+                        <div class="profile-crop-actions">
+                            <button class="btn btn-primary" onclick="confirmProfilePhoto()">Use This Photo</button>
+                            <button class="btn btn-secondary" onclick="cancelProfilePhoto()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About You Section -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <div class="profile-card-icon info-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <div>
+                        <h3>About You</h3>
+                        <p class="profile-card-desc">Let the community know who you are</p>
+                    </div>
+                </div>
+                <div class="profile-form-fields">
+                    <div class="form-group">
+                        <label for="profilePreferredName">What should we call you?</label>
+                        <input type="text" id="profilePreferredName" placeholder="Your preferred name" maxlength="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="profilePronouns">Pronouns</label>
+                        <select id="profilePronouns">
+                            <option value="">Prefer not to say</option>
+                            <option value="he/him">he/him</option>
+                            <option value="she/her">she/her</option>
+                            <option value="they/them">they/them</option>
+                            <option value="custom">Custom...</option>
+                        </select>
+                        <input type="text" id="profilePronounsCustom" class="hidden" placeholder="Enter your pronouns" maxlength="30">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileFellowship">My fellowship</label>
+                        <select id="profileFellowship">
+                            <option value="">Not specified</option>
+                            <option value="NA">NA (Narcotics Anonymous)</option>
+                            <option value="AA">AA (Alcoholics Anonymous)</option>
+                            <option value="CA">CA (Cocaine Anonymous)</option>
+                            <option value="SMART">SMART Recovery</option>
+                            <option value="CR">Celebrate Recovery</option>
+                            <option value="RR">Refuge Recovery</option>
+                            <option value="None">None / Independent</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileMantra">Personal mantra</label>
+                        <textarea id="profileMantra" placeholder="A quote or phrase that guides your recovery..." maxlength="200" rows="2"></textarea>
+                        <div class="profile-char-count"><span id="profileMantraCount">0</span>/200</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accessibility Section -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <div class="profile-card-icon a11y-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    </div>
+                    <div>
+                        <h3>Accessibility</h3>
+                        <p class="profile-card-desc">Customize your experience</p>
+                    </div>
+                </div>
+                <div class="profile-a11y-options">
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Font Size</span>
+                            <span class="profile-a11y-desc">Adjust text size across the app</span>
+                        </div>
+                        <div class="profile-font-size-btns">
+                            <button class="profile-size-btn active" onclick="setFontSize('normal')" data-size="normal">A</button>
+                            <button class="profile-size-btn" onclick="setFontSize('large')" data-size="large">A</button>
+                            <button class="profile-size-btn" onclick="setFontSize('x-large')" data-size="x-large">A</button>
+                        </div>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Reduced Motion</span>
+                            <span class="profile-a11y-desc">Minimize animations and transitions</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileReducedMotion" onchange="toggleReducedMotion(this.checked)">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">High Contrast</span>
+                            <span class="profile-a11y-desc">Increase contrast for better readability</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileHighContrast" onchange="toggleHighContrast(this.checked)">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Dyslexia-Friendly Font</span>
+                            <span class="profile-a11y-desc">Switch to OpenDyslexic for easier reading</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileDyslexiaFont" onchange="toggleDyslexiaFont(this.checked)">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Community Section -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <div class="profile-card-icon community-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div>
+                        <h3>Community</h3>
+                        <p class="profile-card-desc">Choose how you participate</p>
+                    </div>
+                </div>
+                <div class="profile-community-options">
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Public Milestones</span>
+                            <span class="profile-a11y-desc">Celebrate recovery milestones on the community feed</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profilePublicMilestones">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Accountability Partner</span>
+                            <span class="profile-a11y-desc">Be discoverable for accountability partnerships</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileOpenToPartner">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Shared Gratitude Feed</span>
+                            <span class="profile-a11y-desc">Share your gratitude lists with the community</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileSharedGratitude">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="profile-save-area">
+                <button class="btn btn-primary profile-save-btn" id="profileSaveBtn" onclick="saveProfile()">Save Changes</button>
+                <p class="profile-save-status" id="profileSaveStatus"></p>
             </div>
         </div>
     </section>

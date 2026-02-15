@@ -248,6 +248,27 @@
         font-size: 0.9rem;
     }
 
+    /* Profile page mobile */
+    .profile-container { padding: 1.5rem; }
+    .profile-card { padding: 1.5rem; }
+    .profile-card-header h3 { font-size: 1.1rem; }
+    .profile-card-desc { font-size: 0.8rem; }
+    .profile-card-icon { width: 36px; height: 36px; }
+    .profile-card-icon svg { width: 18px; height: 18px; }
+    .profile-avatar-circle { width: 64px; height: 64px; font-size: 1.6rem; }
+    .profile-icon-grid { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+    .profile-icon-btn svg { width: 24px; height: 24px; }
+    .profile-a11y-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .profile-font-size-btns { align-self: flex-start; }
+    .profile-toggle { align-self: flex-start; }
+    .profile-crop-actions { flex-direction: column; }
+    .profile-crop-actions .btn { width: 100%; text-align: center; }
+    .profile-save-btn { width: 100%; }
+
+    /* Accessibility: mobile heading sizes */
+    body.font-large .page-header h2 { font-size: 2.25rem; }
+    body.font-x-large .page-header h2 { font-size: 2.5rem; }
+
     /* Cookie banner mobile */
     .cookie-banner { padding: 1rem 1.25rem; }
     .cookie-banner-content { flex-direction: column; text-align: center; gap: 1rem; }

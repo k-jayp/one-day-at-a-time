@@ -377,6 +377,32 @@ nav {
     word-break: break-all;
 }
 
+.profile-dropdown-link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 0.75rem;
+    border: none;
+    background: none;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--warm-brown);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+}
+
+.profile-dropdown-link:hover {
+    background: var(--sand);
+}
+
+.profile-dropdown-link svg {
+    color: var(--sage-dark);
+}
+
 .avatar-dropdown .sign-out-btn {
     width: 100%;
     text-align: center;
@@ -629,5 +655,80 @@ footer .quote {
 
 .cookie-btn.btn-secondary:hover {
     background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ============================================================
+   ACCESSIBILITY CLASSES
+   ============================================================ */
+
+/* Font Size: Large */
+body.font-large { font-size: 1.125rem; }
+body.font-large .page-header h2 { font-size: 3.5rem; }
+
+/* Font Size: Extra Large */
+body.font-x-large { font-size: 1.25rem; }
+body.font-x-large .page-header h2 { font-size: 4rem; }
+
+/* Reduced Motion */
+body.reduced-motion,
+body.reduced-motion *,
+body.reduced-motion *::before,
+body.reduced-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}
+
+body.reduced-motion .floating-shape { display: none; }
+
+body.reduced-motion .page.active {
+    animation: none;
+    opacity: 1;
+    transform: none;
+}
+
+/* High Contrast */
+body.high-contrast {
+    --glass-bg: rgba(255, 255, 255, 0.92);
+    --glass-border: rgba(0, 0, 0, 0.2);
+    --warm-brown: #1a0f08;
+    --sage-dark: #1a3d25;
+}
+
+body.high-contrast .profile-card,
+body.high-contrast .rpp-section,
+body.high-contrast .auth-card,
+body.high-contrast .jft-card,
+body.high-contrast .entry-card,
+body.high-contrast .journal-card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(0, 0, 0, 0.25);
+}
+
+body.high-contrast nav {
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+body.high-contrast .page-header h2 { color: #000; }
+
+/* Dyslexia-Friendly Font */
+body.dyslexia-font {
+    font-family: 'OpenDyslexic', var(--font-body), sans-serif;
+}
+
+body.dyslexia-font h1,
+body.dyslexia-font h2,
+body.dyslexia-font h3,
+body.dyslexia-font h4,
+body.dyslexia-font .page-header h2,
+body.dyslexia-font .logo-main {
+    font-family: 'OpenDyslexic', var(--font-heading), sans-serif;
+}
+
+body.dyslexia-font blockquote,
+body.dyslexia-font .daily-quote,
+body.dyslexia-font cite {
+    font-family: 'OpenDyslexic', var(--font-serif), serif;
 }
 
