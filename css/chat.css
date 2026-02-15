@@ -435,3 +435,39 @@
     color: white;
     font-weight: 600;
 }
+
+/* ─── Dark Mode Overrides ──────────────────────────────────── */
+body.dark-mode .chat-message.assistant {
+    background: #2E261F;
+    color: var(--warm-brown);
+}
+
+body.dark-mode .typing-indicator {
+    background: #2E261F;
+}
+
+body.dark-mode .chat-input-area {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .chat-input {
+    background: #241E18;
+    color: #E8DDD0;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .chat-input:focus {
+    border-color: var(--sage);
+}
+
+body.dark-mode .quick-prompts {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .toolkit-bar {
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .guided-exercises {
+    background: rgba(74, 155, 102, 0.06);
+}

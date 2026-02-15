@@ -4367,3 +4367,256 @@
     left: 0;
     font-size: 0.75rem;
 }
+
+/* ─── Dark Mode Overrides ──────────────────────────────────────────── */
+
+/* Form inputs across all pages */
+body.dark-mode input[type="text"],
+body.dark-mode input[type="email"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="date"],
+body.dark-mode input[type="datetime-local"],
+body.dark-mode input[type="number"],
+body.dark-mode select,
+body.dark-mode textarea {
+    background: #241E18;
+    color: #E8DDD0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: rgba(232, 221, 208, 0.4);
+}
+
+body.dark-mode select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23E8DDD0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+/* Auth page */
+body.dark-mode .auth-tab.active {
+    background: #2E261F;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .google-btn {
+    background: #2E261F;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--warm-brown);
+}
+
+body.dark-mode .google-btn:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: #352D25;
+}
+
+/* Buttons with white backgrounds */
+body.dark-mode .mood-btn,
+body.dark-mode .wall-mood-btn,
+body.dark-mode .checkin-mood-btn,
+body.dark-mode .intensity-btn,
+body.dark-mode .trigger-btn,
+body.dark-mode .celebrate-btn,
+body.dark-mode .rsvp-btn,
+body.dark-mode .profile-icon-btn,
+body.dark-mode .profile-size-btn,
+body.dark-mode .share-link-input {
+    background: #241E18;
+    color: var(--warm-brown);
+}
+
+/* Gratitude item inputs, journal inputs */
+body.dark-mode .gratitude-item-input {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Profile components */
+body.dark-mode .profile-avatar-tab.active {
+    background: #3A3028;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .profile-avatar-tabs {
+    background: #2E261F;
+}
+
+body.dark-mode .profile-avatar-circle {
+    border-color: #2E261F;
+}
+
+body.dark-mode .profile-icon-btn {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .profile-toggle-slider {
+    background: #3A3028;
+}
+
+body.dark-mode .profile-toggle-slider::before {
+    background: #E8DDD0;
+}
+
+/* Community nav bar and drawer */
+body.dark-mode .community-nav-bar {
+    background: #241E18;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .community-drawer-toggle {
+    background: #2E261F;
+}
+
+body.dark-mode .community-drawer-toggle:hover {
+    background: #3A3028;
+}
+
+body.dark-mode .community-drawer {
+    background: #1C1714;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .community-drawer-header {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .community-drawer-close {
+    background: #2E261F;
+}
+
+body.dark-mode .community-drawer-close:hover {
+    background: #3A3028;
+}
+
+body.dark-mode .community-drawer-item:hover {
+    background: #2E261F;
+}
+
+body.dark-mode .community-drawer-item.active {
+    background: var(--forest);
+}
+
+/* Community pinned events */
+body.dark-mode .community-pinned-event {
+    background: #241E18;
+}
+
+/* What's New panel */
+body.dark-mode .whats-new-panel {
+    background: #1C1714;
+    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .whats-new-header {
+    background: #241E18;
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Sign-in prompts */
+body.dark-mode .sign-in-prompt {
+    background: linear-gradient(135deg, #2E261F 0%, #241E18 100%);
+    border-color: rgba(212, 136, 79, 0.3);
+}
+
+/* Milestone achievement block */
+body.dark-mode .milestone-card-achievement {
+    background: rgba(74, 155, 102, 0.12);
+}
+
+/* Safety plan journey */
+body.dark-mode #rppJourneyOverlay {
+    background: linear-gradient(160deg, #1C1714 0%, #241E18 50%, #2A231C 100%);
+}
+
+body.dark-mode .rpp-journey-input {
+    background: rgba(46, 38, 31, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #E8DDD0;
+}
+
+body.dark-mode .rpp-journey-input:focus {
+    background: rgba(46, 38, 31, 0.95);
+    box-shadow: 0 0 0 3px rgba(74, 155, 102, 0.15);
+}
+
+body.dark-mode .rpp-journey-pill,
+body.dark-mode .rpp-journey-contact-pill,
+body.dark-mode .rpp-journey-numbered-pill {
+    background: rgba(46, 38, 31, 0.7);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .rpp-journey-close {
+    background: rgba(46, 38, 31, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .rpp-intro-card {
+    background: rgba(35, 28, 22, 0.7);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .rpp-walkthrough-again {
+    background: rgba(46, 38, 31, 0.5);
+}
+
+body.dark-mode .rpp-walkthrough-again:hover {
+    background: rgba(46, 38, 31, 0.8);
+}
+
+body.dark-mode .rpp-edit-item {
+    background: rgba(46, 38, 31, 0.6);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Showcase cards (guest homepage) */
+body.dark-mode .showcase-card {
+    background: rgba(35, 28, 22, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Privacy table stripes */
+body.dark-mode .privacy-table tr:nth-child(even) td {
+    background: rgba(46, 38, 31, 0.3);
+}
+
+/* Events cards */
+body.dark-mode .event-card {
+    background: rgba(35, 28, 22, 0.65);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Wall messages */
+body.dark-mode .wall-message {
+    background: rgba(35, 28, 22, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Clean date setup */
+body.dark-mode .clean-date-setup {
+    background: #241E18;
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Streak badge unearned */
+body.dark-mode .milestone-badge.unearned {
+    opacity: 0.35;
+}
+
+/* Urge log and check-in cards */
+body.dark-mode .urge-card,
+body.dark-mode .urge-detail-fields {
+    background: rgba(35, 28, 22, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Gratitude & journal entry cards */
+body.dark-mode .gratitude-feed-card {
+    background: rgba(35, 28, 22, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Fellowship resource cards */
+body.dark-mode .fellowship-link {
+    background: rgba(35, 28, 22, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+}

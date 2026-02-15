@@ -1433,6 +1433,15 @@ function toggleDyslexiaFont(enabled) {
 }
 window.toggleDyslexiaFont = toggleDyslexiaFont;
 
+function toggleDarkMode(enabled) {
+    document.body.classList.toggle('dark-mode', enabled);
+    localStorage.setItem('a11y-darkMode', enabled);
+    // Update meta theme-color for mobile browser chrome
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', enabled ? '#1C1714' : '#FAF6F0');
+}
+window.toggleDarkMode = toggleDarkMode;
+
 // Apply a11y prefs from localStorage instantly on page load
 function applyA11yFromLocalStorage() {
     const fontSize = localStorage.getItem('a11y-fontSize');
@@ -1441,8 +1450,30 @@ function applyA11yFromLocalStorage() {
     if (localStorage.getItem('a11y-reducedMotion') === 'true') document.body.classList.add('reduced-motion');
     if (localStorage.getItem('a11y-highContrast') === 'true') document.body.classList.add('high-contrast');
     if (localStorage.getItem('a11y-dyslexiaFont') === 'true') document.body.classList.add('dyslexia-font');
+    // Dark mode: respect localStorage first, then system preference as fallback
+    const savedDarkMode = localStorage.getItem('a11y-darkMode');
+    if (savedDarkMode !== null) {
+        if (savedDarkMode === 'true') document.body.classList.add('dark-mode');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark-mode');
+    }
+    // Update meta theme-color based on active mode
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta && document.body.classList.contains('dark-mode')) meta.setAttribute('content', '#1C1714');
 }
 applyA11yFromLocalStorage();
+
+// Listen for system dark mode changes (only if user hasn't manually set preference)
+if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (localStorage.getItem('a11y-darkMode') === null) {
+            document.body.classList.toggle('dark-mode', e.matches);
+            const meta = document.querySelector('meta[name="theme-color"]');
+            if (meta) meta.setAttribute('content', e.matches ? '#1C1714' : '#FAF6F0');
+            syncA11yUI();
+        }
+    });
+}
 
 function syncA11yUI() {
     const fontSize = localStorage.getItem('a11y-fontSize') || 'normal';
@@ -1453,6 +1484,8 @@ function syncA11yUI() {
     if (hc) hc.checked = localStorage.getItem('a11y-highContrast') === 'true';
     const df = document.getElementById('profileDyslexiaFont');
     if (df) df.checked = localStorage.getItem('a11y-dyslexiaFont') === 'true';
+    const dm = document.getElementById('profileDarkMode');
+    if (dm) dm.checked = document.body.classList.contains('dark-mode');
 }
 
 // ─── What's New Panel ───────────────────────────────────────────────

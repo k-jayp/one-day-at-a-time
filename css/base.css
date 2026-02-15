@@ -732,3 +732,123 @@ body.dyslexia-font cite {
     font-family: 'OpenDyslexic', var(--font-serif), serif;
 }
 
+/* ─── Dark Mode ────────────────────────────────────────────────────── */
+body.dark-mode {
+    --cream: #1C1714;
+    --warm-brown: #E8DDD0;
+    --sand: #2E261F;
+    --blush: #3A2A22;
+    --sage: #5A9B6E;
+    --sage-dark: #8CB89A;
+    --forest: #4A9B66;
+    --deep-sage: #5DAF78;
+    --terracotta: #D4884F;
+    --terracotta-light: #E0A875;
+    --rust: #C97A4F;
+    --deep-terracotta: #B85A3A;
+    --burnt-sienna: #E08840;
+    --gold: #DEAD4F;
+    --amber: #E8A030;
+    --midnight-brown: #E0D5C8;
+    --glass-bg: rgba(35, 28, 22, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode::before {
+    background-image:
+        radial-gradient(ellipse at 10% 90%, rgba(191, 106, 58, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 10%, rgba(74, 155, 102, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(222, 173, 79, 0.03) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(74, 155, 102, 0.04) 0%, transparent 40%);
+}
+
+body.dark-mode nav {
+    background: rgba(28, 23, 20, 0.90);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .nav-dropdown {
+    background: rgba(40, 33, 26, 0.96);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .nav-dropdown::after {
+    border-bottom-color: rgba(40, 33, 26, 0.96);
+}
+
+body.dark-mode .nav-dropdown li a:hover {
+    background: var(--sand);
+}
+
+body.dark-mode .avatar-dropdown {
+    background: #241E18;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .avatar-dropdown a,
+body.dark-mode .avatar-dropdown button {
+    color: var(--warm-brown);
+}
+
+body.dark-mode .avatar-dropdown a:hover,
+body.dark-mode .avatar-dropdown button:hover {
+    background: var(--sand);
+}
+
+body.dark-mode .toast {
+    background: #E8DDD0;
+    color: #1C1714;
+}
+
+body.dark-mode footer {
+    background: #211B16;
+}
+
+body.dark-mode .mobile-menu-btn span {
+    background: var(--warm-brown);
+}
+
+body.dark-mode .auth-error {
+    background: #3D1F1F;
+    color: #F87171;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background: #1C1714;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: #3A3028;
+    border-radius: 4px;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: #4A3E34;
+}
+
+/* Dark Mode + High Contrast combo */
+body.dark-mode.high-contrast {
+    --glass-bg: rgba(35, 28, 22, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --warm-brown: #F5EDE5;
+    --sage-dark: #A0D0B0;
+}
+
+body.dark-mode.high-contrast .profile-card,
+body.dark-mode.high-contrast .rpp-section,
+body.dark-mode.high-contrast .auth-card,
+body.dark-mode.high-contrast .jft-card,
+body.dark-mode.high-contrast .entry-card,
+body.dark-mode.high-contrast .journal-card {
+    background: rgba(35, 28, 22, 0.95);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+body.dark-mode.high-contrast nav {
+    background: rgba(28, 23, 20, 0.95);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+body.dark-mode.high-contrast .page-header h2 { color: #FFFFFF; }
+

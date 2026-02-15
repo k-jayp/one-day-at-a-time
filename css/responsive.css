@@ -297,4 +297,11 @@
     .medallion-invite-form .form-row { grid-template-columns: 1fr; }
     .medallion-invite-form { padding: 1.25rem; }
     .sponsor-badge { font-size: 0.55rem; }
+
+    /* Dark mode mobile nav */
+    body.dark-mode .nav-links {
+        background: rgba(28, 23, 20, 0.97);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
 }
