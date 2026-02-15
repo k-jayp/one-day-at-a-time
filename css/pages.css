@@ -3528,3 +3528,216 @@
     margin-top: 0.75rem;
     min-height: 1.2em;
 }
+
+/* ─── Guest Feature Showcase ─────────────────────────────────────── */
+.showcase-heading {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--forest-green);
+    margin-bottom: 0.5rem;
+}
+
+.showcase-subheading {
+    font-size: 1.05rem;
+    color: var(--warm-brown);
+    margin-bottom: 2rem;
+    opacity: 0.85;
+}
+
+.showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.showcase-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: left;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.showcase-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.showcase-card-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    line-height: 1;
+}
+
+.showcase-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--forest-green);
+    margin-bottom: 0.4rem;
+}
+
+.showcase-card p {
+    font-size: 0.88rem;
+    color: var(--warm-brown);
+    line-height: 1.5;
+    opacity: 0.85;
+    margin: 0;
+}
+
+.showcase-cta {
+    text-align: center;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.showcase-cta .btn-lg {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 50px;
+}
+
+/* ─── What's New Panel ───────────────────────────────────────────── */
+.whats-new-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 3000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.whats-new-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.whats-new-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100%;
+    background: var(--warm-beige);
+    z-index: 3001;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.12);
+}
+
+.whats-new-panel.open {
+    transform: translateX(0);
+}
+
+.whats-new-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.whats-new-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: var(--forest-green);
+    margin: 0;
+}
+
+.whats-new-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--warm-brown);
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.whats-new-close:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.whats-new-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.whats-new-version-badge {
+    display: inline-block;
+    background: var(--forest-green);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    margin-bottom: 1.25rem;
+    font-family: var(--font-heading);
+}
+
+.whats-new-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.whats-new-item:last-child {
+    border-bottom: none;
+}
+
+.whats-new-item-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 2rem;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.whats-new-item-text h4 {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--forest-green);
+    margin: 0 0 0.25rem;
+}
+
+.whats-new-item-text p {
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+    line-height: 1.5;
+    margin: 0;
+    opacity: 0.85;
+}
+
+.whats-new-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.whats-new-dismiss {
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 14px;
+}

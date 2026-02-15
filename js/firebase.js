@@ -71,32 +71,33 @@ function updateUIForAuthState(user) {
     // Unified nav elements
     const avatarWrapper = document.getElementById('avatarDropdownWrapper');
     const signInBtn = document.getElementById('signInBtn');
-    // Content sections
+    const myJourneyDropdown = document.getElementById('myJourneyDropdown');
+    // Home page sections
+    const homeGuestShowcase = document.getElementById('homeGuestShowcase');
+    const homeAuthContent = document.getElementById('homeAuthContent');
     const cleanTimeSection = document.getElementById('cleanTimeSection');
-    const cleanTimePrompt = document.getElementById('cleanTimePrompt');
+    const heroCta = document.getElementById('heroCta');
+    const welcomeUser = document.getElementById('welcomeUser');
+    // Content sections (auth-gated pages)
     const gratitudeFormSection = document.getElementById('gratitudeFormSection');
-    const gratitudeSignInPrompt = document.getElementById('gratitudeSignInPrompt');
     const pastEntriesSection = document.getElementById('pastEntriesSection');
     const journalFormSection = document.getElementById('journalFormSection');
-    const journalSignInPrompt = document.getElementById('journalSignInPrompt');
     const journalEntriesSection = document.getElementById('journalEntriesSection');
-    const welcomeUser = document.getElementById('welcomeUser');
     // Community wall elements
     const wallPostForm = document.getElementById('wallPostForm');
     const wallSignInPrompt = document.getElementById('wallSignInPrompt');
     // Urge log elements
     const urgeFormSection = document.getElementById('urgeFormSection');
-    const urgeSignInPrompt = document.getElementById('urgeSignInPrompt');
     const urgeEntriesSection = document.getElementById('urgeEntriesSection');
     const urgeSummary = document.getElementById('urgeSummary');
     // Safety plan elements
     const rppContent = document.getElementById('rppContent');
-    const rppSignInPrompt = document.getElementById('rppSignInPrompt');
 
     if (user) {
         // Show signed-in UI
         avatarWrapper.style.display = 'block';
         signInBtn.style.display = 'none';
+        if (myJourneyDropdown) myJourneyDropdown.style.display = '';
 
         // Set avatar initial and dropdown info
         const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
@@ -107,23 +108,23 @@ function updateUIForAuthState(user) {
         // Welcome message
         welcomeUser.textContent = `Welcome back, ${user.displayName || 'friend'}!`;
 
-        // Show logged-in content
+        // Home page: show auth content, hide guest showcase
+        if (homeAuthContent) homeAuthContent.style.display = 'block';
+        if (homeGuestShowcase) homeGuestShowcase.style.display = 'none';
+        if (heroCta) heroCta.style.display = '';
         cleanTimeSection.style.display = 'block';
-        cleanTimePrompt.style.display = 'none';
+
+        // Show logged-in content on auth-gated pages
         gratitudeFormSection.style.display = 'block';
-        gratitudeSignInPrompt.style.display = 'none';
         pastEntriesSection.style.display = 'block';
         journalFormSection.style.display = 'block';
-        journalSignInPrompt.style.display = 'none';
         journalEntriesSection.style.display = 'block';
         if (wallPostForm) wallPostForm.style.display = 'block';
         if (wallSignInPrompt) wallSignInPrompt.style.display = 'none';
         if (urgeFormSection) urgeFormSection.style.display = 'block';
-        if (urgeSignInPrompt) urgeSignInPrompt.style.display = 'none';
         if (urgeEntriesSection) urgeEntriesSection.style.display = 'block';
         if (urgeSummary) urgeSummary.style.display = 'flex';
         if (rppContent) rppContent.style.display = 'block';
-        if (rppSignInPrompt) rppSignInPrompt.style.display = 'none';
 
         // Navigate to appropriate page
         const hash = window.location.hash;
@@ -132,31 +133,35 @@ function updateUIForAuthState(user) {
         } else if (hash === '#auth') {
             showPage('home');
         }
+
+        // Check for What's New panel
+        if (window.checkWhatsNew) window.checkWhatsNew();
     } else {
         // Show signed-out UI
         avatarWrapper.style.display = 'none';
         signInBtn.style.display = 'block';
+        if (myJourneyDropdown) myJourneyDropdown.style.display = 'none';
 
         // Clear welcome message
         welcomeUser.textContent = '';
 
-        // Show signed-out content
+        // Home page: show guest showcase, hide auth content
+        if (homeAuthContent) homeAuthContent.style.display = 'none';
+        if (homeGuestShowcase) homeGuestShowcase.style.display = 'block';
+        if (heroCta) heroCta.style.display = 'none';
         cleanTimeSection.style.display = 'none';
-        cleanTimePrompt.style.display = 'block';
+
+        // Hide logged-in content on auth-gated pages
         gratitudeFormSection.style.display = 'none';
-        gratitudeSignInPrompt.style.display = 'block';
         pastEntriesSection.style.display = 'none';
         journalFormSection.style.display = 'none';
-        journalSignInPrompt.style.display = 'block';
         journalEntriesSection.style.display = 'none';
         if (wallPostForm) wallPostForm.style.display = 'none';
         if (wallSignInPrompt) wallSignInPrompt.style.display = 'block';
         if (urgeFormSection) urgeFormSection.style.display = 'none';
-        if (urgeSignInPrompt) urgeSignInPrompt.style.display = 'block';
         if (urgeEntriesSection) urgeEntriesSection.style.display = 'none';
         if (urgeSummary) urgeSummary.style.display = 'none';
         if (rppContent) rppContent.style.display = 'none';
-        if (rppSignInPrompt) rppSignInPrompt.style.display = 'block';
 
         // Handle shared view (allow without auth)
         const hash = window.location.hash;

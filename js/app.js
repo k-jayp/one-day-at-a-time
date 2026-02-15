@@ -11,7 +11,23 @@ const NAV_PARENT_MAP = {
     'community': true,
 };
 
+// Pages that require authentication — guests are redirected to auth
+const AUTH_GATED_PAGES = new Set(['gratitude', 'journal', 'urges', 'safety-plan', 'profile']);
+
 function showPage(pageId) {
+    // Auth gate: redirect to sign-in if trying to access gated page while signed out
+    if (AUTH_GATED_PAGES.has(pageId) && typeof window.getCurrentUser === 'function' && !window.getCurrentUser()) {
+        showPage('auth');
+        // Show toast notification
+        const toast = document.getElementById('toast');
+        if (toast) {
+            toast.textContent = 'Sign in to access this feature';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        return;
+    }
+
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     const target = document.getElementById(pageId);
     if (target) target.classList.add('active');
@@ -1351,3 +1367,36 @@ function syncA11yUI() {
     const df = document.getElementById('profileDyslexiaFont');
     if (df) df.checked = localStorage.getItem('a11y-dyslexiaFont') === 'true';
 }
+
+// ─── What's New Panel ───────────────────────────────────────────────
+const WHATS_NEW_VERSION = '2026.02';
+
+function showWhatsNew() {
+    const overlay = document.getElementById('whatsNewOverlay');
+    const panel = document.getElementById('whatsNewPanel');
+    if (!overlay || !panel) return;
+    overlay.classList.add('open');
+    panel.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+window.showWhatsNew = showWhatsNew;
+
+function dismissWhatsNew() {
+    const overlay = document.getElementById('whatsNewOverlay');
+    const panel = document.getElementById('whatsNewPanel');
+    if (!overlay || !panel) return;
+    overlay.classList.remove('open');
+    panel.classList.remove('open');
+    document.body.style.overflow = '';
+    localStorage.setItem('whatsNewSeen', WHATS_NEW_VERSION);
+}
+window.dismissWhatsNew = dismissWhatsNew;
+
+function checkWhatsNew() {
+    const seen = localStorage.getItem('whatsNewSeen');
+    if (seen !== WHATS_NEW_VERSION) {
+        // Small delay so the page settles after sign-in
+        setTimeout(() => showWhatsNew(), 800);
+    }
+}
+window.checkWhatsNew = checkWhatsNew;

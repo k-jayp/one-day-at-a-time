@@ -274,4 +274,15 @@
     .cookie-banner-content { flex-direction: column; text-align: center; gap: 1rem; }
     .cookie-banner-content p { font-size: 0.82rem; }
     .cookie-banner-actions { justify-content: center; }
+
+    /* Guest showcase mobile */
+    .showcase-heading { font-size: 1.4rem; }
+    .showcase-subheading { font-size: 0.95rem; }
+    .showcase-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .showcase-card { padding: 1.25rem; }
+    .showcase-card-icon { font-size: 1.75rem; }
+    .showcase-cta .btn-lg { width: 100%; padding: 0.9rem 1.5rem; font-size: 1rem; }
+
+    /* What's New panel mobile */
+    .whats-new-panel { width: 100vw; }
 }
