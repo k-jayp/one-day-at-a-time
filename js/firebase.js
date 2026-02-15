@@ -1073,9 +1073,64 @@ async function postMilestoneToCommunity(milestone) {
 }
 window.postMilestoneToCommunity = postMilestoneToCommunity;
 
+// Backfill: post any earned milestones that are missing from the community collection
+async function backfillMilestones() {
+    if (!currentUser) return;
+    try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const userData = userDoc.data() || {};
+        const opts = userData.communityOptIn || {};
+        if (!opts.publicMilestones) return;
+
+        const cleanDate = userData.cleanDate;
+        if (!cleanDate) return;
+        const p = cleanDate.split('-');
+        const cleanLocal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+        const days = Math.floor((new Date() - cleanLocal) / (1000*60*60*24));
+
+        // Find all milestones user has earned
+        const earned = MILESTONES.filter(m => days >= m.days);
+        if (earned.length === 0) return;
+
+        // Check which ones are already posted
+        const postedQuery = query(
+            collection(db, 'milestones'),
+            where('uid', '==', currentUser.uid)
+        );
+        const postedSnap = await getDocs(postedQuery);
+        const postedDays = new Set();
+        postedSnap.forEach(d => postedDays.add(d.data().milestoneDays));
+
+        // Post any missing ones
+        for (const milestone of earned) {
+            if (postedDays.has(milestone.days)) continue;
+            await addDoc(collection(db, 'milestones'), {
+                uid: currentUser.uid,
+                preferredName: userData.preferredName || currentUser.displayName || '',
+                avatarType: userData.avatarType || 'initial',
+                avatarColor: userData.avatarColor || '',
+                avatarIcon: userData.avatarIcon || '',
+                avatarUrl: userData.avatarUrl || '',
+                fellowship: userData.fellowship || '',
+                lookingForSponsor: opts.lookingForSponsor || false,
+                openToSponsoring: opts.openToSponsoring || false,
+                milestoneLabel: milestone.label,
+                milestoneIcon: milestone.icon,
+                milestoneDays: milestone.days,
+                createdAt: serverTimestamp(),
+                celebrations: 0
+            });
+        }
+    } catch (error) {
+        console.error('Error backfilling milestones:', error);
+    }
+}
+
 window._celebratedMilestones = new Set();
 
 async function loadMilestoneFeed() {
+    // Backfill any missing milestones before loading the feed
+    await backfillMilestones();
     const feedContainer = document.getElementById('milestoneFeed');
     if (!feedContainer) return;
     try {
