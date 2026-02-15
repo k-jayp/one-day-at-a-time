@@ -56,8 +56,9 @@ function showPage(pageId) {
     window.scrollTo(0, 0);
 
     // Page-specific callbacks
-    if (pageId === 'community' && window.loadCommunityWall) {
-        window.loadCommunityWall();
+    if (pageId === 'community') {
+        switchCommunityTab(_activeCommunityTab);
+        populateMedallionMilestones();
     }
     if (pageId === 'daily-reflections' && window.loadDailyReflections) {
         window.loadDailyReflections();
@@ -201,6 +202,57 @@ function updateWallCharCount() {
     count.classList.toggle('over', len > 280);
 }
 window.updateWallCharCount = updateWallCharCount;
+
+// ========== COMMUNITY HUB TAB SWITCHING ==========
+let _activeCommunityTab = 'milestones';
+
+function switchCommunityTab(tabName) {
+    _activeCommunityTab = tabName;
+
+    // Update tab button styles
+    document.querySelectorAll('.community-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+
+    // Show/hide tab content
+    document.querySelectorAll('.community-tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    const tabMap = {
+        'milestones': 'communityTabMilestones',
+        'support': 'communityTabSupport',
+        'medallion': 'communityTabMedallion',
+        'gratitude': 'communityTabGratitude'
+    };
+
+    const target = document.getElementById(tabMap[tabName]);
+    if (target) target.classList.add('active');
+
+    // Lazy-load data for selected tab
+    if (tabName === 'milestones' && window.loadMilestoneFeed) {
+        window.loadMilestoneFeed();
+    } else if (tabName === 'support' && window.loadCommunityWall) {
+        window.loadCommunityWall();
+    } else if (tabName === 'medallion' && window.loadMedallionFeed) {
+        window.loadMedallionFeed();
+    } else if (tabName === 'gratitude' && window.loadSharedGratitudeFeed) {
+        window.loadSharedGratitudeFeed();
+    }
+}
+window.switchCommunityTab = switchCommunityTab;
+
+function populateMedallionMilestones() {
+    const select = document.getElementById('medallionMilestone');
+    if (!select || !window.MILESTONES) return;
+    if (select.options.length > 1) return; // Already populated
+    window.MILESTONES.forEach(m => {
+        const option = document.createElement('option');
+        option.value = m.days;
+        option.textContent = `${m.icon} ${m.label}`;
+        select.appendChild(option);
+    });
+}
 
 // ========== JFT CONFIGURATION ==========
 const JFT_WORKER_URL = 'https://jft-proxy.kidell-powellj.workers.dev';
@@ -1369,7 +1421,7 @@ function syncA11yUI() {
 }
 
 // ─── What's New Panel ───────────────────────────────────────────────
-const WHATS_NEW_VERSION = '2026.02';
+const WHATS_NEW_VERSION = '2026.02.2';
 
 function showWhatsNew() {
     const overlay = document.getElementById('whatsNewOverlay');

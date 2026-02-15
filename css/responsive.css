@@ -285,4 +285,16 @@
 
     /* What's New panel mobile */
     .whats-new-panel { width: 100vw; }
+
+    /* Community Hub mobile */
+    .community-tabs { border-radius: 12px; padding: 3px; }
+    .community-tab { padding: 0.5rem 0.25rem; font-size: 0.7rem; }
+    .community-tab-icon { font-size: 1rem; }
+    .milestone-card, .medallion-card, .gratitude-feed-card { padding: 1.25rem; border-radius: 16px; }
+    .milestone-card-achievement { padding: 0.75rem; }
+    .milestone-card-icon { font-size: 1.5rem; }
+    .milestone-card-label { font-size: 1rem; }
+    .medallion-invite-form .form-row { grid-template-columns: 1fr; }
+    .medallion-invite-form { padding: 1.25rem; }
+    .sponsor-badge { font-size: 0.55rem; }
 }

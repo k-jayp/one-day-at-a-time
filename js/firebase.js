@@ -21,7 +21,12 @@ import {
     getDocs,
     deleteDoc,
     serverTimestamp,
-    limit
+    limit,
+    updateDoc,
+    increment,
+    where,
+    arrayUnion,
+    arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
     getStorage,
@@ -122,6 +127,10 @@ function updateUIForAuthState(user) {
         journalEntriesSection.style.display = 'block';
         if (wallPostForm) wallPostForm.style.display = 'block';
         if (wallSignInPrompt) wallSignInPrompt.style.display = 'none';
+        const medallionInviteForm = document.getElementById('medallionInviteForm');
+        const medallionSignInPrompt = document.getElementById('medallionSignInPrompt');
+        if (medallionInviteForm) medallionInviteForm.style.display = 'block';
+        if (medallionSignInPrompt) medallionSignInPrompt.style.display = 'none';
         if (urgeFormSection) urgeFormSection.style.display = 'block';
         if (urgeEntriesSection) urgeEntriesSection.style.display = 'block';
         if (urgeSummary) urgeSummary.style.display = 'flex';
@@ -159,6 +168,10 @@ function updateUIForAuthState(user) {
         journalEntriesSection.style.display = 'none';
         if (wallPostForm) wallPostForm.style.display = 'none';
         if (wallSignInPrompt) wallSignInPrompt.style.display = 'block';
+        const medallionInviteFormOut = document.getElementById('medallionInviteForm');
+        const medallionSignInPromptOut = document.getElementById('medallionSignInPrompt');
+        if (medallionInviteFormOut) medallionInviteFormOut.style.display = 'none';
+        if (medallionSignInPromptOut) medallionSignInPromptOut.style.display = 'block';
         if (urgeFormSection) urgeFormSection.style.display = 'none';
         if (urgeEntriesSection) urgeEntriesSection.style.display = 'none';
         if (urgeSummary) urgeSummary.style.display = 'none';
@@ -737,6 +750,7 @@ const MILESTONES = [
     { days: 730, icon: '🏆', label: '2 Years' },
     { days: 1825, icon: '🎖️', label: '5 Years' },
 ];
+window.MILESTONES = MILESTONES;
 
 function updateStreakDisplay(cleanDate) {
     const container = document.getElementById('streakContainer');
@@ -768,6 +782,7 @@ async function checkAndCelebrateMilestone(days) {
             await setDoc(doc(db, 'users', currentUser.uid), { lastCelebratedMilestone: days }, { merge: true });
             triggerConfetti();
             showToast(`Milestone reached: ${milestone.label}! ${milestone.icon}`);
+            postMilestoneToCommunity(milestone);
         }
     } catch (e) { console.error('Milestone check error:', e); }
 }
@@ -964,6 +979,353 @@ function getTimeAgo(date) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 window.getTimeAgo = getTimeAgo;
+
+// ========== COMMUNITY HUB ==========
+
+// Shared avatar renderer for community cards
+function renderCommunityAvatar(data) {
+    const type = data.avatarType || 'initial';
+    if (type === 'photo' && data.avatarUrl) {
+        return `<div class="community-avatar" style="background-image: url(${data.avatarUrl}); background-size: cover; background-position: center;"></div>`;
+    } else if (type === 'icon' && data.avatarIcon && window.AVATAR_ICONS) {
+        const iconSvg = window.AVATAR_ICONS[data.avatarIcon] || '';
+        return `<div class="community-avatar" style="background: ${data.avatarColor || 'linear-gradient(135deg, var(--terracotta), var(--rust))'}">${iconSvg}</div>`;
+    } else {
+        const initial = (data.preferredName || 'A').charAt(0).toUpperCase();
+        return `<div class="community-avatar" style="background: ${data.avatarColor || 'linear-gradient(135deg, var(--terracotta), var(--rust))'}">${initial}</div>`;
+    }
+}
+window.renderCommunityAvatar = renderCommunityAvatar;
+
+function renderSponsorBadges(data) {
+    let badges = '';
+    if (data.lookingForSponsor) {
+        badges += '<span class="sponsor-badge looking">Seeking Sponsor</span>';
+    }
+    if (data.openToSponsoring) {
+        badges += '<span class="sponsor-badge offering">Open to Sponsor</span>';
+    }
+    return badges;
+}
+window.renderSponsorBadges = renderSponsorBadges;
+
+// --- Milestone Celebrations ---
+
+async function postMilestoneToCommunity(milestone) {
+    if (!currentUser) return;
+    try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const userData = userDoc.data() || {};
+        const opts = userData.communityOptIn || {};
+        if (!opts.publicMilestones) return;
+
+        // Deduplicate: check if this milestone was already posted
+        const existingQuery = query(
+            collection(db, 'milestones'),
+            where('uid', '==', currentUser.uid),
+            where('milestoneDays', '==', milestone.days)
+        );
+        const existing = await getDocs(existingQuery);
+        if (!existing.empty) return;
+
+        await addDoc(collection(db, 'milestones'), {
+            uid: currentUser.uid,
+            preferredName: userData.preferredName || currentUser.displayName || '',
+            avatarType: userData.avatarType || 'initial',
+            avatarColor: userData.avatarColor || '',
+            avatarIcon: userData.avatarIcon || '',
+            avatarUrl: userData.avatarUrl || '',
+            fellowship: userData.fellowship || '',
+            lookingForSponsor: opts.lookingForSponsor || false,
+            openToSponsoring: opts.openToSponsoring || false,
+            milestoneLabel: milestone.label,
+            milestoneIcon: milestone.icon,
+            milestoneDays: milestone.days,
+            createdAt: serverTimestamp(),
+            celebrations: 0
+        });
+    } catch (error) {
+        console.error('Error posting milestone to community:', error);
+    }
+}
+window.postMilestoneToCommunity = postMilestoneToCommunity;
+
+window._celebratedMilestones = new Set();
+
+async function loadMilestoneFeed() {
+    const feedContainer = document.getElementById('milestoneFeed');
+    if (!feedContainer) return;
+    try {
+        const q = query(collection(db, 'milestones'), orderBy('createdAt', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            feedContainer.innerHTML = '<p class="community-empty">No milestone celebrations yet. When community members reach milestones, they\'ll appear here!</p>';
+            return;
+        }
+        let html = '';
+        snapshot.forEach(d => {
+            const data = d.data();
+            const date = data.createdAt?.toDate();
+            const timeAgo = date ? getTimeAgo(date) : '';
+            const displayName = data.preferredName || 'Anonymous';
+            const avatar = renderCommunityAvatar(data);
+            const fellowshipBadge = data.fellowship ? `<span class="community-fellowship-badge">${escapeHtml(data.fellowship)}</span>` : '';
+            const sponsorBadges = renderSponsorBadges(data);
+            const isCelebrated = window._celebratedMilestones.has(d.id);
+
+            html += `
+                <div class="milestone-card">
+                    <div class="milestone-card-header">
+                        ${avatar}
+                        <div class="milestone-card-info">
+                            <span class="milestone-card-name">${escapeHtml(displayName)}</span>
+                            <span class="milestone-card-time">${timeAgo}</span>
+                        </div>
+                        ${fellowshipBadge}
+                        ${sponsorBadges}
+                    </div>
+                    <div class="milestone-card-achievement">
+                        <span class="milestone-card-icon">${data.milestoneIcon}</span>
+                        <span class="milestone-card-label">${escapeHtml(data.milestoneLabel)}</span>
+                    </div>
+                    <div class="milestone-card-footer">
+                        <button class="celebrate-btn ${isCelebrated ? 'celebrated' : ''}" onclick="celebrateMilestone('${d.id}')" ${isCelebrated ? 'disabled' : ''}>
+                            🎉 <span class="celebrate-count">${data.celebrations || 0}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        feedContainer.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading milestones:', error);
+        feedContainer.innerHTML = '<p class="community-error">Error loading milestones</p>';
+    }
+}
+window.loadMilestoneFeed = loadMilestoneFeed;
+
+async function celebrateMilestone(milestoneId) {
+    if (!currentUser) { showPage('auth'); return; }
+    if (window._celebratedMilestones.has(milestoneId)) return;
+
+    try {
+        await updateDoc(doc(db, 'milestones', milestoneId), {
+            celebrations: increment(1)
+        });
+        window._celebratedMilestones.add(milestoneId);
+
+        // Optimistic UI update
+        const btn = document.querySelector(`[onclick="celebrateMilestone('${milestoneId}')"]`);
+        if (btn) {
+            btn.classList.add('celebrated');
+            btn.disabled = true;
+            const countEl = btn.querySelector('.celebrate-count');
+            if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
+        }
+    } catch (error) {
+        console.error('Error celebrating milestone:', error);
+    }
+}
+window.celebrateMilestone = celebrateMilestone;
+
+// --- Medallion Invites ---
+
+async function submitMedallionInvite() {
+    if (!currentUser) { showPage('auth'); return; }
+
+    const eventName = document.getElementById('medallionEventName')?.value.trim();
+    const eventDate = document.getElementById('medallionEventDate')?.value;
+    const location = document.getElementById('medallionLocation')?.value.trim();
+    const description = document.getElementById('medallionDescription')?.value.trim();
+    const milestoneSelect = document.getElementById('medallionMilestone');
+    const milestoneValue = milestoneSelect?.value;
+
+    if (!eventName || !eventDate || !location) {
+        showToast('Please fill in event name, date, and location');
+        return;
+    }
+
+    try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const userData = userDoc.data() || {};
+        const opts = userData.communityOptIn || {};
+        const milestone = MILESTONES.find(m => String(m.days) === milestoneValue);
+
+        await addDoc(collection(db, 'medallionInvites'), {
+            uid: currentUser.uid,
+            preferredName: userData.preferredName || currentUser.displayName || '',
+            avatarType: userData.avatarType || 'initial',
+            avatarColor: userData.avatarColor || '',
+            avatarIcon: userData.avatarIcon || '',
+            avatarUrl: userData.avatarUrl || '',
+            fellowship: userData.fellowship || '',
+            lookingForSponsor: opts.lookingForSponsor || false,
+            openToSponsoring: opts.openToSponsoring || false,
+            eventName: eventName,
+            eventDate: eventDate,
+            eventLocation: location,
+            description: description || '',
+            milestoneLabel: milestone?.label || '',
+            milestoneIcon: milestone?.icon || '',
+            createdAt: serverTimestamp(),
+            rsvpCount: 0,
+            rsvps: []
+        });
+
+        // Clear form
+        document.getElementById('medallionEventName').value = '';
+        document.getElementById('medallionEventDate').value = '';
+        document.getElementById('medallionLocation').value = '';
+        document.getElementById('medallionDescription').value = '';
+        if (milestoneSelect) milestoneSelect.value = '';
+
+        showToast('Medallion invite posted! 🎖️');
+        loadMedallionFeed();
+    } catch (error) {
+        console.error('Error posting medallion invite:', error);
+        showToast('Error posting invite');
+    }
+}
+window.submitMedallionInvite = submitMedallionInvite;
+
+async function loadMedallionFeed() {
+    const feedContainer = document.getElementById('medallionFeed');
+    if (!feedContainer) return;
+    try {
+        const q = query(collection(db, 'medallionInvites'), orderBy('createdAt', 'desc'), limit(30));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            feedContainer.innerHTML = '<p class="community-empty">No medallion celebrations yet. Share yours!</p>';
+            return;
+        }
+        let html = '';
+        snapshot.forEach(d => {
+            const data = d.data();
+            const date = data.createdAt?.toDate();
+            const timeAgo = date ? getTimeAgo(date) : '';
+            const displayName = data.preferredName || 'Anonymous';
+            const avatar = renderCommunityAvatar(data);
+            const fellowshipBadge = data.fellowship ? `<span class="community-fellowship-badge">${escapeHtml(data.fellowship)}</span>` : '';
+            const sponsorBadges = renderSponsorBadges(data);
+            const hasRsvpd = data.rsvps?.includes(currentUser?.uid);
+            const eventDateFormatted = data.eventDate ? new Date(data.eventDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+            const isPast = data.eventDate ? new Date(data.eventDate) < new Date() : false;
+
+            html += `
+                <div class="medallion-card ${isPast ? 'past-event' : ''}">
+                    <div class="medallion-card-header">
+                        ${avatar}
+                        <div class="medallion-card-info">
+                            <span class="medallion-card-name">${escapeHtml(displayName)}</span>
+                            <span class="medallion-card-posted">${timeAgo}</span>
+                        </div>
+                        ${fellowshipBadge}
+                        ${sponsorBadges}
+                    </div>
+                    ${data.milestoneIcon ? `<div class="medallion-card-milestone"><span>${data.milestoneIcon}</span> ${escapeHtml(data.milestoneLabel)}</div>` : ''}
+                    <h4 class="medallion-card-title">${escapeHtml(data.eventName)}</h4>
+                    <div class="medallion-card-details">
+                        <div class="medallion-detail"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> ${eventDateFormatted}</div>
+                        <div class="medallion-detail"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${escapeHtml(data.eventLocation)}</div>
+                    </div>
+                    ${data.description ? `<p class="medallion-card-desc">${escapeHtml(data.description)}</p>` : ''}
+                    <div class="medallion-card-footer">
+                        <button class="rsvp-btn ${hasRsvpd ? 'rsvpd' : ''}" onclick="toggleRsvp('${d.id}')" ${isPast ? 'disabled' : ''}>
+                            ${hasRsvpd ? '✓ Going' : "I'll Be There"} <span class="rsvp-count">(${data.rsvpCount || 0})</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        feedContainer.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading medallion feed:', error);
+        feedContainer.innerHTML = '<p class="community-error">Error loading invites</p>';
+    }
+}
+window.loadMedallionFeed = loadMedallionFeed;
+
+async function toggleRsvp(inviteId) {
+    if (!currentUser) { showPage('auth'); return; }
+    try {
+        const inviteRef = doc(db, 'medallionInvites', inviteId);
+        const inviteDoc = await getDoc(inviteRef);
+        const data = inviteDoc.data();
+        const hasRsvpd = data.rsvps?.includes(currentUser.uid);
+
+        if (hasRsvpd) {
+            await updateDoc(inviteRef, {
+                rsvps: arrayRemove(currentUser.uid),
+                rsvpCount: increment(-1)
+            });
+        } else {
+            await updateDoc(inviteRef, {
+                rsvps: arrayUnion(currentUser.uid),
+                rsvpCount: increment(1)
+            });
+        }
+        loadMedallionFeed();
+    } catch (error) {
+        console.error('Error toggling RSVP:', error);
+    }
+}
+window.toggleRsvp = toggleRsvp;
+
+// --- Shared Gratitude Feed ---
+
+async function loadSharedGratitudeFeed() {
+    const feedContainer = document.getElementById('sharedGratitudeFeed');
+    if (!feedContainer) return;
+    try {
+        const q = query(collection(db, 'shared'), orderBy('sharedAt', 'desc'), limit(30));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            feedContainer.innerHTML = '<p class="community-empty">No shared gratitude yet. Share yours from the Gratitude page!</p>';
+            return;
+        }
+        let html = '';
+        for (const d of snapshot.docs) {
+            const data = d.data();
+            const date = data.sharedAt?.toDate();
+            const timeAgo = date ? getTimeAgo(date) : '';
+
+            let displayName = 'A grateful person';
+            let avatarHtml = '<div class="community-avatar community-avatar-default">🙏</div>';
+            if (data.sharedBy) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', data.sharedBy));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const opts = userData.communityOptIn || {};
+                        if (!opts.sharedGratitudeFeed) continue;
+                        displayName = userData.preferredName || 'A grateful person';
+                        avatarHtml = renderCommunityAvatar(userData);
+                    }
+                } catch (e) { /* fall back to default */ }
+            }
+
+            const items = (data.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('');
+
+            html += `
+                <div class="gratitude-feed-card">
+                    <div class="gratitude-feed-card-header">
+                        ${avatarHtml}
+                        <div class="gratitude-feed-card-info">
+                            <span class="gratitude-feed-card-name">${escapeHtml(displayName)}</span>
+                            <span class="gratitude-feed-card-time">${timeAgo}</span>
+                        </div>
+                    </div>
+                    <ul class="gratitude-feed-card-items">${items}</ul>
+                </div>
+            `;
+        }
+        feedContainer.innerHTML = html || '<p class="community-empty">No shared gratitude lists are public yet.</p>';
+    } catch (error) {
+        console.error('Error loading shared gratitude feed:', error);
+        feedContainer.innerHTML = '<p class="community-error">Error loading gratitude feed</p>';
+    }
+}
+window.loadSharedGratitudeFeed = loadSharedGratitudeFeed;
 
 // ========== SAFETY PLAN ==========
 const RPP_SECTIONS = ['warningSigns', 'triggers', 'copingStrategies', 'supportNetwork', 'safePlaces', 'emergencySteps', 'reasonsToStay'];
@@ -1295,6 +1657,10 @@ async function loadProfileData() {
         if (op) op.checked = opts.openToPartner || false;
         const sg = document.getElementById('profileSharedGratitude');
         if (sg) sg.checked = opts.sharedGratitudeFeed || false;
+        const lfs = document.getElementById('profileLookingForSponsor');
+        if (lfs) lfs.checked = opts.lookingForSponsor || false;
+        const ots = document.getElementById('profileOpenToSponsoring');
+        if (ots) ots.checked = opts.openToSponsoring || false;
 
         // Cache preferred name and update welcome message
         if (data.preferredName) {
@@ -1342,6 +1708,8 @@ async function saveProfile() {
                 publicMilestones: document.getElementById('profilePublicMilestones')?.checked || false,
                 openToPartner: document.getElementById('profileOpenToPartner')?.checked || false,
                 sharedGratitudeFeed: document.getElementById('profileSharedGratitude')?.checked || false,
+                lookingForSponsor: document.getElementById('profileLookingForSponsor')?.checked || false,
+                openToSponsoring: document.getElementById('profileOpenToSponsoring')?.checked || false,
             },
             lastProfileUpdate: serverTimestamp()
         };

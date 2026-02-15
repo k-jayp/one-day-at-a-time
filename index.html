@@ -118,7 +118,7 @@
                 </button>
                 <ul class="nav-dropdown">
                     <li><a data-page="events">Events</a></li>
-                    <li><a data-page="community">Community Wall</a></li>
+                    <li><a data-page="community">Community</a></li>
                 </ul>
             </li>
         </ul>
@@ -1600,8 +1600,8 @@
     <section id="community" class="page">
         <div class="community-container">
             <div class="page-header">
-                <h2>Community Wall</h2>
-                <p>Anonymous words of hope and encouragement</p>
+                <h2>Community Hub</h2>
+                <p>Celebrate, support, and connect with fellow travelers</p>
             </div>
 
             <!-- Pinned Events -->
@@ -1624,32 +1624,107 @@
                 <span class="pinned-event-arrow">&rarr;</span>
             </div>
 
-            <div class="wall-post-form" id="wallPostForm" style="display: none;">
-                <textarea class="wall-post-input" id="wallPostInput" placeholder="Share a word of hope or encouragement..." rows="3" maxlength="280" oninput="updateWallCharCount()"></textarea>
-                <div class="wall-post-meta">
-                    <div class="wall-mood-select">
-                        <span style="font-size: 0.85rem; color: var(--sage-dark);">Mood:</span>
-                        <button class="wall-mood-btn" data-mood="🌟" onclick="selectWallMood(this)">🌟</button>
-                        <button class="wall-mood-btn" data-mood="💪" onclick="selectWallMood(this)">💪</button>
-                        <button class="wall-mood-btn" data-mood="🙏" onclick="selectWallMood(this)">🙏</button>
-                        <button class="wall-mood-btn" data-mood="❤️" onclick="selectWallMood(this)">❤️</button>
-                        <button class="wall-mood-btn" data-mood="🌈" onclick="selectWallMood(this)">🌈</button>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <span class="wall-char-count" id="wallCharCount">0/280</span>
-                        <button class="btn btn-primary" onclick="submitWallPost()">Share</button>
-                    </div>
+            <!-- Community Hub Tabs -->
+            <div class="community-tabs">
+                <button class="community-tab active" data-tab="milestones" onclick="switchCommunityTab('milestones')">
+                    <span class="community-tab-icon">🏆</span>
+                    <span class="community-tab-label">Milestones</span>
+                </button>
+                <button class="community-tab" data-tab="support" onclick="switchCommunityTab('support')">
+                    <span class="community-tab-icon">💬</span>
+                    <span class="community-tab-label">Support</span>
+                </button>
+                <button class="community-tab" data-tab="medallion" onclick="switchCommunityTab('medallion')">
+                    <span class="community-tab-icon">🎖️</span>
+                    <span class="community-tab-label">Medallions</span>
+                </button>
+                <button class="community-tab" data-tab="gratitude" onclick="switchCommunityTab('gratitude')">
+                    <span class="community-tab-icon">🙏</span>
+                    <span class="community-tab-label">Gratitude</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: Milestone Celebrations -->
+            <div class="community-tab-content active" id="communityTabMilestones">
+                <div class="community-feed" id="milestoneFeed">
+                    <div class="loading"><div class="spinner"></div></div>
                 </div>
             </div>
 
-            <div class="sign-in-prompt" id="wallSignInPrompt" style="display: none;">
-                <h4>Share Your Hope</h4>
-                <p>Sign in to post anonymous encouragement to the community.</p>
-                <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Post</button>
+            <!-- Tab 2: Support Wall -->
+            <div class="community-tab-content" id="communityTabSupport">
+                <div class="wall-post-form" id="wallPostForm" style="display: none;">
+                    <textarea class="wall-post-input" id="wallPostInput" placeholder="Share a word of hope or encouragement..." rows="3" maxlength="280" oninput="updateWallCharCount()"></textarea>
+                    <div class="wall-post-meta">
+                        <div class="wall-mood-select">
+                            <span style="font-size: 0.85rem; color: var(--sage-dark);">Mood:</span>
+                            <button class="wall-mood-btn" data-mood="🌟" onclick="selectWallMood(this)">🌟</button>
+                            <button class="wall-mood-btn" data-mood="💪" onclick="selectWallMood(this)">💪</button>
+                            <button class="wall-mood-btn" data-mood="🙏" onclick="selectWallMood(this)">🙏</button>
+                            <button class="wall-mood-btn" data-mood="❤️" onclick="selectWallMood(this)">❤️</button>
+                            <button class="wall-mood-btn" data-mood="🌈" onclick="selectWallMood(this)">🌈</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="wall-char-count" id="wallCharCount">0/280</span>
+                            <button class="btn btn-primary" onclick="submitWallPost()">Share</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="sign-in-prompt" id="wallSignInPrompt" style="display: none;">
+                    <h4>Share Your Hope</h4>
+                    <p>Sign in to post anonymous encouragement to the community.</p>
+                    <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Post</button>
+                </div>
+                <div class="wall-feed" id="wallFeed">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
             </div>
 
-            <div class="wall-feed" id="wallFeed">
-                <div class="loading"><div class="spinner"></div></div>
+            <!-- Tab 3: Medallion Invites -->
+            <div class="community-tab-content" id="communityTabMedallion">
+                <div class="medallion-invite-form" id="medallionInviteForm" style="display: none;">
+                    <h4>Share Your Medallion Celebration</h4>
+                    <div class="form-group">
+                        <label for="medallionEventName">Event Name</label>
+                        <input type="text" id="medallionEventName" placeholder="My 1-Year Anniversary" maxlength="100">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="medallionEventDate">Date &amp; Time</label>
+                            <input type="datetime-local" id="medallionEventDate">
+                        </div>
+                        <div class="form-group">
+                            <label for="medallionMilestone">Milestone</label>
+                            <select id="medallionMilestone">
+                                <option value="">Select milestone...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="medallionLocation">Location</label>
+                        <input type="text" id="medallionLocation" placeholder="Meeting hall, church, club..." maxlength="200">
+                    </div>
+                    <div class="form-group">
+                        <label for="medallionDescription">Description (optional)</label>
+                        <textarea id="medallionDescription" placeholder="Tell people what to expect..." rows="2" maxlength="500"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="submitMedallionInvite()">Post Invite</button>
+                </div>
+                <div class="sign-in-prompt" id="medallionSignInPrompt" style="display: none;">
+                    <h4>Share Your Celebration</h4>
+                    <p>Sign in to invite the community to your medallion presentation.</p>
+                    <button class="btn btn-primary" onclick="showPage('auth')">Sign In to Post</button>
+                </div>
+                <div class="community-feed" id="medallionFeed">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Shared Gratitude -->
+            <div class="community-tab-content" id="communityTabGratitude">
+                <div class="community-feed" id="sharedGratitudeFeed">
+                    <div class="loading"><div class="spinner"></div></div>
+                </div>
             </div>
         </div>
     </section>
@@ -2249,6 +2324,26 @@
                             <span class="profile-toggle-slider"></span>
                         </label>
                     </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Looking for a Sponsor</span>
+                            <span class="profile-a11y-desc">Show a badge indicating you're seeking a sponsor</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileLookingForSponsor">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="profile-a11y-row">
+                        <div class="profile-a11y-info">
+                            <span class="profile-a11y-label">Open to Sponsoring</span>
+                            <span class="profile-a11y-desc">Show a badge indicating you're available to sponsor others</span>
+                        </div>
+                        <label class="profile-toggle">
+                            <input type="checkbox" id="profileOpenToSponsoring">
+                            <span class="profile-toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
 
@@ -2323,6 +2418,13 @@
                 <div class="whats-new-item-text">
                     <h4>Wellness Toolkit</h4>
                     <p>Breathing exercises, guided meditations, and grounding techniques</p>
+                </div>
+            </div>
+            <div class="whats-new-item">
+                <div class="whats-new-item-icon">🤝</div>
+                <div class="whats-new-item-text">
+                    <h4>Community Hub</h4>
+                    <p>Milestone celebrations, medallion invites, shared gratitude, and sponsorship badges</p>
                 </div>
             </div>
         </div>

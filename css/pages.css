@@ -3741,3 +3741,494 @@
     font-weight: 700;
     border-radius: 14px;
 }
+
+/* ========== COMMUNITY HUB TABS ========== */
+.community-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--sand);
+    border-radius: 16px;
+    padding: 4px;
+    margin-bottom: 2rem;
+}
+
+.community-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.75rem 0.5rem;
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--warm-brown);
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+}
+
+.community-tab:hover {
+    opacity: 0.85;
+}
+
+.community-tab.active {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+}
+
+.community-tab-icon {
+    font-size: 1.25rem;
+}
+
+.community-tab-label {
+    white-space: nowrap;
+}
+
+.community-tab-content {
+    display: none;
+}
+
+.community-tab-content.active {
+    display: block;
+    animation: wallFadeIn 0.3s ease;
+}
+
+.community-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.community-empty {
+    color: var(--sage-dark);
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.95rem;
+}
+
+.community-error {
+    color: var(--terracotta);
+    text-align: center;
+    padding: 2rem;
+}
+
+/* ========== COMMUNITY AVATAR ========== */
+.community-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--terracotta), var(--rust));
+}
+
+.community-avatar svg {
+    width: 20px;
+    height: 20px;
+    stroke: white;
+}
+
+.community-avatar-default {
+    font-size: 1.25rem;
+    background: var(--sand);
+}
+
+/* ========== FELLOWSHIP + SPONSOR BADGES ========== */
+.community-fellowship-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--forest);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    margin-left: auto;
+}
+
+.sponsor-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.25rem;
+    white-space: nowrap;
+}
+
+.sponsor-badge.looking {
+    background: rgba(191, 106, 58, 0.15);
+    color: var(--terracotta);
+    border: 1px solid rgba(191, 106, 58, 0.3);
+}
+
+.sponsor-badge.offering {
+    background: rgba(45, 90, 61, 0.15);
+    color: var(--forest);
+    border: 1px solid rgba(45, 90, 61, 0.3);
+}
+
+/* ========== MILESTONE CARDS ========== */
+.milestone-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(92, 74, 61, 0.06);
+    transition: var(--transition-smooth);
+    animation: wallFadeIn 0.5s ease;
+}
+
+.milestone-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(92, 74, 61, 0.12);
+}
+
+.milestone-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.milestone-card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.milestone-card-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--warm-brown);
+}
+
+.milestone-card-time {
+    font-size: 0.75rem;
+    color: var(--sage-dark);
+}
+
+.milestone-card-achievement {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(45, 90, 61, 0.08);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.milestone-card-icon {
+    font-size: 2rem;
+}
+
+.milestone-card-label {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.25rem;
+    color: var(--forest);
+}
+
+.milestone-card-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.celebrate-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--sand);
+    border-radius: 20px;
+    background: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.celebrate-btn:hover:not(.celebrated) {
+    border-color: var(--terracotta);
+    transform: scale(1.05);
+}
+
+.celebrate-btn.celebrated {
+    background: rgba(191, 106, 58, 0.1);
+    border-color: var(--terracotta);
+    color: var(--terracotta);
+    cursor: default;
+}
+
+/* ========== MEDALLION INVITE FORM + CARDS ========== */
+.medallion-invite-form {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.medallion-invite-form h4 {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    margin-bottom: 1.25rem;
+    color: var(--warm-brown);
+}
+
+.medallion-invite-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.medallion-invite-form .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--warm-brown);
+    margin-bottom: 0.35rem;
+}
+
+.medallion-invite-form .form-group input,
+.medallion-invite-form .form-group select,
+.medallion-invite-form .form-group textarea {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    background: white;
+    color: var(--warm-brown);
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.medallion-invite-form .form-group input:focus,
+.medallion-invite-form .form-group select:focus,
+.medallion-invite-form .form-group textarea:focus {
+    outline: none;
+    border-color: var(--sage);
+}
+
+.medallion-invite-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.medallion-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(92, 74, 61, 0.06);
+    transition: var(--transition-smooth);
+    animation: wallFadeIn 0.5s ease;
+}
+
+.medallion-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(92, 74, 61, 0.12);
+}
+
+.medallion-card.past-event {
+    opacity: 0.6;
+}
+
+.medallion-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.medallion-card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.medallion-card-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--warm-brown);
+}
+
+.medallion-card-posted {
+    font-size: 0.75rem;
+    color: var(--sage-dark);
+}
+
+.medallion-card-milestone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(45, 90, 61, 0.08);
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--forest);
+    margin-bottom: 0.5rem;
+}
+
+.medallion-card-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--warm-brown);
+    margin-bottom: 0.75rem;
+}
+
+.medallion-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.medallion-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--sage-dark);
+}
+
+.medallion-detail svg {
+    flex-shrink: 0;
+}
+
+.medallion-card-desc {
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.medallion-card-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.rsvp-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.25rem;
+    border: 2px solid var(--sage);
+    border-radius: 20px;
+    background: white;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--sage-dark);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.rsvp-btn:hover:not(.rsvpd):not(:disabled) {
+    background: var(--sage);
+    color: white;
+    transform: scale(1.03);
+}
+
+.rsvp-btn.rsvpd {
+    background: var(--sage);
+    color: white;
+    border-color: var(--sage);
+}
+
+.rsvp-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.rsvp-count {
+    font-weight: 400;
+    font-size: 0.8rem;
+}
+
+/* ========== SHARED GRATITUDE CARDS ========== */
+.gratitude-feed-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 15px rgba(92, 74, 61, 0.06);
+    transition: var(--transition-smooth);
+    animation: wallFadeIn 0.5s ease;
+}
+
+.gratitude-feed-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(92, 74, 61, 0.12);
+}
+
+.gratitude-feed-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.gratitude-feed-card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.gratitude-feed-card-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--warm-brown);
+}
+
+.gratitude-feed-card-time {
+    font-size: 0.75rem;
+    color: var(--sage-dark);
+}
+
+.gratitude-feed-card-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.gratitude-feed-card-items li {
+    padding: 0.4rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+    line-height: 1.5;
+}
+
+.gratitude-feed-card-items li::before {
+    content: '🙏';
+    position: absolute;
+    left: 0;
+    font-size: 0.75rem;
+}
