@@ -748,7 +748,14 @@ const MILESTONES = [
     { days: 180, icon: '🌟', label: '6 Months' },
     { days: 365, icon: '👑', label: '1 Year' },
     { days: 730, icon: '🏆', label: '2 Years' },
+    { days: 1095, icon: '💪', label: '3 Years' },
+    { days: 1460, icon: '🌈', label: '4 Years' },
     { days: 1825, icon: '🎖️', label: '5 Years' },
+    { days: 2190, icon: '✨', label: '6 Years' },
+    { days: 2555, icon: '🕊️', label: '7 Years' },
+    { days: 2920, icon: '🔱', label: '8 Years' },
+    { days: 3285, icon: '🌠', label: '9 Years' },
+    { days: 3650, icon: '⭐', label: '10 Years' },
 ];
 window.MILESTONES = MILESTONES;
 
@@ -760,10 +767,16 @@ function updateStreakDisplay(cleanDate) {
     document.getElementById('streakDays').textContent = days;
     const badgesContainer = document.getElementById('streakBadges');
     badgesContainer.innerHTML = '';
-    MILESTONES.forEach(m => {
-        const earned = days >= m.days;
+
+    // Show all earned badges + next 3 upcoming milestones
+    const earned = MILESTONES.filter(m => days >= m.days);
+    const upcoming = MILESTONES.filter(m => days < m.days).slice(0, 3);
+    const visible = [...earned, ...upcoming];
+
+    visible.forEach(m => {
+        const isEarned = days >= m.days;
         const badge = document.createElement('div');
-        badge.className = `milestone-badge ${earned ? 'earned' : 'unearned'}`;
+        badge.className = `milestone-badge ${isEarned ? 'earned' : 'unearned'}`;
         badge.innerHTML = `<span>${m.icon}</span><span class="badge-label">${m.label}</span>`;
         badgesContainer.appendChild(badge);
     });
@@ -1678,9 +1691,16 @@ async function loadProfileData() {
         const sg = document.getElementById('profileSharedGratitude');
         if (sg) sg.checked = opts.sharedGratitudeFeed || false;
         const lfs = document.getElementById('profileLookingForSponsor');
-        if (lfs) lfs.checked = opts.lookingForSponsor || false;
+        if (lfs) {
+            lfs.checked = opts.lookingForSponsor || false;
+            lfs.addEventListener('change', updateSponsorBadgePreview);
+        }
         const ots = document.getElementById('profileOpenToSponsoring');
-        if (ots) ots.checked = opts.openToSponsoring || false;
+        if (ots) {
+            ots.checked = opts.openToSponsoring || false;
+            ots.addEventListener('change', updateSponsorBadgePreview);
+        }
+        updateSponsorBadgePreview();
 
         // Cache preferred name and update welcome message
         if (data.preferredName) {
@@ -1696,6 +1716,24 @@ async function loadProfileData() {
     }
 }
 window.loadProfileData = loadProfileData;
+
+function updateSponsorBadgePreview() {
+    const container = document.getElementById('profileBadgePreview');
+    const badgesEl = document.getElementById('profileBadgePreviewBadges');
+    if (!container || !badgesEl) return;
+    const looking = document.getElementById('profileLookingForSponsor')?.checked;
+    const offering = document.getElementById('profileOpenToSponsoring')?.checked;
+    if (looking || offering) {
+        let html = '';
+        if (looking) html += '<span class="sponsor-badge looking">Seeking Sponsor</span>';
+        if (offering) html += '<span class="sponsor-badge offering">Open to Sponsor</span>';
+        badgesEl.innerHTML = html;
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+    }
+}
+window.updateSponsorBadgePreview = updateSponsorBadgePreview;
 
 async function saveProfile() {
     if (!currentUser) {
