@@ -322,7 +322,9 @@ function updateCleanTimeDisplay(cleanDate) {
 
 function calculateCleanTime(cleanDate) {
     const now = new Date();
-    const clean = new Date(cleanDate);
+    // Parse as local time to avoid UTC timezone shift (e.g. "2026-01-15" → Jan 15 local, not Jan 14)
+    const parts = cleanDate.split('-');
+    const clean = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
 
     // Use actual calendar math instead of dividing by 30
     let years = now.getFullYear() - clean.getFullYear();
@@ -343,12 +345,17 @@ function calculateCleanTime(cleanDate) {
         months += 12;
     }
 
-    if (years > 0) return `${years}y ${months}m ${days}d`;
-    if (months > 0) return `${months}m ${days}d`;
+    // Build display string, omitting zero parts
+    const parts2 = [];
+    if (years > 0) parts2.push(`${years}y`);
+    if (months > 0) parts2.push(`${months}m`);
+    if (days > 0) parts2.push(`${days}d`);
 
-    // Total days for short durations
+    if (parts2.length > 0) return parts2.join(' ');
+
+    // Total days for short durations (less than a month)
     const totalDays = Math.floor((now - clean) / (1000 * 60 * 60 * 24));
-    return `${totalDays} days`;
+    return totalDays === 0 ? 'Today!' : `${totalDays} days`;
 }
 
 window.toggleCleanDateSetup = function() {
@@ -763,7 +770,10 @@ function updateStreakDisplay(cleanDate) {
     const container = document.getElementById('streakContainer');
     if (!cleanDate) { container.style.display = 'none'; return; }
     container.style.display = 'block';
-    const days = Math.floor((new Date() - new Date(cleanDate)) / (1000*60*60*24));
+    // Parse as local time to avoid UTC timezone shift
+    const p = cleanDate.split('-');
+    const cleanLocal = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+    const days = Math.floor((new Date() - cleanLocal) / (1000*60*60*24));
     document.getElementById('streakDays').textContent = days;
     const badgesContainer = document.getElementById('streakBadges');
     badgesContainer.innerHTML = '';
