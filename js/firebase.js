@@ -152,13 +152,19 @@ function updateUIForAuthState(user) {
         const notifBell = document.getElementById('notificationBell');
         if (notifBell) notifBell.style.display = 'flex';
         startNotificationPolling();
+
+        // Show partners tab in community sidebar
+        const partnersTab = document.getElementById('partnersTabBtn');
+        if (partnersTab) partnersTab.style.display = '';
     } else {
         // Show signed-out UI
         avatarWrapper.style.display = 'none';
         signInBtn.style.display = 'block';
         if (myJourneyDropdown) myJourneyDropdown.style.display = 'none';
 
-        // Hide notification bell and stop polling
+        // Hide notification bell, partners tab, and stop polling
+        const partnersTab = document.getElementById('partnersTabBtn');
+        if (partnersTab) partnersTab.style.display = 'none';
         const notifBell = document.getElementById('notificationBell');
         if (notifBell) notifBell.style.display = 'none';
         const notifBadge = document.getElementById('notificationBadge');
@@ -1677,17 +1683,75 @@ async function loadPublicProfile(uid) {
             } catch (e) { console.error('Error loading profile gratitude:', e); }
         }
 
-        // Partner request button (only if user has openToPartner enabled)
+        // Action buttons — own profile gets "Edit", others get partner controls
         let partnerBtnHtml = '';
-        if (optIn.openToPartner) {
+        const isOwnProfile = currentUser && currentUser.uid === uid;
+        if (isOwnProfile) {
             partnerBtnHtml = `
                 <div class="public-profile-actions">
-                    <button class="btn btn-primary public-profile-partner-btn" id="publicProfilePartnerBtn" onclick="sendPartnerRequest('${uid}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                        Request as Partner
+                    <button class="btn btn-primary public-profile-partner-btn" onclick="showPage('profile')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        Edit My Profile
                     </button>
                 </div>
             `;
+        } else if (currentUser) {
+            try {
+                const myDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const myPartners = myDoc.exists() ? (myDoc.data().partners || []) : [];
+                const isAlreadyPartner = myPartners.includes(uid);
+
+                if (isAlreadyPartner) {
+                    partnerBtnHtml = `
+                        <div class="public-profile-actions">
+                            <button class="btn btn-secondary public-profile-partner-btn" disabled>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+                                Already Partners
+                            </button>
+                            <button class="btn btn-secondary partner-msg-btn" onclick="openMessagingPanel('${uid}', '${escapeHtml(displayName).replace(/'/g, "\\'")}')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Message
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    // Check for pending request
+                    const q1 = query(collection(db, 'partnerRequests'),
+                        where('fromUid', '==', currentUser.uid), where('toUid', '==', uid), where('status', '==', 'pending'));
+                    const q2 = query(collection(db, 'partnerRequests'),
+                        where('fromUid', '==', uid), where('toUid', '==', currentUser.uid), where('status', '==', 'pending'));
+                    const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
+                    if (!snap1.empty) {
+                        partnerBtnHtml = `
+                            <div class="public-profile-actions">
+                                <button class="btn btn-secondary public-profile-partner-btn" id="publicProfilePartnerBtn" disabled>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    Request Pending
+                                </button>
+                            </div>
+                        `;
+                    } else if (!snap2.empty) {
+                        // They sent US a request — show accept/decline
+                        const reqId = snap2.docs[0].id;
+                        partnerBtnHtml = `
+                            <div class="public-profile-actions public-profile-actions-row">
+                                <button class="btn btn-primary" onclick="respondToPartnerRequest('${reqId}', true)">Accept Request</button>
+                                <button class="btn btn-secondary" onclick="respondToPartnerRequest('${reqId}', false)">Decline</button>
+                            </div>
+                        `;
+                    } else if (optIn.openToPartner) {
+                        partnerBtnHtml = `
+                            <div class="public-profile-actions">
+                                <button class="btn btn-primary public-profile-partner-btn" id="publicProfilePartnerBtn" onclick="sendPartnerRequest('${uid}')">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                                    Request as Partner
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            } catch (e) { console.error('Error checking partner status:', e); }
         }
 
         container.innerHTML = `
@@ -1715,12 +1779,283 @@ async function loadPublicProfile(uid) {
 }
 window.loadPublicProfile = loadPublicProfile;
 
-// Stub for Phase 2 — will be fully implemented with accountability partners
+// ========== ACCOUNTABILITY PARTNERS ==========
+
 async function sendPartnerRequest(toUid) {
     if (!currentUser) { showPage('auth'); return; }
-    showToast('Partner requests coming soon!');
+    if (currentUser.uid === toUid) { showToast('You can\'t partner with yourself'); return; }
+
+    try {
+        // Check if already partners
+        const myDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const myData = myDoc.exists() ? myDoc.data() : {};
+        if ((myData.partners || []).includes(toUid)) {
+            showToast('You\'re already partners!');
+            return;
+        }
+
+        // Check for existing pending request (either direction)
+        const q1 = query(collection(db, 'partnerRequests'),
+            where('fromUid', '==', currentUser.uid),
+            where('toUid', '==', toUid),
+            where('status', '==', 'pending')
+        );
+        const q2 = query(collection(db, 'partnerRequests'),
+            where('fromUid', '==', toUid),
+            where('toUid', '==', currentUser.uid),
+            where('status', '==', 'pending')
+        );
+        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+        if (!snap1.empty || !snap2.empty) {
+            showToast('A request is already pending');
+            return;
+        }
+
+        // Get sender profile for denormalization
+        const senderName = myData.preferredName || currentUser.displayName || 'Someone';
+
+        // Get recipient name
+        const toDoc = await getDoc(doc(db, 'users', toUid));
+        const toName = toDoc.exists() ? (toDoc.data().preferredName || 'Someone') : 'Someone';
+
+        await addDoc(collection(db, 'partnerRequests'), {
+            fromUid: currentUser.uid,
+            toUid: toUid,
+            fromName: senderName,
+            toName: toName,
+            status: 'pending',
+            createdAt: serverTimestamp()
+        });
+
+        // Send notification
+        createNotification(toUid, 'partner_request', 'sent you a partner request');
+
+        showToast('Partner request sent!');
+
+        // Update button state on public profile if visible
+        const btn = document.getElementById('publicProfilePartnerBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Request Pending`;
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+        }
+    } catch (error) {
+        console.error('Error sending partner request:', error);
+        showToast('Error sending request');
+    }
 }
 window.sendPartnerRequest = sendPartnerRequest;
+
+async function respondToPartnerRequest(requestId, accept) {
+    if (!currentUser) return;
+    try {
+        const reqRef = doc(db, 'partnerRequests', requestId);
+        const reqDoc = await getDoc(reqRef);
+        if (!reqDoc.exists()) { showToast('Request not found'); return; }
+        const reqData = reqDoc.data();
+
+        if (accept) {
+            // Update request status
+            await updateDoc(reqRef, { status: 'accepted', respondedAt: serverTimestamp() });
+
+            // Add each user to the other's partners array
+            await Promise.all([
+                updateDoc(doc(db, 'users', reqData.fromUid), { partners: arrayUnion(reqData.toUid) }),
+                updateDoc(doc(db, 'users', reqData.toUid), { partners: arrayUnion(reqData.fromUid) })
+            ]);
+
+            // Notify the requester
+            createNotification(reqData.fromUid, 'partner_accepted', 'accepted your partner request!');
+            showToast('Partner added! 🤝');
+        } else {
+            // Decline — just update status
+            await updateDoc(reqRef, { status: 'rejected', respondedAt: serverTimestamp() });
+            showToast('Request declined');
+        }
+
+        // Refresh the partners tab
+        loadPartnersTab();
+    } catch (error) {
+        console.error('Error responding to partner request:', error);
+        showToast('Error processing request');
+    }
+}
+window.respondToPartnerRequest = respondToPartnerRequest;
+
+async function removePartner(partnerUid) {
+    if (!currentUser) return;
+    try {
+        // Remove from both users' partner arrays
+        await Promise.all([
+            updateDoc(doc(db, 'users', currentUser.uid), { partners: arrayRemove(partnerUid) }),
+            updateDoc(doc(db, 'users', partnerUid), { partners: arrayRemove(currentUser.uid) })
+        ]);
+        showToast('Partner removed');
+        loadPartnersTab();
+    } catch (error) {
+        console.error('Error removing partner:', error);
+        showToast('Error removing partner');
+    }
+}
+window.removePartner = removePartner;
+
+async function loadPartnersTab() {
+    await loadPendingRequests();
+    await loadMyPartners();
+}
+window.loadPartnersTab = loadPartnersTab;
+
+async function loadPendingRequests() {
+    if (!currentUser) return;
+    const section = document.getElementById('pendingRequestsSection');
+    const feed = document.getElementById('pendingRequestsFeed');
+    if (!section || !feed) return;
+
+    try {
+        const q = query(
+            collection(db, 'partnerRequests'),
+            where('toUid', '==', currentUser.uid),
+            where('status', '==', 'pending'),
+            orderBy('createdAt', 'desc')
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        let html = '';
+        for (const d of snapshot.docs) {
+            const req = d.data();
+            // Fetch requester's live profile
+            let userData = null;
+            try {
+                const userDoc = await getDoc(doc(db, 'users', req.fromUid));
+                userData = userDoc.exists() ? userDoc.data() : null;
+            } catch (e) { /* ignore */ }
+
+            const name = userData?.preferredName || req.fromName || 'Someone';
+            const avatarHtml = renderCommunityAvatar(userData || { preferredName: name });
+            const fellowship = userData?.fellowship || '';
+            const timeAgo = req.createdAt?.toDate() ? getTimeAgo(req.createdAt.toDate()) : '';
+
+            html += `
+                <div class="partner-request-card">
+                    <div class="partner-request-header">
+                        <a class="community-profile-link" onclick="viewUserProfile('${req.fromUid}')">
+                            ${avatarHtml}
+                        </a>
+                        <div class="partner-request-info">
+                            <a class="community-profile-link" onclick="viewUserProfile('${req.fromUid}')">
+                                <span class="partner-request-name">${escapeHtml(name)}</span>
+                            </a>
+                            ${fellowship ? `<span class="community-fellowship-badge">${escapeHtml(fellowship)}</span>` : ''}
+                            <span class="partner-request-time">${timeAgo}</span>
+                        </div>
+                    </div>
+                    <div class="partner-request-actions">
+                        <button class="btn btn-primary partner-accept-btn" onclick="respondToPartnerRequest('${d.id}', true)">Accept</button>
+                        <button class="btn btn-secondary partner-decline-btn" onclick="respondToPartnerRequest('${d.id}', false)">Decline</button>
+                    </div>
+                </div>
+            `;
+        }
+        feed.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading pending requests:', error);
+        section.style.display = 'none';
+    }
+}
+window.loadPendingRequests = loadPendingRequests;
+
+async function loadMyPartners() {
+    if (!currentUser) return;
+    const feed = document.getElementById('myPartnersFeed');
+    if (!feed) return;
+
+    try {
+        const myDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const myData = myDoc.exists() ? myDoc.data() : {};
+        const partnerUids = myData.partners || [];
+
+        if (partnerUids.length === 0) {
+            feed.innerHTML = `
+                <div class="partners-empty">
+                    <div class="partners-empty-icon">🤝</div>
+                    <h4>No Partners Yet</h4>
+                    <p>Find someone in the community and send them a partner request. Accountability partners help you stay on track in recovery.</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        for (const uid of partnerUids) {
+            let userData = null;
+            try {
+                const userDoc = await getDoc(doc(db, 'users', uid));
+                userData = userDoc.exists() ? userDoc.data() : null;
+            } catch (e) { /* ignore */ }
+
+            if (!userData) continue;
+
+            const name = userData.preferredName || 'Recovery Friend';
+            const avatarHtml = renderCommunityAvatar(userData);
+            const fellowship = userData.fellowship || '';
+            const sponsorBadges = renderSponsorBadges({
+                lookingForSponsor: userData.communityOptIn?.lookingForSponsor || false,
+                openToSponsoring: userData.communityOptIn?.openToSponsoring || false,
+            });
+
+            // Recovery time
+            let recoveryHtml = '';
+            if (userData.cleanDate && userData.communityOptIn?.publicMilestones) {
+                recoveryHtml = `<span class="partner-card-recovery">${calculateCleanTime(userData.cleanDate)}</span>`;
+            }
+
+            html += `
+                <div class="partner-card">
+                    <div class="partner-card-header">
+                        <a class="community-profile-link" onclick="viewUserProfile('${uid}')">
+                            ${avatarHtml}
+                        </a>
+                        <div class="partner-card-info">
+                            <a class="community-profile-link" onclick="viewUserProfile('${uid}')">
+                                <span class="partner-card-name">${escapeHtml(name)}</span>
+                            </a>
+                            ${recoveryHtml}
+                        </div>
+                        ${fellowship ? `<span class="community-fellowship-badge">${escapeHtml(fellowship)}</span>` : ''}
+                        ${sponsorBadges}
+                    </div>
+                    <div class="partner-card-actions">
+                        <button class="btn btn-secondary partner-msg-btn" onclick="openMessagingPanel('${uid}', '${escapeHtml(name).replace(/'/g, "\\'")}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            Message
+                        </button>
+                        <button class="partner-remove-btn" onclick="if(confirm('Remove this partner?')) removePartner('${uid}')" title="Remove partner">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        feed.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading partners:', error);
+        feed.innerHTML = '<p class="community-error">Unable to load partners right now.</p>';
+    }
+}
+window.loadMyPartners = loadMyPartners;
+
+// Stub for Phase 3 — will be fully implemented with messaging
+function openMessagingPanel(partnerUid, partnerName) {
+    showToast('Messaging coming soon!');
+}
+window.openMessagingPanel = openMessagingPanel;
 
 // ========== NOTIFICATIONS ==========
 

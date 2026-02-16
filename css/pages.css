@@ -4805,6 +4805,193 @@
     font-size: 1rem;
 }
 
+.public-profile-actions-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.public-profile-actions-row .btn {
+    flex: 1;
+    text-align: center;
+}
+
+/* ========== ACCOUNTABILITY PARTNERS ========== */
+.partners-section-title {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--sage-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--sand);
+}
+
+.partners-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+}
+
+.partners-empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.partners-empty h4 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--warm-brown);
+    margin-bottom: 0.5rem;
+}
+
+.partners-empty p {
+    color: var(--sage-dark);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Partner Request Cards */
+.partner-request-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-left: 3px solid var(--terracotta);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 4px 15px rgba(92, 74, 61, 0.06);
+}
+
+.partner-request-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.partner-request-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.partner-request-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--warm-brown);
+    font-size: 0.95rem;
+}
+
+.partner-request-time {
+    font-size: 0.75rem;
+    color: var(--sage-dark);
+}
+
+.partner-request-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.partner-accept-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.partner-decline-btn {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+/* Partner Cards */
+.partner-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 4px 15px rgba(92, 74, 61, 0.06);
+    transition: var(--transition-smooth);
+}
+
+.partner-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(92, 74, 61, 0.1);
+}
+
+.partner-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.partner-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.partner-card-name {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--warm-brown);
+    font-size: 0.95rem;
+}
+
+.partner-card-recovery {
+    font-size: 0.8rem;
+    color: var(--forest);
+    font-weight: 600;
+}
+
+.partner-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.partner-msg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.partner-remove-btn {
+    background: none;
+    border: 1px solid var(--sand);
+    border-radius: 10px;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--sage-dark);
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.partner-remove-btn:hover {
+    border-color: #c0392b;
+    color: #c0392b;
+    background: rgba(192, 57, 43, 0.05);
+}
+
 /* ─── Dark Mode Overrides ──────────────────────────────────────────── */
 
 /* Form inputs across all pages */
@@ -5202,4 +5389,48 @@ body.dark-mode .public-profile-gratitude-entry {
 
 body.dark-mode .public-profile-gratitude-entry li {
     color: #E8DDD0;
+}
+
+/* Partner cards dark mode */
+body.dark-mode .partners-section-title {
+    color: var(--sage-dark);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .partners-empty h4 {
+    color: #E8DDD0;
+}
+
+body.dark-mode .partner-request-card {
+    background: rgba(35, 28, 22, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+    border-left-color: var(--terracotta);
+}
+
+body.dark-mode .partner-request-name {
+    color: #E8DDD0;
+}
+
+body.dark-mode .partner-card {
+    background: rgba(35, 28, 22, 0.6);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .partner-card-name {
+    color: #E8DDD0;
+}
+
+body.dark-mode .partner-card-recovery {
+    color: #6abf7b;
+}
+
+body.dark-mode .partner-remove-btn {
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--sage-dark);
+}
+
+body.dark-mode .partner-remove-btn:hover {
+    border-color: #c0392b;
+    color: #c0392b;
+    background: rgba(192, 57, 43, 0.1);
 }

@@ -239,7 +239,8 @@ function switchCommunityTab(tabName) {
         'milestones': 'communityTabMilestones',
         'support': 'communityTabSupport',
         'medallion': 'communityTabMedallion',
-        'gratitude': 'communityTabGratitude'
+        'gratitude': 'communityTabGratitude',
+        'partners': 'communityTabPartners'
     };
 
     const target = document.getElementById(tabMap[tabName]);
@@ -260,6 +261,8 @@ function switchCommunityTab(tabName) {
         window.loadMedallionFeed();
     } else if (tabName === 'gratitude' && window.loadSharedGratitudeFeed) {
         window.loadSharedGratitudeFeed();
+    } else if (tabName === 'partners' && window.loadPartnersTab) {
+        window.loadPartnersTab();
     }
 }
 window.switchCommunityTab = switchCommunityTab;
@@ -1519,12 +1522,7 @@ function viewUserProfile(uid) {
         showToast('Sign in to view profiles');
         return;
     }
-    // If own UID, go to profile settings
-    const me = window.getCurrentUser();
-    if (me && me.uid === uid) {
-        showPage('profile');
-        return;
-    }
+    // Always show public profile — even for own UID
     window._pendingPublicProfileUid = uid;
     showPage('public-profile');
 }

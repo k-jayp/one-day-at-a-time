@@ -346,6 +346,19 @@
         padding: 1.25rem;
     }
 
+    /* Partner cards mobile */
+    .partner-card-actions {
+        flex-direction: row;
+    }
+
+    .partner-request-actions {
+        flex-direction: row;
+    }
+
+    .public-profile-actions-row {
+        flex-direction: column;
+    }
+
     /* Dark mode mobile nav */
     body.dark-mode .nav-links {
         background: rgba(28, 23, 20, 0.97);

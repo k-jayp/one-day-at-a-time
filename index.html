@@ -1617,6 +1617,13 @@
                                 <span class="community-drawer-item-desc">Shared gratitude from the community</span>
                             </div>
                         </button>
+                        <button class="community-drawer-item" data-tab="partners" onclick="switchCommunityTab('partners')" id="partnersTabBtn" style="display: none;">
+                            <span class="community-drawer-item-icon">🤝</span>
+                            <div class="community-drawer-item-text">
+                                <span class="community-drawer-item-label">Partners</span>
+                                <span class="community-drawer-item-desc">Your accountability partners</span>
+                            </div>
+                        </button>
                     </nav>
                 </div>
 
@@ -1703,6 +1710,20 @@
             <div class="community-tab-content" id="communityTabGratitude">
                 <div class="community-feed" id="sharedGratitudeFeed">
                     <div class="loading"><div class="spinner"></div></div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Accountability Partners -->
+            <div class="community-tab-content" id="communityTabPartners">
+                <div id="pendingRequestsSection" style="display: none;">
+                    <h4 class="partners-section-title">Partner Requests</h4>
+                    <div id="pendingRequestsFeed"></div>
+                </div>
+                <div id="myPartnersSection">
+                    <h4 class="partners-section-title">My Partners</h4>
+                    <div class="community-feed" id="myPartnersFeed">
+                        <div class="loading"><div class="spinner"></div></div>
+                    </div>
                 </div>
             </div>
                 </div><!-- /.community-main -->
