@@ -545,12 +545,23 @@ window.saveGratitudeEntry = async function(items) {
         // Ensure user document exists first
         const userDocRef = doc(db, 'users', currentUser.uid);
         await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
-        
+
         // Now add the gratitude entry
         const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'gratitude'), {
             items: items,
             createdAt: serverTimestamp()
         });
+
+        // Also create the shared entry linked to this source entry
+        // This replaces the separate createSharedGratitude call
+        await addDoc(collection(db, 'shared'), {
+            items: items,
+            date: new Date().toISOString().split('T')[0],
+            sharedBy: currentUser.uid,
+            sharedAt: serverTimestamp(),
+            sourceEntryId: docRef.id
+        });
+
         return docRef.id;
     } catch (error) {
         console.error('Error saving gratitude:', error);
@@ -560,9 +571,26 @@ window.saveGratitudeEntry = async function(items) {
 
 window.deleteGratitudeEntry = async function(entryId) {
     if (!currentUser) return;
-    if (confirm('Are you sure you want to delete this entry?')) {
+    if (confirm('Are you sure you want to delete this entry? It will also be removed from the community feed.')) {
         try {
+            // Delete from personal collection
             await deleteDoc(doc(db, 'users', currentUser.uid, 'gratitude', entryId));
+
+            // Also delete any matching entries from the shared collection
+            try {
+                const sharedQuery = query(
+                    collection(db, 'shared'),
+                    where('sharedBy', '==', currentUser.uid),
+                    where('sourceEntryId', '==', entryId)
+                );
+                const sharedSnap = await getDocs(sharedQuery);
+                const deletePromises = [];
+                sharedSnap.forEach(d => deletePromises.push(deleteDoc(d.ref)));
+                await Promise.all(deletePromises);
+            } catch (e) {
+                console.error('Error cleaning shared entries:', e);
+            }
+
             showToast('Entry deleted');
             loadGratitudeEntries();
         } catch (error) {
@@ -575,25 +603,42 @@ window.deleteGratitudeEntry = async function(entryId) {
 window.shareGratitudeEntry = async function(entryId, dateStr) {
     if (!currentUser) return;
     try {
+        // Check if this entry is already shared
+        const existingQuery = query(
+            collection(db, 'shared'),
+            where('sharedBy', '==', currentUser.uid),
+            where('sourceEntryId', '==', entryId)
+        );
+        const existingSnap = await getDocs(existingQuery);
+
+        if (!existingSnap.empty) {
+            // Already shared — just copy the existing link
+            const existingId = existingSnap.docs[0].id;
+            const shareUrl = `${window.location.origin}${window.location.pathname}#shared?id=${existingId}`;
+            navigator.clipboard.writeText(shareUrl).then(() => showToast('Share link copied! 📋'));
+            return;
+        }
+
         // Fetch the entry from user's gratitude collection
         const entryRef = doc(db, 'users', currentUser.uid, 'gratitude', entryId);
         const entrySnap = await getDoc(entryRef);
-        
+
         if (!entrySnap.exists()) {
             showToast('Entry not found');
             return;
         }
-        
+
         const entry = entrySnap.data();
-        
-        // Save to public shared collection
+
+        // Save to public shared collection with source link
         const sharedRef = await addDoc(collection(db, 'shared'), {
             items: entry.items,
-            date: dateStr,
+            date: dateStr.split('T')[0],
             sharedBy: currentUser.uid,
-            sharedAt: serverTimestamp()
+            sharedAt: serverTimestamp(),
+            sourceEntryId: entryId
         });
-        
+
         // Create short share URL
         const shareUrl = `${window.location.origin}${window.location.pathname}#shared?id=${sharedRef.id}`;
         navigator.clipboard.writeText(shareUrl).then(() => showToast('Share link copied! 📋'));
@@ -608,7 +653,7 @@ window.createSharedGratitude = async function(items) {
     try {
         const sharedRef = await addDoc(collection(db, 'shared'), {
             items: items,
-            date: new Date().toISOString(),
+            date: new Date().toISOString().split('T')[0],
             sharedBy: currentUser.uid,
             sharedAt: serverTimestamp()
         });
@@ -616,6 +661,24 @@ window.createSharedGratitude = async function(items) {
     } catch (error) {
         console.error('Error creating shared gratitude:', error);
         throw error;
+    }
+}
+
+// Helper to find a shared entry by its source gratitude entry ID
+window.getSharedEntryBySource = async function(sourceEntryId) {
+    if (!currentUser) return null;
+    try {
+        const q = query(
+            collection(db, 'shared'),
+            where('sharedBy', '==', currentUser.uid),
+            where('sourceEntryId', '==', sourceEntryId)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) return snap.docs[0].id;
+        return null;
+    } catch (e) {
+        console.error('Error finding shared entry:', e);
+        return null;
     }
 }
 
@@ -1589,8 +1652,10 @@ async function loadSharedGratitudeFeed() {
             // Skip entries with no author
             if (!data.sharedBy) continue;
 
-            // Deduplicate: only show the most recent share per user per date
-            const dedupeKey = `${data.sharedBy}_${data.date || ''}`;
+            // Deduplicate by user + content hash (items joined)
+            // This catches duplicates even with different dates/timestamps
+            const itemsKey = (data.items || []).join('|||');
+            const dedupeKey = `${data.sharedBy}_${itemsKey}`;
             if (seen.has(dedupeKey)) continue;
             seen.add(dedupeKey);
 

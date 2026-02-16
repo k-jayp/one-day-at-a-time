@@ -438,14 +438,18 @@ document.getElementById('gratitudeForm').addEventListener('submit', async (e) =>
         return;
     }
     try {
-        // Save to user's gratitude collection
-        await window.saveGratitudeEntry(items);
-        
-        // Also save to shared collection for short link
-        const sharedRef = await window.createSharedGratitude(items);
-        const shareUrl = `${window.location.origin}${window.location.pathname}#shared?id=${sharedRef}`;
-        document.getElementById('shareLink').value = shareUrl;
-        document.getElementById('shareSection').style.display = 'block';
+        // Save to user's gratitude collection (also creates linked shared entry)
+        const entryId = await window.saveGratitudeEntry(items);
+
+        // Get the shared link for this entry
+        if (entryId) {
+            const sharedQuery = await window.getSharedEntryBySource(entryId);
+            if (sharedQuery) {
+                const shareUrl = `${window.location.origin}${window.location.pathname}#shared?id=${sharedQuery}`;
+                document.getElementById('shareLink').value = shareUrl;
+                document.getElementById('shareSection').style.display = 'block';
+            }
+        }
         clearGratitudeForm();
         window.loadGratitudeEntries();
         showToast('Gratitude saved! 🙏');
