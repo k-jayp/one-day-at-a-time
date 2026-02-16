@@ -1140,15 +1140,38 @@ async function loadMilestoneFeed() {
             feedContainer.innerHTML = '<p class="community-empty">No milestone celebrations yet. When community members reach milestones, they\'ll appear here!</p>';
             return;
         }
+
+        // Fetch live user data so names, fellowship, badges are always current
+        const userCache = {};
         let html = '';
-        snapshot.forEach(d => {
+        for (const d of snapshot.docs) {
             const data = d.data();
+            if (!data.uid) continue;
+
+            if (!(data.uid in userCache)) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', data.uid));
+                    userCache[data.uid] = userDoc.exists() ? userDoc.data() : null;
+                } catch (e) {
+                    userCache[data.uid] = null;
+                }
+            }
+            const userData = userCache[data.uid];
+
+            // Use live profile data, fall back to denormalized data
+            const displayName = userData?.preferredName || data.preferredName || 'Anonymous';
+            const avatarSource = userData || data;
+            const fellowship = userData?.fellowship || data.fellowship || '';
+            const sponsorSource = userData ? {
+                lookingForSponsor: userData.communityOptIn?.lookingForSponsor || false,
+                openToSponsoring: userData.communityOptIn?.openToSponsoring || false,
+            } : data;
+
             const date = data.createdAt?.toDate();
             const timeAgo = date ? getTimeAgo(date) : '';
-            const displayName = data.preferredName || 'Anonymous';
-            const avatar = renderCommunityAvatar(data);
-            const fellowshipBadge = data.fellowship ? `<span class="community-fellowship-badge">${escapeHtml(data.fellowship)}</span>` : '';
-            const sponsorBadges = renderSponsorBadges(data);
+            const avatar = renderCommunityAvatar(avatarSource);
+            const fellowshipBadge = fellowship ? `<span class="community-fellowship-badge">${escapeHtml(fellowship)}</span>` : '';
+            const sponsorBadges = renderSponsorBadges(sponsorSource);
             const isCelebrated = window._celebratedMilestones.has(d.id);
 
             html += `
@@ -1173,7 +1196,7 @@ async function loadMilestoneFeed() {
                     </div>
                 </div>
             `;
-        });
+        }
         feedContainer.innerHTML = html;
     } catch (error) {
         console.error('Error loading milestones:', error);
