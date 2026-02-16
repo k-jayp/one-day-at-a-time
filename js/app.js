@@ -57,9 +57,6 @@ function showPage(pageId) {
 
     // Page-specific callbacks
     if (pageId === 'community') {
-        // Ensure sidebar is open when landing on community page
-        const sidebar = document.getElementById('communitySidebar');
-        if (sidebar) sidebar.classList.add('open');
         switchCommunityTab(_activeCommunityTab);
         populateMedallionMilestones();
     }
@@ -215,13 +212,6 @@ window.updateWallCharCount = updateWallCharCount;
 // ========== COMMUNITY HUB DRAWER + TAB SWITCHING ==========
 let _activeCommunityTab = 'milestones';
 
-function toggleCommunityDrawer() {
-    const sidebar = document.getElementById('communitySidebar');
-    if (!sidebar) return;
-    sidebar.classList.toggle('open');
-}
-window.toggleCommunityDrawer = toggleCommunityDrawer;
-
 function switchCommunityTab(tabName) {
     _activeCommunityTab = tabName;
 
@@ -245,12 +235,6 @@ function switchCommunityTab(tabName) {
 
     const target = document.getElementById(tabMap[tabName]);
     if (target) target.classList.add('active');
-
-    // On mobile, close sidebar after selecting a tab
-    if (window.innerWidth < 768) {
-        const sidebar = document.getElementById('communitySidebar');
-        if (sidebar) sidebar.classList.remove('open');
-    }
 
     // Lazy-load data for selected tab
     if (tabName === 'milestones' && window.loadMilestoneFeed) {
