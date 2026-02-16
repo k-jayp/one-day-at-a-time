@@ -1143,7 +1143,7 @@ async function loadMilestoneFeed() {
 
         // Fetch live user data so names, fellowship, badges are always current
         const userCache = {};
-        let html = '';
+        const entries = [];
         for (const d of snapshot.docs) {
             const data = d.data();
             if (!data.uid) continue;
@@ -1158,6 +1158,29 @@ async function loadMilestoneFeed() {
             }
             const userData = userCache[data.uid];
 
+            // Calculate actual milestone date from clean date + milestoneDays
+            let milestoneDate = null;
+            const cleanDate = userData?.cleanDate;
+            if (cleanDate && data.milestoneDays != null) {
+                const cp = cleanDate.split('-');
+                const cleanLocal = new Date(parseInt(cp[0]), parseInt(cp[1]) - 1, parseInt(cp[2]));
+                milestoneDate = new Date(cleanLocal.getTime() + data.milestoneDays * 86400000);
+            }
+
+            entries.push({ docId: d.id, data, userData, milestoneDate });
+        }
+
+        // Sort by actual milestone date, most recent first
+        entries.sort((a, b) => {
+            const da = a.milestoneDate?.getTime() || 0;
+            const db2 = b.milestoneDate?.getTime() || 0;
+            return db2 - da;
+        });
+
+        let html = '';
+        for (const entry of entries) {
+            const { docId, data, userData, milestoneDate } = entry;
+
             // Use live profile data, fall back to denormalized data
             const displayName = userData?.preferredName || data.preferredName || 'Anonymous';
             const avatarSource = userData || data;
@@ -1167,12 +1190,19 @@ async function loadMilestoneFeed() {
                 openToSponsoring: userData.communityOptIn?.openToSponsoring || false,
             } : data;
 
-            const date = data.createdAt?.toDate();
-            const timeAgo = date ? getTimeAgo(date) : '';
+            // Show actual milestone date (e.g. "Jan 15, 2026") or fall back to relative time
+            let dateDisplay = '';
+            if (milestoneDate) {
+                dateDisplay = milestoneDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            } else {
+                const created = data.createdAt?.toDate();
+                dateDisplay = created ? getTimeAgo(created) : '';
+            }
+
             const avatar = renderCommunityAvatar(avatarSource);
             const fellowshipBadge = fellowship ? `<span class="community-fellowship-badge">${escapeHtml(fellowship)}</span>` : '';
             const sponsorBadges = renderSponsorBadges(sponsorSource);
-            const isCelebrated = window._celebratedMilestones.has(d.id);
+            const isCelebrated = window._celebratedMilestones.has(docId);
 
             html += `
                 <div class="milestone-card">
@@ -1180,7 +1210,7 @@ async function loadMilestoneFeed() {
                         ${avatar}
                         <div class="milestone-card-info">
                             <span class="milestone-card-name">${escapeHtml(displayName)}</span>
-                            <span class="milestone-card-time">${timeAgo}</span>
+                            <span class="milestone-card-time">${dateDisplay}</span>
                         </div>
                         ${fellowshipBadge}
                         ${sponsorBadges}
@@ -1190,7 +1220,7 @@ async function loadMilestoneFeed() {
                         <span class="milestone-card-label">${escapeHtml(data.milestoneLabel)}</span>
                     </div>
                     <div class="milestone-card-footer">
-                        <button class="celebrate-btn ${isCelebrated ? 'celebrated' : ''}" onclick="celebrateMilestone('${d.id}')" ${isCelebrated ? 'disabled' : ''}>
+                        <button class="celebrate-btn ${isCelebrated ? 'celebrated' : ''}" onclick="celebrateMilestone('${docId}')" ${isCelebrated ? 'disabled' : ''}>
                             🎉 <span class="celebrate-count">${data.celebrations || 0}</span>
                         </button>
                     </div>
