@@ -286,7 +286,7 @@
     /* What's New panel mobile */
     .whats-new-panel { width: 100vw; }
 
-    /* Community Hub mobile */
+    /* Community Hub mobile — sidebar always visible, no toggle needed */
     .community-layout {
         grid-template-columns: 1fr;
     }
@@ -294,11 +294,14 @@
         position: relative;
         top: 0;
     }
-    .community-sidebar-nav {
-        width: 100%;
+    .community-sidebar-toggle {
+        display: none;
     }
-    .community-sidebar:not(.open) .community-sidebar-nav {
-        width: 100%;
+    .community-sidebar-nav {
+        width: 100% !important;
+        max-height: none !important;
+        opacity: 1 !important;
+        padding: 0.5rem !important;
     }
     .milestone-card, .medallion-card, .gratitude-feed-card { padding: 1.25rem; border-radius: 16px; }
     .milestone-card-achievement { padding: 0.75rem; }
