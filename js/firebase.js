@@ -347,9 +347,9 @@ function calculateCleanTime(cleanDate) {
 
     // Build display string, omitting zero parts
     const parts2 = [];
-    if (years > 0) parts2.push(`${years}y`);
-    if (months > 0) parts2.push(`${months}m`);
-    if (days > 0) parts2.push(`${days}d`);
+    if (years > 0) parts2.push(`${years} ${years === 1 ? 'year' : 'years'}`);
+    if (months > 0) parts2.push(`${months} ${months === 1 ? 'month' : 'months'}`);
+    if (days > 0) parts2.push(`${days} ${days === 1 ? 'day' : 'days'}`);
 
     if (parts2.length > 0) return parts2.join(' ');
 
