@@ -176,6 +176,9 @@
                         <label>Password</label>
                         <input type="password" id="signinPassword" required placeholder="••••••••">
                     </div>
+                    <div class="forgot-password-link">
+                        <a onclick="resetPasswordFromSignIn()">Forgot password?</a>
+                    </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
                 </form>
 
@@ -2392,6 +2395,27 @@
                             <span class="profile-toggle-slider"></span>
                         </label>
                     </div>
+                </div>
+            </div>
+
+            <!-- Account Section -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <div class="profile-card-icon account-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <div>
+                        <h3>Account</h3>
+                        <p class="profile-card-desc">Manage your sign-in credentials</p>
+                    </div>
+                </div>
+                <div class="profile-account-options">
+                    <p class="profile-account-email" id="profileAccountEmail"></p>
+                    <button class="btn btn-secondary profile-reset-btn" id="profileResetPasswordBtn" onclick="resetPasswordFromProfile()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                        Send Password Reset Email
+                    </button>
+                    <p class="profile-reset-status" id="profileResetStatus"></p>
                 </div>
             </div>
 

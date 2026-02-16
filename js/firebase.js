@@ -7,7 +7,8 @@ import {
     GoogleAuthProvider,
     onAuthStateChanged,
     signOut,
-    updateProfile
+    updateProfile,
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
     getFirestore,
@@ -263,6 +264,48 @@ window.signOutUser = async function() {
         showPage('home');
     } catch (error) {
         showToast('Error signing out');
+    }
+}
+
+window.resetPasswordFromSignIn = async function() {
+    const email = document.getElementById('signinEmail').value.trim();
+    if (!email) {
+        showAuthError('Please enter your email address first, then click "Forgot password?"');
+        return;
+    }
+    try {
+        hideAuthError();
+        await sendPasswordResetEmail(auth, email);
+        showToast('Password reset email sent! Check your inbox.');
+    } catch (error) {
+        showAuthError(getErrorMessage(error.code));
+    }
+}
+
+window.resetPasswordFromProfile = async function() {
+    if (!currentUser || !currentUser.email) {
+        showToast('No email address found for your account');
+        return;
+    }
+    const btn = document.getElementById('profileResetPasswordBtn');
+    const statusEl = document.getElementById('profileResetStatus');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+    }
+    try {
+        await sendPasswordResetEmail(auth, currentUser.email);
+        showToast('Password reset email sent! Check your inbox.');
+        if (statusEl) statusEl.textContent = 'Reset email sent to ' + currentUser.email;
+    } catch (error) {
+        showToast('Error sending reset email. Please try again.');
+        if (statusEl) statusEl.textContent = '';
+        console.error('Password reset error:', error);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Send Password Reset Email';
+        }
     }
 }
 
@@ -711,6 +754,7 @@ function getErrorMessage(code) {
         case 'auth/popup-blocked': return 'Sign-in popup was blocked. Please allow popups for this site.';
         case 'auth/cancelled-popup-request': return 'Sign-in was cancelled. Please try again.';
         case 'auth/network-request-failed': return 'Network error. Please check your connection and try again.';
+        case 'auth/too-many-requests': return 'Too many requests. Please wait a few minutes and try again.';
         default: return 'An error occurred. Please try again.';
     }
 }
@@ -1829,6 +1873,12 @@ async function loadProfileData() {
 
         // Update nav avatar
         updateNavAvatar(data);
+
+        // Populate account email display
+        const accountEmailEl = document.getElementById('profileAccountEmail');
+        if (accountEmailEl && currentUser) {
+            accountEmailEl.textContent = currentUser.email || 'Signed in with Google (no password set)';
+        }
     } catch (error) {
         console.error('Error loading profile data:', error);
     }
