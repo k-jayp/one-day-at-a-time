@@ -4348,6 +4348,50 @@
     color: var(--terracotta);
 }
 
+/* ========== THEME TOGGLE (Dark/Light Mode) ========== */
+.theme-toggle {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--warm-brown);
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    color: var(--terracotta);
+    transform: scale(1.1);
+}
+
+/* Sun icon visible in dark mode, moon icon visible in light mode */
+.theme-icon-sun {
+    display: none;
+}
+
+.theme-icon-moon {
+    display: block;
+}
+
+body.dark-mode .theme-icon-sun {
+    display: block;
+}
+
+body.dark-mode .theme-icon-moon {
+    display: none;
+}
+
+body.dark-mode .theme-toggle {
+    color: #E8DDD0;
+}
+
+body.dark-mode .theme-toggle:hover {
+    color: var(--terracotta);
+}
+
 /* ========== NOTIFICATION BELL ========== */
 .notification-bell {
     position: relative;

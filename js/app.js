@@ -1417,6 +1417,14 @@ function toggleDarkMode(enabled) {
 }
 window.toggleDarkMode = toggleDarkMode;
 
+// Nav bar theme toggle — flips current mode
+function toggleThemeFromNav() {
+    const isDark = document.body.classList.contains('dark-mode');
+    toggleDarkMode(!isDark);
+    syncA11yUI();
+}
+window.toggleThemeFromNav = toggleThemeFromNav;
+
 // Apply a11y prefs from localStorage instantly on page load
 function applyA11yFromLocalStorage() {
     const fontSize = localStorage.getItem('a11y-fontSize');
