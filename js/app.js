@@ -1200,6 +1200,9 @@ let onboardingData = {
     skipDate: false
 };
 let onboardingAvatarTab = 'initial';
+// Expose to window for inline onclick handlers
+window.onboardingData = onboardingData;
+window.setOnboardingAvatarTab = function(val) { onboardingAvatarTab = val; };
 
 function startOnboarding() {
     const overlay = document.getElementById('onboardingOverlay');
@@ -1275,6 +1278,7 @@ function navigateOnboarding(direction) {
         renderOnboardingStep(direction === 'next' ? 'slide-in-right' : 'slide-in-left');
     }, 400);
 }
+window.navigateOnboarding = navigateOnboarding;
 
 function renderOnboardingStep(animClass) {
     const overlay = document.getElementById('onboardingOverlay');
@@ -1342,6 +1346,7 @@ function renderOnboardingStep(animClass) {
         launchOnboardingConfetti();
     }
 }
+window.renderOnboardingStep = renderOnboardingStep;
 
 function renderWelcomeStep() {
     return `
@@ -1438,7 +1443,7 @@ function renderAvatarStep() {
     const tabs = ['initial', 'icon'].map(t => {
         const active = onboardingAvatarTab === t ? ' active' : '';
         const label = t === 'initial' ? 'Color' : 'Icon';
-        return `<button class="onboarding-avatar-tab${active}" onclick="onboardingAvatarTab = '${t}'; renderOnboardingStep();">${label}</button>`;
+        return `<button class="onboarding-avatar-tab${active}" onclick="setOnboardingAvatarTab('${t}'); renderOnboardingStep();">${label}</button>`;
     }).join('');
 
     // Content
