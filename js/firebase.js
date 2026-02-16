@@ -147,11 +147,23 @@ function updateUIForAuthState(user) {
 
         // Check for What's New panel
         if (window.checkWhatsNew) window.checkWhatsNew();
+
+        // Show notification bell and start polling
+        const notifBell = document.getElementById('notificationBell');
+        if (notifBell) notifBell.style.display = 'flex';
+        startNotificationPolling();
     } else {
         // Show signed-out UI
         avatarWrapper.style.display = 'none';
         signInBtn.style.display = 'block';
         if (myJourneyDropdown) myJourneyDropdown.style.display = 'none';
+
+        // Hide notification bell and stop polling
+        const notifBell = document.getElementById('notificationBell');
+        if (notifBell) notifBell.style.display = 'none';
+        const notifBadge = document.getElementById('notificationBadge');
+        if (notifBadge) notifBadge.style.display = 'none';
+        stopNotificationPolling();
 
         // Clear welcome message
         welcomeUser.textContent = '';
@@ -1251,9 +1263,13 @@ async function loadMilestoneFeed() {
             html += `
                 <div class="milestone-card">
                     <div class="milestone-card-header">
-                        ${avatar}
+                        <a class="community-profile-link" onclick="viewUserProfile('${data.uid}')">
+                            ${avatar}
+                        </a>
                         <div class="milestone-card-info">
-                            <span class="milestone-card-name">${escapeHtml(displayName)}</span>
+                            <a class="community-profile-link" onclick="viewUserProfile('${data.uid}')">
+                                <span class="milestone-card-name">${escapeHtml(displayName)}</span>
+                            </a>
                             <span class="milestone-card-time">${dateDisplay}</span>
                         </div>
                         ${fellowshipBadge}
@@ -1300,6 +1316,25 @@ async function celebrateMilestone(milestoneId) {
             btn.disabled = true;
             const countEl = btn.querySelector('.celebrate-count');
             if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
+        }
+
+        // Send notification to the milestone author
+        try {
+            const milestoneDoc = await getDoc(doc(db, 'milestones', milestoneId));
+            if (milestoneDoc.exists()) {
+                const milestoneData = milestoneDoc.data();
+                if (milestoneData.uid && milestoneData.uid !== currentUser.uid) {
+                    createNotification(
+                        milestoneData.uid,
+                        'milestone_cheer',
+                        `cheered your ${milestoneData.milestoneLabel || 'milestone'} 🎉`,
+                        milestoneId
+                    );
+                }
+            }
+        } catch (notifError) {
+            // Don't block the celebration if notification fails
+            console.error('Error sending cheer notification:', notifError);
         }
     } catch (error) {
         console.error('Error celebrating milestone:', error);
@@ -1393,9 +1428,13 @@ async function loadMedallionFeed() {
             html += `
                 <div class="medallion-card ${isPast ? 'past-event' : ''}">
                     <div class="medallion-card-header">
-                        ${avatar}
+                        <a class="community-profile-link" onclick="viewUserProfile('${data.uid}')">
+                            ${avatar}
+                        </a>
                         <div class="medallion-card-info">
-                            <span class="medallion-card-name">${escapeHtml(displayName)}</span>
+                            <a class="community-profile-link" onclick="viewUserProfile('${data.uid}')">
+                                <span class="medallion-card-name">${escapeHtml(displayName)}</span>
+                            </a>
                             <span class="medallion-card-posted">${timeAgo}</span>
                         </div>
                         ${fellowshipBadge}
@@ -1504,9 +1543,13 @@ async function loadSharedGratitudeFeed() {
             html += `
                 <div class="gratitude-feed-card">
                     <div class="gratitude-feed-card-header">
-                        ${avatarHtml}
+                        <a class="community-profile-link" onclick="viewUserProfile('${data.sharedBy}')">
+                            ${avatarHtml}
+                        </a>
                         <div class="gratitude-feed-card-info">
-                            <span class="gratitude-feed-card-name">${escapeHtml(displayName)}</span>
+                            <a class="community-profile-link" onclick="viewUserProfile('${data.sharedBy}')">
+                                <span class="gratitude-feed-card-name">${escapeHtml(displayName)}</span>
+                            </a>
                             <span class="gratitude-feed-card-time">${timeAgo}</span>
                         </div>
                     </div>
@@ -1521,6 +1564,366 @@ async function loadSharedGratitudeFeed() {
     }
 }
 window.loadSharedGratitudeFeed = loadSharedGratitudeFeed;
+
+// ========== PUBLIC PROFILES ==========
+
+async function loadPublicProfile(uid) {
+    const container = document.getElementById('publicProfileContent');
+    if (!container || !uid) return;
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+    try {
+        // Fetch user document
+        const userDoc = await getDoc(doc(db, 'users', uid));
+        if (!userDoc.exists()) {
+            container.innerHTML = '<p class="community-empty">This profile could not be found.</p>';
+            return;
+        }
+        const data = userDoc.data();
+        const optIn = data.communityOptIn || {};
+
+        // Build hero card
+        const displayName = data.preferredName || 'Recovery Friend';
+        const pronouns = data.pronouns || '';
+        const fellowship = data.fellowship || '';
+        const avatarHtml = renderCommunityAvatar(data);
+        const sponsorBadges = renderSponsorBadges({
+            lookingForSponsor: optIn.lookingForSponsor || false,
+            openToSponsoring: optIn.openToSponsoring || false,
+        });
+
+        // Recovery time (only if user opted into public milestones)
+        let recoveryTimeHtml = '';
+        if (optIn.publicMilestones && data.cleanDate) {
+            const recoveryTime = calculateCleanTime(data.cleanDate);
+            recoveryTimeHtml = `
+                <div class="public-profile-card">
+                    <div class="public-profile-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </div>
+                    <div>
+                        <h4>Time in Recovery</h4>
+                        <p class="public-profile-recovery-time">${escapeHtml(recoveryTime)}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Milestones (only if user opted into public milestones)
+        let milestonesHtml = '';
+        if (optIn.publicMilestones) {
+            try {
+                const mq = query(collection(db, 'milestones'), where('uid', '==', uid), orderBy('createdAt', 'desc'), limit(20));
+                const mSnapshot = await getDocs(mq);
+                if (!mSnapshot.empty) {
+                    let milestoneItems = '';
+                    mSnapshot.forEach(d => {
+                        const m = d.data();
+                        milestoneItems += `<div class="public-profile-milestone"><span>${m.milestoneIcon}</span> ${escapeHtml(m.milestoneLabel)}</div>`;
+                    });
+                    milestonesHtml = `
+                        <div class="public-profile-section">
+                            <h4>Milestones Earned</h4>
+                            <div class="public-profile-milestones-grid">${milestoneItems}</div>
+                        </div>
+                    `;
+                }
+            } catch (e) { console.error('Error loading profile milestones:', e); }
+        }
+
+        // Mantra
+        let mantraHtml = '';
+        if (data.mantra) {
+            mantraHtml = `
+                <div class="public-profile-card public-profile-mantra-card">
+                    <div class="public-profile-card-icon mantra-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    </div>
+                    <div>
+                        <h4>Personal Mantra</h4>
+                        <p class="public-profile-mantra-text">"${escapeHtml(data.mantra)}"</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Shared gratitude (only if opted in to shared gratitude feed)
+        let gratitudeHtml = '';
+        if (optIn.sharedGratitudeFeed) {
+            try {
+                const gq = query(collection(db, 'shared'), where('sharedBy', '==', uid), orderBy('sharedAt', 'desc'), limit(5));
+                const gSnapshot = await getDocs(gq);
+                if (!gSnapshot.empty) {
+                    let gratitudeItems = '';
+                    gSnapshot.forEach(d => {
+                        const g = d.data();
+                        const items = (g.items || []).map(item => `<li>${escapeHtml(item)}</li>`).join('');
+                        const date = g.sharedAt?.toDate();
+                        const timeAgo = date ? getTimeAgo(date) : '';
+                        gratitudeItems += `
+                            <div class="public-profile-gratitude-entry">
+                                <span class="public-profile-gratitude-time">${timeAgo}</span>
+                                <ul>${items}</ul>
+                            </div>
+                        `;
+                    });
+                    gratitudeHtml = `
+                        <div class="public-profile-section">
+                            <h4>Shared Gratitude</h4>
+                            ${gratitudeItems}
+                        </div>
+                    `;
+                }
+            } catch (e) { console.error('Error loading profile gratitude:', e); }
+        }
+
+        // Partner request button (only if user has openToPartner enabled)
+        let partnerBtnHtml = '';
+        if (optIn.openToPartner) {
+            partnerBtnHtml = `
+                <div class="public-profile-actions">
+                    <button class="btn btn-primary public-profile-partner-btn" id="publicProfilePartnerBtn" onclick="sendPartnerRequest('${uid}')">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        Request as Partner
+                    </button>
+                </div>
+            `;
+        }
+
+        container.innerHTML = `
+            <div class="public-profile-hero">
+                <div class="public-profile-avatar-large">${avatarHtml}</div>
+                <div class="public-profile-hero-info">
+                    <h2 class="public-profile-name">${escapeHtml(displayName)}</h2>
+                    ${pronouns ? `<span class="public-profile-pronouns">${escapeHtml(pronouns)}</span>` : ''}
+                    <div class="public-profile-badges">
+                        ${fellowship ? `<span class="community-fellowship-badge">${escapeHtml(fellowship)}</span>` : ''}
+                        ${sponsorBadges}
+                    </div>
+                </div>
+            </div>
+            ${recoveryTimeHtml}
+            ${mantraHtml}
+            ${milestonesHtml}
+            ${gratitudeHtml}
+            ${partnerBtnHtml}
+        `;
+    } catch (error) {
+        console.error('Error loading public profile:', error);
+        container.innerHTML = '<p class="community-error">Unable to load this profile right now.</p>';
+    }
+}
+window.loadPublicProfile = loadPublicProfile;
+
+// Stub for Phase 2 — will be fully implemented with accountability partners
+async function sendPartnerRequest(toUid) {
+    if (!currentUser) { showPage('auth'); return; }
+    showToast('Partner requests coming soon!');
+}
+window.sendPartnerRequest = sendPartnerRequest;
+
+// ========== NOTIFICATIONS ==========
+
+let _notificationPollTimer = null;
+
+async function createNotification(recipientUid, type, message, referenceId = '') {
+    if (!currentUser || currentUser.uid === recipientUid) return;
+    try {
+        // Get sender's profile data for denormalization
+        const senderDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const senderData = senderDoc.exists() ? senderDoc.data() : {};
+
+        await addDoc(collection(db, 'notifications'), {
+            recipientUid: recipientUid,
+            type: type,
+            senderUid: currentUser.uid,
+            senderName: senderData.preferredName || currentUser.displayName || 'Someone',
+            senderAvatarType: senderData.avatarType || 'initial',
+            senderAvatarColor: senderData.avatarColor || '',
+            senderAvatarIcon: senderData.avatarIcon || '',
+            senderAvatarUrl: senderData.avatarUrl || '',
+            message: message,
+            referenceId: referenceId,
+            read: false,
+            createdAt: serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Error creating notification:', error);
+    }
+}
+window.createNotification = createNotification;
+
+async function loadNotifications() {
+    if (!currentUser) return;
+    const list = document.getElementById('notificationList');
+    if (!list) return;
+
+    try {
+        const q = query(
+            collection(db, 'notifications'),
+            where('recipientUid', '==', currentUser.uid),
+            orderBy('createdAt', 'desc'),
+            limit(50)
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            list.innerHTML = '<p class="notification-empty">No notifications yet. When someone cheers your milestones or sends you a request, you\'ll see it here!</p>';
+            return;
+        }
+
+        let html = '';
+        snapshot.forEach(d => {
+            const n = d.data();
+            const isUnread = !n.read;
+            const date = n.createdAt?.toDate();
+            const timeAgo = date ? getTimeAgo(date) : '';
+            const avatar = renderCommunityAvatar({
+                avatarType: n.senderAvatarType,
+                avatarColor: n.senderAvatarColor,
+                avatarIcon: n.senderAvatarIcon,
+                avatarUrl: n.senderAvatarUrl,
+                preferredName: n.senderName
+            });
+
+            // Icon per notification type
+            let typeIcon = '';
+            switch (n.type) {
+                case 'milestone_cheer': typeIcon = '🎉'; break;
+                case 'partner_request': typeIcon = '🤝'; break;
+                case 'partner_accepted': typeIcon = '✅'; break;
+                case 'nudge': typeIcon = '💭'; break;
+                case 'message': typeIcon = '💬'; break;
+                default: typeIcon = '🔔';
+            }
+
+            // Sanitize IDs for safe onclick usage
+            const safeId = escapeHtml(d.id);
+            const safeType = escapeHtml(n.type || '');
+            const safeSenderUid = escapeHtml(n.senderUid || '');
+            const safeRefId = escapeHtml(n.referenceId || '');
+
+            html += `
+                <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick('${safeId}', '${safeType}', '${safeSenderUid}', '${safeRefId}')">
+                    <div class="notification-item-avatar">${avatar}</div>
+                    <div class="notification-item-content">
+                        <span class="notification-item-text"><strong>${escapeHtml(n.senderName || 'Someone')}</strong> ${escapeHtml(n.message || '')}</span>
+                        <span class="notification-item-time">${typeIcon} ${timeAgo}</span>
+                    </div>
+                    ${isUnread ? '<div class="notification-item-dot"></div>' : ''}
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+        if (error.code === 'failed-precondition') {
+            list.innerHTML = '<p class="notification-empty">Notifications are being set up. Check back soon!</p>';
+        } else {
+            list.innerHTML = '<p class="notification-empty">Unable to load notifications right now.</p>';
+        }
+    }
+}
+window.loadNotifications = loadNotifications;
+
+async function handleNotificationClick(notifId, type, senderUid, referenceId) {
+    if (!currentUser) return;
+    // Mark as read
+    try {
+        await updateDoc(doc(db, 'notifications', notifId), { read: true });
+    } catch (e) { console.error('Error marking notification read:', e); }
+
+    // Close panel
+    if (typeof window.closeNotificationPanel === 'function') {
+        window.closeNotificationPanel();
+    }
+
+    // Navigate based on type
+    switch (type) {
+        case 'milestone_cheer':
+            showPage('community');
+            if (typeof window.switchCommunityTab === 'function') window.switchCommunityTab('milestones');
+            break;
+        case 'partner_request':
+        case 'partner_accepted':
+            // Will navigate to partners tab once Phase 2 is built
+            if (senderUid && typeof window.viewUserProfile === 'function') window.viewUserProfile(senderUid);
+            break;
+        case 'nudge':
+        case 'message':
+            // Will open messaging panel once Phase 3 is built
+            if (senderUid && typeof window.viewUserProfile === 'function') window.viewUserProfile(senderUid);
+            break;
+        default:
+            break;
+    }
+
+    // Refresh badge count
+    updateNotificationBadge();
+}
+window.handleNotificationClick = handleNotificationClick;
+
+async function markAllNotificationsRead() {
+    if (!currentUser) return;
+    try {
+        const q = query(
+            collection(db, 'notifications'),
+            where('recipientUid', '==', currentUser.uid),
+            where('read', '==', false)
+        );
+        const snapshot = await getDocs(q);
+        const promises = snapshot.docs.map(d => updateDoc(d.ref, { read: true }));
+        await Promise.all(promises);
+        // Refresh the panel and badge
+        loadNotifications();
+        updateNotificationBadge();
+    } catch (error) {
+        console.error('Error marking all notifications read:', error);
+    }
+}
+window.markAllNotificationsRead = markAllNotificationsRead;
+
+async function updateNotificationBadge() {
+    if (!currentUser) return;
+    const badge = document.getElementById('notificationBadge');
+    if (!badge) return;
+    try {
+        const q = query(
+            collection(db, 'notifications'),
+            where('recipientUid', '==', currentUser.uid),
+            where('read', '==', false)
+        );
+        const snapshot = await getDocs(q);
+        const count = snapshot.size;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    } catch (error) {
+        // Silently fail — badge just won't update
+        console.error('Error updating notification badge:', error);
+    }
+}
+window.updateNotificationBadge = updateNotificationBadge;
+
+function startNotificationPolling() {
+    if (_notificationPollTimer) clearInterval(_notificationPollTimer);
+    // Initial badge check
+    updateNotificationBadge();
+    // Poll every 60 seconds
+    _notificationPollTimer = setInterval(() => {
+        updateNotificationBadge();
+    }, 60000);
+}
+
+function stopNotificationPolling() {
+    if (_notificationPollTimer) {
+        clearInterval(_notificationPollTimer);
+        _notificationPollTimer = null;
+    }
+}
 
 // ========== SAFETY PLAN ==========
 const RPP_SECTIONS = ['warningSigns', 'triggers', 'copingStrategies', 'supportNetwork', 'safePlaces', 'emergencySteps', 'reasonsToStay'];

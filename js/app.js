@@ -12,7 +12,7 @@ const NAV_PARENT_MAP = {
 };
 
 // Pages that require authentication — guests are redirected to auth
-const AUTH_GATED_PAGES = new Set(['gratitude', 'journal', 'urges', 'safety-plan', 'profile']);
+const AUTH_GATED_PAGES = new Set(['gratitude', 'journal', 'urges', 'safety-plan', 'profile', 'public-profile']);
 
 function showPage(pageId) {
     // Auth gate: redirect to sign-in if trying to access gated page while signed out
@@ -73,6 +73,12 @@ function showPage(pageId) {
         if (typeof window.loadProfileData === 'function') window.loadProfileData();
         if (typeof syncA11yUI === 'function') syncA11yUI();
         if (typeof initProfilePage === 'function') initProfilePage();
+    }
+    if (pageId === 'public-profile') {
+        const uid = window._pendingPublicProfileUid;
+        if (uid && typeof window.loadPublicProfile === 'function') {
+            window.loadPublicProfile(uid);
+        }
     }
 }
 window.showPage = showPage;
@@ -1502,3 +1508,55 @@ function checkWhatsNew() {
     }
 }
 window.checkWhatsNew = checkWhatsNew;
+
+// ========== PUBLIC PROFILES ==========
+
+function viewUserProfile(uid) {
+    if (!uid) return;
+    // If not signed in, redirect to auth
+    if (typeof window.getCurrentUser === 'function' && !window.getCurrentUser()) {
+        showPage('auth');
+        showToast('Sign in to view profiles');
+        return;
+    }
+    // If own UID, go to profile settings
+    const me = window.getCurrentUser();
+    if (me && me.uid === uid) {
+        showPage('profile');
+        return;
+    }
+    window._pendingPublicProfileUid = uid;
+    showPage('public-profile');
+}
+window.viewUserProfile = viewUserProfile;
+
+// ========== NOTIFICATION PANEL ==========
+
+function toggleNotificationPanel() {
+    const overlay = document.getElementById('notificationOverlay');
+    const panel = document.getElementById('notificationPanel');
+    if (!overlay || !panel) return;
+    const isOpen = panel.classList.contains('open');
+    if (isOpen) {
+        closeNotificationPanel();
+    } else {
+        overlay.classList.add('open');
+        panel.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        // Load notifications when opening
+        if (typeof window.loadNotifications === 'function') {
+            window.loadNotifications();
+        }
+    }
+}
+window.toggleNotificationPanel = toggleNotificationPanel;
+
+function closeNotificationPanel() {
+    const overlay = document.getElementById('notificationOverlay');
+    const panel = document.getElementById('notificationPanel');
+    if (!overlay || !panel) return;
+    overlay.classList.remove('open');
+    panel.classList.remove('open');
+    document.body.style.overflow = '';
+}
+window.closeNotificationPanel = closeNotificationPanel;

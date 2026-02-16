@@ -125,6 +125,11 @@
         </ul>
         <!-- Sign In Button (shown when signed out) -->
         <button class="sign-in-btn" id="signInBtn" style="display: none;" onclick="showPage('auth')">Sign In</button>
+        <!-- Notification Bell (shown when signed in) -->
+        <button class="notification-bell" id="notificationBell" style="display: none;" onclick="toggleNotificationPanel()" aria-label="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+        </button>
         <!-- Avatar Dropdown (shown when signed in) -->
         <div class="avatar-dropdown-wrapper" id="avatarDropdownWrapper">
             <button class="avatar-trigger" id="avatarTrigger" onclick="toggleAvatarDropdown()"></button>
@@ -2367,6 +2372,19 @@
         </div>
     </section>
 
+    <!-- Public Profile Page -->
+    <section id="public-profile" class="page">
+        <div class="public-profile-container">
+            <button class="public-profile-back" onclick="history.back()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                Back
+            </button>
+            <div id="publicProfileContent">
+                <div class="loading"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <p class="quote">"Progress, not perfection"</p>
         <p>Designed and developed with love by <a href="http://kidellpowell.com" target="_blank" rel="noopener" style="color: var(--terracotta); text-decoration: underline;">Kidell Powell</a> - for the recovery community</p>
@@ -2442,6 +2460,21 @@
         </div>
         <div class="whats-new-footer">
             <button class="btn btn-primary whats-new-dismiss" onclick="dismissWhatsNew()">Got it!</button>
+        </div>
+    </div>
+
+    <!-- Notification Panel (slide-out right) -->
+    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotificationPanel()"></div>
+    <div class="notification-panel" id="notificationPanel">
+        <div class="notification-panel-header">
+            <h3>Notifications</h3>
+            <div class="notification-panel-actions">
+                <button class="notification-mark-read" id="notificationMarkAllRead" onclick="markAllNotificationsRead()">Mark all read</button>
+                <button class="notification-panel-close" onclick="closeNotificationPanel()" aria-label="Close">&times;</button>
+            </div>
+        </div>
+        <div class="notification-panel-list" id="notificationList">
+            <p class="notification-empty">No notifications yet</p>
         </div>
     </div>
 

@@ -308,6 +308,44 @@
     .medallion-invite-form { padding: 1.25rem; }
     .sponsor-badge { font-size: 0.55rem; }
 
+    /* Notification panel mobile */
+    .notification-panel {
+        width: 100vw;
+    }
+
+    /* Public profile mobile */
+    .public-profile-container {
+        padding: 1.5rem;
+    }
+
+    .public-profile-hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .public-profile-hero-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .public-profile-badges {
+        justify-content: center;
+    }
+
+    .public-profile-card {
+        padding: 1.25rem;
+    }
+
+    .public-profile-milestones-grid {
+        justify-content: center;
+    }
+
+    .public-profile-section {
+        padding: 1.25rem;
+    }
+
     /* Dark mode mobile nav */
     body.dark-mode .nav-links {
         background: rgba(28, 23, 20, 0.97);
