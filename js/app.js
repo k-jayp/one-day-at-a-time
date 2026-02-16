@@ -1161,6 +1161,421 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ============================================================
+   ONBOARDING FLOW
+   ============================================================ */
+
+const ONBOARDING_STEPS = [
+    { key: 'welcome', label: 'Welcome' },
+    { key: 'name', label: 'Name' },
+    { key: 'sobrietyDate', label: 'Date' },
+    { key: 'fellowship', label: 'Fellowship' },
+    { key: 'avatar', label: 'Avatar' },
+    { key: 'community', label: 'Community' },
+    { key: 'complete', label: 'Done' }
+];
+
+const FELLOWSHIP_OPTIONS = [
+    { value: 'NA', label: 'NA' },
+    { value: 'AA', label: 'AA' },
+    { value: 'CA', label: 'CA' },
+    { value: 'CMA', label: 'CMA' },
+    { value: 'SMART', label: 'SMART' },
+    { value: 'CR', label: 'Celebrate Recovery' },
+    { value: 'RR', label: 'Refuge Recovery' },
+    { value: 'None', label: 'None' },
+    { value: 'Other', label: 'Other' }
+];
+
+let onboardingStep = 0;
+let onboardingData = {
+    preferredName: '',
+    cleanDate: '',
+    fellowship: '',
+    avatarType: 'initial',
+    avatarColor: 'linear-gradient(135deg, #2D5A3D, #1E4D2E)',
+    avatarIcon: '',
+    publicMilestones: true,
+    openToPartner: true,
+    sharedGratitude: true,
+    skipDate: false
+};
+let onboardingAvatarTab = 'initial';
+
+function startOnboarding() {
+    const overlay = document.getElementById('onboardingOverlay');
+    if (!overlay) return;
+    onboardingStep = 0;
+
+    // Pre-fill name from auth
+    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : (window.getCurrentUser ? window.getCurrentUser() : null);
+    if (user && user.displayName) {
+        onboardingData.preferredName = user.displayName;
+    }
+
+    // Reset to defaults
+    onboardingData.cleanDate = '';
+    onboardingData.fellowship = '';
+    onboardingData.avatarType = 'initial';
+    onboardingData.avatarColor = 'linear-gradient(135deg, #2D5A3D, #1E4D2E)';
+    onboardingData.avatarIcon = '';
+    onboardingData.publicMilestones = true;
+    onboardingData.openToPartner = true;
+    onboardingData.sharedGratitude = true;
+    onboardingData.skipDate = false;
+    onboardingAvatarTab = 'initial';
+
+    renderOnboardingStep();
+    overlay.style.display = 'flex';
+    requestAnimationFrame(() => overlay.classList.add('active'));
+
+    // Hide the nudge
+    const nudge = document.getElementById('onboardingNudge');
+    if (nudge) nudge.style.display = 'none';
+}
+window.startOnboarding = startOnboarding;
+
+function closeOnboarding() {
+    const overlay = document.getElementById('onboardingOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.innerHTML = '';
+    }, 600);
+}
+window.closeOnboarding = closeOnboarding;
+
+function dismissOnboardingNudge() {
+    const nudge = document.getElementById('onboardingNudge');
+    if (nudge) nudge.style.display = 'none';
+    sessionStorage.setItem('onboardingNudgeDismissed', 'true');
+}
+window.dismissOnboardingNudge = dismissOnboardingNudge;
+
+function showOnboardingNudge() {
+    if (sessionStorage.getItem('onboardingNudgeDismissed') === 'true') return;
+    const nudge = document.getElementById('onboardingNudge');
+    if (nudge) nudge.style.display = 'flex';
+}
+window.showOnboardingNudge = showOnboardingNudge;
+
+function navigateOnboarding(direction) {
+    const wrapper = document.querySelector('.onboarding-step-wrapper');
+    if (!wrapper) return;
+
+    const currentStep = wrapper.querySelector('.onboarding-step');
+    if (currentStep) {
+        currentStep.classList.remove('slide-in-left', 'slide-in-right');
+        currentStep.classList.add(direction === 'next' ? 'slide-out-left' : 'slide-out-right');
+    }
+
+    setTimeout(() => {
+        onboardingStep += direction === 'next' ? 1 : -1;
+        onboardingStep = Math.max(0, Math.min(onboardingStep, ONBOARDING_STEPS.length - 1));
+        renderOnboardingStep(direction === 'next' ? 'slide-in-right' : 'slide-in-left');
+    }, 400);
+}
+
+function renderOnboardingStep(animClass) {
+    const overlay = document.getElementById('onboardingOverlay');
+    if (!overlay) return;
+
+    const step = ONBOARDING_STEPS[onboardingStep];
+    const isFirst = onboardingStep === 0;
+    const isLast = onboardingStep === ONBOARDING_STEPS.length - 1;
+
+    // Progress dots (not shown on welcome or complete)
+    let dotsHtml = '';
+    if (!isFirst && !isLast) {
+        dotsHtml = '<div class="onboarding-progress">';
+        for (let i = 1; i < ONBOARDING_STEPS.length - 1; i++) {
+            const active = i === onboardingStep ? ' active' : '';
+            const completed = i < onboardingStep ? ' completed' : '';
+            dotsHtml += `<div class="onboarding-dot${active}${completed}"></div>`;
+        }
+        dotsHtml += '</div>';
+    }
+
+    // Close button (not on complete step)
+    const closeBtn = !isLast ? `<button class="onboarding-close" onclick="closeOnboarding()">Skip</button>` : '';
+
+    // Step content
+    let stepContent = '';
+    const anim = animClass || '';
+
+    switch (step.key) {
+        case 'welcome':
+            stepContent = renderWelcomeStep();
+            break;
+        case 'name':
+            stepContent = renderNameStep();
+            break;
+        case 'sobrietyDate':
+            stepContent = renderDateStep();
+            break;
+        case 'fellowship':
+            stepContent = renderFellowshipStep();
+            break;
+        case 'avatar':
+            stepContent = renderAvatarStep();
+            break;
+        case 'community':
+            stepContent = renderCommunityStep();
+            break;
+        case 'complete':
+            stepContent = renderCompleteStep();
+            break;
+    }
+
+    overlay.innerHTML = `
+        ${closeBtn}
+        ${dotsHtml}
+        <div class="onboarding-step-wrapper">
+            <div class="onboarding-step ${anim}">
+                ${stepContent}
+            </div>
+        </div>
+    `;
+
+    // Fire confetti on complete step
+    if (step.key === 'complete') {
+        launchOnboardingConfetti();
+    }
+}
+
+function renderWelcomeStep() {
+    return `
+        <div class="onboarding-welcome-logo">We Do Recover</div>
+        <div class="onboarding-welcome-sub">One Day at a Time</div>
+        <div class="onboarding-question">Welcome to your recovery journey</div>
+        <div class="onboarding-subtitle">Your personal space for healing, growth, and community</div>
+        <div class="onboarding-features">
+            <div class="onboarding-feature-card">
+                <div class="feature-icon">&#127942;</div>
+                <div class="feature-label">Track Recovery</div>
+            </div>
+            <div class="onboarding-feature-card">
+                <div class="feature-icon">&#128591;</div>
+                <div class="feature-label">Daily Gratitude</div>
+            </div>
+            <div class="onboarding-feature-card">
+                <div class="feature-icon">&#129309;</div>
+                <div class="feature-label">Community</div>
+            </div>
+        </div>
+        <div class="onboarding-nav">
+            <button class="onboarding-nav-btn primary" onclick="navigateOnboarding('next')">Let's Get Started</button>
+        </div>
+        <button class="onboarding-skip-link" onclick="closeOnboarding()">I'll do this later</button>
+    `;
+}
+
+function renderNameStep() {
+    const val = onboardingData.preferredName || '';
+    return `
+        <div class="onboarding-icon" style="background: linear-gradient(135deg, var(--forest), #4A8B5E); color: white;">&#128075;</div>
+        <div class="onboarding-question">What should we call you?</div>
+        <div class="onboarding-subtitle">This is how you'll appear in the community</div>
+        <input class="onboarding-input" id="onboardingName" type="text" placeholder="Your name" maxlength="50" value="${val}" oninput="onboardingData.preferredName = this.value">
+        <div class="onboarding-nav">
+            <button class="onboarding-nav-btn secondary" onclick="navigateOnboarding('back')">Back</button>
+            <button class="onboarding-nav-btn primary" onclick="navigateOnboarding('next')">Next</button>
+        </div>
+    `;
+}
+
+function renderDateStep() {
+    const today = new Date().toISOString().split('T')[0];
+    const val = onboardingData.cleanDate || '';
+    const checked = onboardingData.skipDate ? 'checked' : '';
+    return `
+        <div class="onboarding-icon" style="background: linear-gradient(135deg, #D4880A, #C9952B); color: white;">&#128197;</div>
+        <div class="onboarding-question">When did your recovery journey begin?</div>
+        <div class="onboarding-subtitle">We'll celebrate every milestone with you</div>
+        <input class="onboarding-input" id="onboardingDate" type="date" max="${today}" value="${val}"
+            oninput="onboardingData.cleanDate = this.value; onboardingData.skipDate = false; if(document.getElementById('onboardingSkipDate')) document.getElementById('onboardingSkipDate').checked = false;"
+            ${onboardingData.skipDate ? 'disabled' : ''}>
+        <label class="onboarding-date-skip">
+            <input type="checkbox" id="onboardingSkipDate" ${checked}
+                onchange="onboardingData.skipDate = this.checked; if(this.checked) { onboardingData.cleanDate = ''; var d = document.getElementById('onboardingDate'); if(d) { d.value = ''; d.disabled = true; } } else { var d = document.getElementById('onboardingDate'); if(d) d.disabled = false; }">
+            I'm not sure yet
+        </label>
+        <div class="onboarding-nav">
+            <button class="onboarding-nav-btn secondary" onclick="navigateOnboarding('back')">Back</button>
+            <button class="onboarding-nav-btn primary" onclick="navigateOnboarding('next')">Next</button>
+        </div>
+    `;
+}
+
+function renderFellowshipStep() {
+    let btns = FELLOWSHIP_OPTIONS.map(f => {
+        const sel = onboardingData.fellowship === f.value ? ' selected' : '';
+        return `<button class="onboarding-fellowship-btn${sel}" onclick="onboardingData.fellowship = '${f.value}'; document.querySelectorAll('.onboarding-fellowship-btn').forEach(b => b.classList.remove('selected')); this.classList.add('selected');">${f.label}</button>`;
+    }).join('');
+    return `
+        <div class="onboarding-icon" style="background: linear-gradient(135deg, #3D6B99, #2A4D6E); color: white;">&#127988;</div>
+        <div class="onboarding-question">Which fellowship do you identify with?</div>
+        <div class="onboarding-subtitle">Shown as a badge on your community posts</div>
+        <div class="onboarding-fellowship-grid">${btns}</div>
+        <div class="onboarding-nav">
+            <button class="onboarding-nav-btn secondary" onclick="navigateOnboarding('back')">Back</button>
+            <button class="onboarding-nav-btn primary" onclick="navigateOnboarding('next')">Next</button>
+        </div>
+    `;
+}
+
+function renderAvatarStep() {
+    // Preview
+    let previewContent = '';
+    if (onboardingData.avatarType === 'icon' && onboardingData.avatarIcon && AVATAR_ICONS[onboardingData.avatarIcon]) {
+        previewContent = `<span style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;">${AVATAR_ICONS[onboardingData.avatarIcon]}</span>`;
+    } else {
+        const initial = (onboardingData.preferredName || 'U').charAt(0).toUpperCase();
+        previewContent = initial;
+    }
+
+    // Tabs
+    const tabs = ['initial', 'icon'].map(t => {
+        const active = onboardingAvatarTab === t ? ' active' : '';
+        const label = t === 'initial' ? 'Color' : 'Icon';
+        return `<button class="onboarding-avatar-tab${active}" onclick="onboardingAvatarTab = '${t}'; renderOnboardingStep();">${label}</button>`;
+    }).join('');
+
+    // Content
+    let tabContent = '';
+    if (onboardingAvatarTab === 'initial') {
+        const colors = AVATAR_COLORS.map(c => {
+            const sel = onboardingData.avatarColor === c.value ? ' selected' : '';
+            return `<button class="onboarding-color-btn${sel}" style="background: ${c.value};" title="${c.name}" onclick="onboardingData.avatarColor = '${c.value}'; onboardingData.avatarType = 'initial'; onboardingData.avatarIcon = ''; renderOnboardingStep();"></button>`;
+        }).join('');
+        tabContent = `<div class="onboarding-color-grid">${colors}</div>`;
+    } else {
+        const icons = Object.entries(AVATAR_ICONS).map(([key, svg]) => {
+            const sel = onboardingData.avatarIcon === key ? ' selected' : '';
+            return `<button class="onboarding-icon-btn${sel}" title="${key}" onclick="onboardingData.avatarIcon = '${key}'; onboardingData.avatarType = 'icon'; renderOnboardingStep();">${svg}</button>`;
+        }).join('');
+        tabContent = `<div class="onboarding-icon-grid">${icons}</div>`;
+    }
+
+    return `
+        <div class="onboarding-question">Choose your look</div>
+        <div class="onboarding-subtitle">Your avatar will appear next to your posts</div>
+        <div class="onboarding-avatar-preview" style="background: ${onboardingData.avatarColor};">
+            ${previewContent}
+        </div>
+        <div class="onboarding-avatar-tabs">${tabs}</div>
+        <div class="onboarding-avatar-content">${tabContent}</div>
+        <div class="onboarding-nav">
+            <button class="onboarding-nav-btn secondary" onclick="navigateOnboarding('back')">Back</button>
+            <button class="onboarding-nav-btn primary" onclick="navigateOnboarding('next')">Next</button>
+        </div>
+    `;
+}
+
+function renderCommunityStep() {
+    function toggle(key, label, desc) {
+        const checked = onboardingData[key] ? 'checked' : '';
+        return `
+            <div class="onboarding-toggle-item">
+                <div>
+                    <div class="onboarding-toggle-label">${label}</div>
+                    <div class="onboarding-toggle-desc">${desc}</div>
+                </div>
+                <label class="onboarding-toggle-switch">
+                    <input type="checkbox" ${checked} onchange="onboardingData['${key}'] = this.checked;">
+                    <span class="onboarding-toggle-slider"></span>
+                </label>
+            </div>
+        `;
+    }
+    return `
+        <div class="onboarding-icon" style="background: linear-gradient(135deg, #4A7C59, #356B45); color: white;">&#129309;</div>
+        <div class="onboarding-question">Join the community</div>
+        <div class="onboarding-subtitle">You can change these anytime in your profile</div>
+        <div class="onboarding-toggle-list">
+            ${toggle('publicMilestones', 'Celebrate milestones publicly', 'Share your recovery achievements with the community')}
+            ${toggle('openToPartner', 'Be discoverable as a partner', 'Let others find you for accountability partnerships')}
+            ${toggle('sharedGratitude', 'Share gratitude with community', 'Your gratitude entries can appear on the community feed')}
+        </div>
+        <div class="onboarding-nav">
+            <button class="onboarding-nav-btn secondary" onclick="navigateOnboarding('back')">Back</button>
+            <button class="onboarding-nav-btn primary" onclick="completeOnboarding()">Finish Setup</button>
+        </div>
+    `;
+}
+
+function renderCompleteStep() {
+    const name = onboardingData.preferredName || 'friend';
+    let summaryCards = '';
+
+    summaryCards += `<div class="onboarding-summary-card"><div class="onboarding-summary-label">Name</div><div class="onboarding-summary-value">${name}</div></div>`;
+
+    if (onboardingData.cleanDate && !onboardingData.skipDate) {
+        summaryCards += `<div class="onboarding-summary-card"><div class="onboarding-summary-label">Recovery Date</div><div class="onboarding-summary-value">${new Date(onboardingData.cleanDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div></div>`;
+    }
+
+    if (onboardingData.fellowship) {
+        summaryCards += `<div class="onboarding-summary-card"><div class="onboarding-summary-label">Fellowship</div><div class="onboarding-summary-value">${onboardingData.fellowship}</div></div>`;
+    }
+
+    summaryCards += `<div class="onboarding-summary-card"><div class="onboarding-summary-label">Community</div><div class="onboarding-summary-value">${[onboardingData.publicMilestones && 'Milestones', onboardingData.openToPartner && 'Partners', onboardingData.sharedGratitude && 'Gratitude'].filter(Boolean).join(', ') || 'Private'}</div></div>`;
+
+    return `
+        <div class="onboarding-complete-icon">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="onboarding-question">You're all set, ${name}!</div>
+        <div class="onboarding-subtitle">Your recovery journey starts now</div>
+        <div class="onboarding-summary">${summaryCards}</div>
+        <div class="onboarding-nav" style="margin-top: 2rem;">
+            <button class="onboarding-nav-btn primary" onclick="closeOnboarding(); showPage('home');">Go to My Dashboard</button>
+        </div>
+    `;
+}
+
+async function completeOnboarding() {
+    // Save data via firebase function
+    if (typeof window.saveOnboardingData === 'function') {
+        try {
+            await window.saveOnboardingData(onboardingData);
+        } catch (err) {
+            console.error('Onboarding save error:', err);
+        }
+    }
+    // Show completion step
+    onboardingStep = ONBOARDING_STEPS.length - 1;
+    renderOnboardingStep();
+}
+window.completeOnboarding = completeOnboarding;
+
+function launchOnboardingConfetti() {
+    const colors = ['#2D5A3D', '#BF6A3A', '#D4880A', '#C9527A', '#3D6B99', '#4A7C59', '#7B68AE'];
+    for (let i = 0; i < 40; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'onboarding-confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 1.5 + 's';
+        piece.style.animationDuration = (2 + Math.random() * 2) + 's';
+        piece.style.width = (6 + Math.random() * 8) + 'px';
+        piece.style.height = (6 + Math.random() * 8) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
+    }
+}
+
+// Escape key closes onboarding
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const overlay = document.getElementById('onboardingOverlay');
+        if (overlay && overlay.classList.contains('active')) {
+            closeOnboarding();
+        }
+    }
+});
+
+/* ============================================================
    MY PROFILE PAGE
    ============================================================ */
 

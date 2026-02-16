@@ -356,6 +356,45 @@
         flex-direction: column;
     }
 
+    /* Onboarding mobile */
+    .onboarding-features {
+        grid-template-columns: 1fr;
+        max-width: 280px;
+        margin: 1.5rem auto;
+    }
+
+    .onboarding-fellowship-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .onboarding-color-grid,
+    .onboarding-icon-grid {
+        grid-template-columns: repeat(5, 1fr);
+        max-width: 280px;
+    }
+
+    .onboarding-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .onboarding-nudge {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.75rem;
+    }
+
+    .onboarding-nudge-content {
+        flex-direction: column;
+    }
+
+    .onboarding-question {
+        font-size: 1.35rem;
+    }
+
+    .onboarding-step-wrapper {
+        padding: 0 1rem;
+    }
+
     /* Dark mode mobile nav */
     body.dark-mode .nav-links {
         background: rgba(28, 23, 20, 0.97);

@@ -65,11 +65,30 @@ function escapeHtml(text) {
 }
 window.escapeHtml = escapeHtml;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     updateUIForAuthState(user);
     if (user) {
-        loadUserData();
+        await loadUserData();
+        // Check if new signup — launch onboarding
+        if (window._isNewSignup) {
+            window._isNewSignup = false;
+            if (typeof window.startOnboarding === 'function') {
+                setTimeout(() => window.startOnboarding(), 300);
+            }
+        } else {
+            // Returning user — check if onboarding was never completed
+            try {
+                const userDocSnap = await getDoc(doc(db, 'users', user.uid));
+                if (!userDocSnap.exists() || !userDocSnap.data()?.onboardingComplete) {
+                    if (typeof window.showOnboardingNudge === 'function') {
+                        window.showOnboardingNudge();
+                    }
+                }
+            } catch (e) {
+                // Silently ignore — nudge is non-critical
+            }
+        }
     }
 });
 
@@ -236,7 +255,7 @@ window.signUpWithEmail = async function(e) {
         // Proceed with account creation
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(userCredential.user, { displayName: name });
-        showToast('Account created! Welcome! 🎉');
+        window._isNewSignup = true;
         showPage('home');
     } catch (error) {
         if (error.message?.includes('reCAPTCHA') || error.message?.includes('grecaptcha')) {
@@ -265,8 +284,14 @@ window.signInWithEmail = async function(e) {
 window.signInWithGoogle = async function() {
     try {
         hideAuthError();
-        await signInWithPopup(auth, googleProvider);
-        showToast('Welcome! 🙏');
+        const result = await signInWithPopup(auth, googleProvider);
+        // Check if this is a brand-new user (no Firestore doc yet)
+        const userDocSnap = await getDoc(doc(db, 'users', result.user.uid));
+        if (!userDocSnap.exists()) {
+            window._isNewSignup = true;
+        } else {
+            showToast('Welcome back! 🙏');
+        }
         showPage('home');
     } catch (error) {
         console.error('Google sign-in error:', error.code, error.message);
@@ -284,6 +309,50 @@ window.signOutUser = async function() {
         showToast('Error signing out');
     }
 }
+
+// ─── Onboarding Save ─────────────────────────────────────────────
+window.saveOnboardingData = async function(data) {
+    if (!currentUser) return;
+    const profileData = {
+        preferredName: data.preferredName || '',
+        fellowship: data.fellowship || '',
+        avatarType: data.avatarType || 'initial',
+        avatarColor: data.avatarColor || 'linear-gradient(135deg, #2D5A3D, #1E4D2E)',
+        avatarIcon: data.avatarIcon || '',
+        communityOptIn: {
+            publicMilestones: !!data.publicMilestones,
+            openToPartner: !!data.openToPartner,
+            sharedGratitudeFeed: !!data.sharedGratitude
+        },
+        onboardingComplete: true,
+        lastProfileUpdate: serverTimestamp()
+    };
+    if (data.cleanDate && !data.skipDate) {
+        profileData.cleanDate = data.cleanDate;
+    }
+    await setDoc(doc(db, 'users', currentUser.uid), profileData, { merge: true });
+
+    // Update localStorage for welcome message
+    if (data.preferredName) {
+        localStorage.setItem('preferredName', data.preferredName);
+    }
+
+    // Update nav avatar immediately
+    if (typeof window.updateNavAvatar === 'function') {
+        window.updateNavAvatar(profileData);
+    }
+
+    // Update welcome message
+    const welcomeEl = document.getElementById('welcomeUser');
+    if (welcomeEl && data.preferredName) {
+        welcomeEl.textContent = `Welcome, ${data.preferredName}!`;
+    }
+
+    // Reload home page data
+    await loadUserData();
+
+    showToast('Profile set up! Welcome to We Do Recover! 🎉');
+};
 
 window.resetPasswordFromSignIn = async function() {
     const email = document.getElementById('signinEmail').value.trim();

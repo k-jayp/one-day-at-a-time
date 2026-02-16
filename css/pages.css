@@ -3130,6 +3130,662 @@
 }
 
 /* ============================================================
+   ONBOARDING OVERLAY
+   ============================================================ */
+
+#onboardingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #FAF6F0 0%, #F0E6D6 50%, #E8DDD0 100%);
+    z-index: 5000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#onboardingOverlay.active {
+    opacity: 1;
+}
+
+/* Close / Skip button */
+.onboarding-close {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(61, 50, 41, 0.15);
+    border-radius: 50px;
+    padding: 0.5rem 1.25rem;
+    color: var(--sage-dark);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.onboarding-close:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--warm-brown);
+}
+
+/* Progress dots */
+.onboarding-progress {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 5;
+}
+
+.onboarding-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(61, 50, 41, 0.15);
+    transition: all 0.4s ease;
+}
+
+.onboarding-dot.active {
+    background: var(--forest);
+    transform: scale(1.3);
+}
+
+.onboarding-dot.completed {
+    background: var(--forest);
+}
+
+/* Step container */
+.onboarding-step-wrapper {
+    width: 100%;
+    max-width: 560px;
+    padding: 0 1.5rem;
+    position: relative;
+    min-height: 400px;
+}
+
+.onboarding-step {
+    text-align: center;
+    animation: journeyFadeIn 0.5s ease forwards;
+}
+
+.onboarding-step.slide-out-left {
+    animation: journeySlideOutLeft 0.4s ease forwards;
+}
+
+.onboarding-step.slide-out-right {
+    animation: journeySlideOutRight 0.4s ease forwards;
+}
+
+.onboarding-step.slide-in-left {
+    animation: journeySlideInLeft 0.4s ease forwards;
+}
+
+.onboarding-step.slide-in-right {
+    animation: journeySlideInRight 0.4s ease forwards;
+}
+
+/* Step typography */
+.onboarding-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+}
+
+.onboarding-question {
+    font-family: var(--font-heading);
+    font-size: 1.65rem;
+    font-weight: 900;
+    color: var(--warm-brown);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.onboarding-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--sage-dark);
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Navigation buttons */
+.onboarding-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.onboarding-nav-btn {
+    padding: 0.85rem 2rem;
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.onboarding-nav-btn.primary {
+    background: var(--forest);
+    color: white;
+}
+
+.onboarding-nav-btn.primary:hover {
+    background: #1e4a2e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(45, 90, 61, 0.3);
+}
+
+.onboarding-nav-btn.secondary {
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--warm-brown);
+    border: 1px solid rgba(61, 50, 41, 0.15);
+}
+
+.onboarding-nav-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Welcome step */
+.onboarding-welcome-logo {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--forest);
+    margin-bottom: 0.25rem;
+}
+
+.onboarding-welcome-sub {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--sage-dark);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+
+.onboarding-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.onboarding-feature-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(61, 50, 41, 0.08);
+    border-radius: 16px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+}
+
+.onboarding-feature-card .feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.onboarding-feature-card .feature-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+}
+
+.onboarding-skip-link {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--sage-dark);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+}
+
+.onboarding-skip-link:hover {
+    color: var(--warm-brown);
+}
+
+/* Input styles */
+.onboarding-input {
+    width: 100%;
+    max-width: 360px;
+    padding: 0.85rem 1.25rem;
+    border: 2px solid rgba(61, 50, 41, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--warm-brown);
+    transition: all 0.3s ease;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+}
+
+.onboarding-input:focus {
+    outline: none;
+    border-color: var(--forest);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.1);
+}
+
+.onboarding-input::placeholder {
+    color: rgba(61, 50, 41, 0.35);
+}
+
+/* Date skip option */
+.onboarding-date-skip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--sage-dark);
+}
+
+.onboarding-date-skip input[type="checkbox"] {
+    accent-color: var(--forest);
+    width: 16px;
+    height: 16px;
+}
+
+/* Fellowship grid */
+.onboarding-fellowship-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 0 auto;
+    max-width: 440px;
+}
+
+.onboarding-fellowship-btn {
+    padding: 0.75rem 0.5rem;
+    border: 2px solid rgba(61, 50, 41, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.6);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.onboarding-fellowship-btn:hover {
+    border-color: var(--forest);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.onboarding-fellowship-btn.selected {
+    border-color: var(--forest);
+    background: var(--forest);
+    color: white;
+}
+
+/* Avatar step */
+.onboarding-avatar-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.onboarding-avatar-tab {
+    padding: 0.5rem 1.25rem;
+    border: 1.5px solid rgba(61, 50, 41, 0.12);
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.5);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--sage-dark);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.onboarding-avatar-tab.active {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: white;
+}
+
+.onboarding-avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    font-weight: 900;
+    color: white;
+    background: linear-gradient(135deg, #2D5A3D, #1E4D2E);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.onboarding-avatar-content {
+    min-height: 120px;
+}
+
+.onboarding-color-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.onboarding-color-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+
+.onboarding-color-btn:hover {
+    transform: scale(1.1);
+}
+
+.onboarding-color-btn.selected {
+    border-color: var(--warm-brown);
+    box-shadow: 0 0 0 3px rgba(61, 50, 41, 0.2);
+    transform: scale(1.1);
+}
+
+.onboarding-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.onboarding-icon-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2px solid rgba(61, 50, 41, 0.1);
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.onboarding-icon-btn:hover {
+    border-color: var(--forest);
+    transform: scale(1.08);
+}
+
+.onboarding-icon-btn.selected {
+    border-color: var(--forest);
+    background: rgba(45, 90, 61, 0.1);
+    transform: scale(1.08);
+}
+
+/* Community toggles */
+.onboarding-toggle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 420px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.onboarding-toggle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(61, 50, 41, 0.08);
+    border-radius: 14px;
+}
+
+.onboarding-toggle-label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+}
+
+.onboarding-toggle-desc {
+    font-size: 0.78rem;
+    color: var(--sage-dark);
+    margin-top: 0.15rem;
+}
+
+.onboarding-toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    flex-shrink: 0;
+}
+
+.onboarding-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.onboarding-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(61, 50, 41, 0.15);
+    border-radius: 26px;
+    transition: 0.3s;
+}
+
+.onboarding-toggle-slider::before {
+    content: '';
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.onboarding-toggle-switch input:checked + .onboarding-toggle-slider {
+    background: var(--forest);
+}
+
+.onboarding-toggle-switch input:checked + .onboarding-toggle-slider::before {
+    transform: translateX(22px);
+}
+
+/* Completion step */
+.onboarding-complete-icon {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--forest), #4A8B5E);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    animation: journeyCheckPop 0.6s ease forwards;
+}
+
+.onboarding-complete-icon svg {
+    width: 50px;
+    height: 50px;
+    stroke: white;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    stroke-dasharray: 80;
+    stroke-dashoffset: 80;
+    animation: journeyCheckDraw 0.6s ease 0.3s forwards;
+}
+
+.onboarding-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    max-width: 400px;
+    margin: 1.5rem auto 0;
+}
+
+.onboarding-summary-card {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(61, 50, 41, 0.08);
+    border-radius: 12px;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.onboarding-summary-label {
+    font-size: 0.7rem;
+    color: var(--sage-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.onboarding-summary-value {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+}
+
+/* Confetti animation */
+@keyframes onboardingConfetti {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+}
+
+.onboarding-confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    top: -10px;
+    animation: onboardingConfetti 3s ease-in forwards;
+    z-index: 5001;
+    pointer-events: none;
+}
+
+/* Nudge banner on home page */
+.onboarding-nudge {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: linear-gradient(135deg, rgba(45, 90, 61, 0.08), rgba(191, 106, 58, 0.08));
+    border: 1px solid rgba(45, 90, 61, 0.15);
+    border-radius: 14px;
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 1.5rem;
+    animation: journeyFadeIn 0.5s ease forwards;
+}
+
+.onboarding-nudge-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.onboarding-nudge-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.onboarding-nudge-text {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--warm-brown);
+    line-height: 1.4;
+}
+
+.onboarding-nudge-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.onboarding-nudge-btn {
+    padding: 0.45rem 1rem;
+    background: var(--forest);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.onboarding-nudge-btn:hover {
+    background: #1e4a2e;
+}
+
+.onboarding-nudge-dismiss {
+    background: none;
+    border: none;
+    color: var(--sage-dark);
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.onboarding-nudge-dismiss:hover {
+    color: var(--warm-brown);
+}
+
+/* ============================================================
    MY PROFILE PAGE
    ============================================================ */
 
@@ -5195,6 +5851,72 @@ body.dark-mode .rpp-walkthrough-again:hover {
 body.dark-mode .rpp-edit-item {
     background: rgba(46, 38, 31, 0.6);
     border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Onboarding dark mode */
+body.dark-mode #onboardingOverlay {
+    background: linear-gradient(160deg, #1C1714 0%, #241E18 50%, #2A231C 100%);
+}
+
+body.dark-mode .onboarding-close {
+    background: rgba(46, 38, 31, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #E8DDD0;
+}
+
+body.dark-mode .onboarding-dot {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+body.dark-mode .onboarding-input {
+    background: rgba(46, 38, 31, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #E8DDD0;
+}
+
+body.dark-mode .onboarding-input:focus {
+    background: rgba(46, 38, 31, 0.95);
+    box-shadow: 0 0 0 3px rgba(74, 155, 102, 0.15);
+}
+
+body.dark-mode .onboarding-feature-card,
+body.dark-mode .onboarding-toggle-item,
+body.dark-mode .onboarding-summary-card {
+    background: rgba(35, 28, 22, 0.7);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .onboarding-fellowship-btn {
+    background: rgba(46, 38, 31, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #E8DDD0;
+}
+
+body.dark-mode .onboarding-fellowship-btn.selected {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: white;
+}
+
+body.dark-mode .onboarding-icon-btn {
+    background: rgba(46, 38, 31, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .onboarding-icon-btn.selected {
+    background: rgba(45, 90, 61, 0.2);
+    border-color: var(--forest);
+}
+
+body.dark-mode .onboarding-nav-btn.secondary {
+    background: rgba(46, 38, 31, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #E8DDD0;
+}
+
+body.dark-mode .onboarding-nudge {
+    background: linear-gradient(135deg, rgba(45, 90, 61, 0.15), rgba(191, 106, 58, 0.1));
+    border-color: rgba(45, 90, 61, 0.25);
 }
 
 /* Showcase cards (guest homepage) */

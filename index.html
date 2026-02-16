@@ -282,6 +282,18 @@
 
                 <!-- Signed-in Home Content -->
                 <div id="homeAuthContent" style="display: none;">
+                    <!-- Onboarding nudge banner -->
+                    <div class="onboarding-nudge" id="onboardingNudge" style="display: none;">
+                        <div class="onboarding-nudge-content">
+                            <span class="onboarding-nudge-icon">&#10024;</span>
+                            <span class="onboarding-nudge-text">Complete your profile to get the most out of your recovery journey</span>
+                        </div>
+                        <div class="onboarding-nudge-actions">
+                            <button class="onboarding-nudge-btn" onclick="startOnboarding()">Set Up Now</button>
+                            <button class="onboarding-nudge-dismiss" onclick="dismissOnboardingNudge()" aria-label="Dismiss">&times;</button>
+                        </div>
+                    </div>
+
                     <div id="cleanTimeSection" style="display: none;">
                         <div class="clean-time-display" onclick="toggleCleanDateSetup()" style="cursor: pointer;">
                             <h3>Time in Recovery</h3>
@@ -2421,6 +2433,7 @@
     <div class="toast" id="toast"></div>
     <div id="meditationOverlay"></div>
     <div id="rppJourneyOverlay"></div>
+    <div id="onboardingOverlay"></div>
 
     <!-- What's New Panel -->
     <div class="whats-new-overlay" id="whatsNewOverlay" onclick="dismissWhatsNew()"></div>
