@@ -287,9 +287,19 @@
     .whats-new-panel { width: 100vw; }
 
     /* Community Hub mobile */
-    .community-drawer { width: 280px; left: -300px; }
-    .community-nav-bar { padding: 0.5rem 0.75rem; border-radius: 12px; }
-    .community-current-label { font-size: 0.95rem; }
+    .community-layout {
+        grid-template-columns: 1fr;
+    }
+    .community-sidebar {
+        position: relative;
+        top: 0;
+    }
+    .community-sidebar-nav {
+        width: 100%;
+    }
+    .community-sidebar:not(.open) .community-sidebar-nav {
+        width: 100%;
+    }
     .milestone-card, .medallion-card, .gratitude-feed-card { padding: 1.25rem; border-radius: 16px; }
     .milestone-card-achievement { padding: 0.75rem; }
     .milestone-card-icon { font-size: 1.5rem; }
