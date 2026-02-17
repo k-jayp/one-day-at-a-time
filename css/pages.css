@@ -621,12 +621,20 @@
 }
 
 .delete-entry-btn {
+    padding: 0.4rem 0.9rem;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    cursor: pointer;
     background: var(--sand);
     color: var(--warm-brown);
+    transition: all 0.3s ease;
 }
 
 .delete-entry-btn:hover {
-    background: var(--terracotta-light);
+    background: #e8c4b0;
+    color: #6b3a2a;
 }
 
 .journal-title-input {
