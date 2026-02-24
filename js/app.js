@@ -13,6 +13,7 @@ const NAV_PARENT_MAP = {
 
 // Pages that require authentication — guests are redirected to auth
 const AUTH_GATED_PAGES = new Set(['gratitude', 'journal', 'urges', 'safety-plan', 'profile', 'public-profile']);
+let _showPageActive = false;
 
 function showPage(pageId) {
     // Auth gate: redirect to sign-in if trying to access gated page while signed out
@@ -52,7 +53,9 @@ function showPage(pageId) {
     document.getElementById('navLinks').classList.remove('open');
     document.querySelectorAll('.has-dropdown.open').forEach(dd => dd.classList.remove('open'));
 
+    _showPageActive = true;
     if (pageId !== 'shared') window.location.hash = pageId;
+    _showPageActive = false;
     window.scrollTo(0, 0);
 
     // Page-specific callbacks
@@ -663,11 +666,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Handle hash changes
+// Handle hash changes (browser back/forward buttons)
 window.addEventListener('hashchange', () => {
+    if (_showPageActive) return; // ignore hash changes triggered by showPage itself
     const hash = window.location.hash;
     if (hash.startsWith('#shared?id=') || hash.startsWith('#shared?data=')) {
         handleSharedView();
+    } else if (hash && hash !== '#') {
+        const pageId = hash.replace('#', '').split('?')[0];
+        if (document.getElementById(pageId)) {
+            showPage(pageId);
+        }
+    } else {
+        showPage('home');
     }
 });
 
