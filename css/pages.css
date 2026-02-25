@@ -5289,6 +5289,45 @@ body.dark-mode .theme-toggle:hover {
     margin-top: 0.5rem;
 }
 
+.notification-action-btns {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.notification-accept-btn {
+    background: var(--forest);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.notification-accept-btn:hover {
+    background: #1a3d24;
+}
+
+.notification-decline-btn {
+    background: none;
+    color: var(--sage-dark);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.notification-decline-btn:hover {
+    border-color: #c0392b;
+    color: #c0392b;
+}
+
 /* ========== PUBLIC PROFILE PAGE ========== */
 .public-profile-container {
     max-width: 640px;

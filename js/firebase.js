@@ -1958,7 +1958,7 @@ async function sendPartnerRequest(toUid) {
         const toDoc = await getDoc(doc(db, 'users', toUid));
         const toName = toDoc.exists() ? (toDoc.data().preferredName || 'Someone') : 'Someone';
 
-        await addDoc(collection(db, 'partnerRequests'), {
+        const reqRef = await addDoc(collection(db, 'partnerRequests'), {
             fromUid: currentUser.uid,
             toUid: toUid,
             fromName: senderName,
@@ -1967,8 +1967,8 @@ async function sendPartnerRequest(toUid) {
             createdAt: serverTimestamp()
         });
 
-        // Send notification
-        createNotification(toUid, 'partner_request', 'sent you a partner request');
+        // Send notification with request ID as referenceId
+        createNotification(toUid, 'partner_request', 'sent you a partner request', reqRef.id);
 
         showToast('Partner request sent!');
 
@@ -2022,6 +2022,26 @@ async function respondToPartnerRequest(requestId, accept) {
     }
 }
 window.respondToPartnerRequest = respondToPartnerRequest;
+
+async function acceptPartnerFromNotif(requestId, notifId, btnEl) {
+    const container = btnEl.closest('.notification-action-btns');
+    if (container) container.innerHTML = '<span style="font-size:0.75rem;color:var(--sage-dark);">Accepting...</span>';
+    await respondToPartnerRequest(requestId, true);
+    try { await updateDoc(doc(db, 'notifications', notifId), { read: true }); } catch(e) {}
+    if (container) container.innerHTML = '<span style="font-size:0.75rem;color:var(--forest);font-weight:600;">Partner added!</span>';
+    updateNotificationBadge();
+}
+window.acceptPartnerFromNotif = acceptPartnerFromNotif;
+
+async function declinePartnerFromNotif(requestId, notifId, btnEl) {
+    const container = btnEl.closest('.notification-action-btns');
+    if (container) container.innerHTML = '<span style="font-size:0.75rem;color:var(--sage-dark);">Declining...</span>';
+    await respondToPartnerRequest(requestId, false);
+    try { await updateDoc(doc(db, 'notifications', notifId), { read: true }); } catch(e) {}
+    if (container) container.innerHTML = '<span style="font-size:0.75rem;color:var(--sage-dark);">Declined</span>';
+    updateNotificationBadge();
+}
+window.declinePartnerFromNotif = declinePartnerFromNotif;
 
 async function removePartner(partnerUid) {
     if (!currentUser) return;
@@ -2427,12 +2447,24 @@ async function loadNotifications() {
             const safeRefId = escapeHtml(n.referenceId || '');
             const safeSenderName = escapeHtml(n.senderName || 'Someone').replace(/'/g, "\\'");
 
+            // Partner request notifications get inline Accept/Decline buttons
+            let actionBtns = '';
+            if (n.type === 'partner_request' && n.referenceId && isUnread) {
+                actionBtns = `
+                    <div class="notification-action-btns" onclick="event.stopPropagation()">
+                        <button class="notification-accept-btn" onclick="acceptPartnerFromNotif('${safeRefId}', '${safeId}', this)">Accept</button>
+                        <button class="notification-decline-btn" onclick="declinePartnerFromNotif('${safeRefId}', '${safeId}', this)">Decline</button>
+                    </div>
+                `;
+            }
+
             html += `
                 <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick('${safeId}', '${safeType}', '${safeSenderUid}', '${safeRefId}', '${safeSenderName}')">
                     <div class="notification-item-avatar">${avatar}</div>
                     <div class="notification-item-content">
                         <span class="notification-item-text"><strong>${escapeHtml(n.senderName || 'Someone')}</strong> ${escapeHtml(n.message || '')}</span>
                         <span class="notification-item-time">${typeIcon} ${timeAgo}</span>
+                        ${actionBtns}
                     </div>
                     ${isUnread ? '<div class="notification-item-dot"></div>' : ''}
                 </div>
@@ -2469,6 +2501,9 @@ async function handleNotificationClick(notifId, type, senderUid, referenceId, se
             if (typeof window.switchCommunityTab === 'function') window.switchCommunityTab('milestones');
             break;
         case 'partner_request':
+            showPage('community');
+            if (typeof window.switchCommunityTab === 'function') window.switchCommunityTab('partners');
+            break;
         case 'partner_accepted':
             if (senderUid && typeof window.viewUserProfile === 'function') window.viewUserProfile(senderUid);
             break;
