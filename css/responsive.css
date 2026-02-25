@@ -236,7 +236,9 @@
     .rpp-journey-dot { width: 8px; height: 8px; }
     .rpp-journey-progress { gap: 0.4rem; }
     .rpp-journey-complete h3 { font-size: 1.5rem; }
-    .rpp-walkthrough-again { font-size: 0.82rem; padding: 0.55rem 1.25rem; }
+    .rpp-action-buttons { flex-direction: column; align-items: stretch; }
+    .rpp-walkthrough-again { font-size: 0.82rem; padding: 0.55rem 1.25rem; justify-content: center; }
+    .rpp-download-pdf-btn { font-size: 0.82rem; padding: 0.55rem 1.25rem; justify-content: center; }
 
     /* Shared gratitude mobile */
     .shared-card { padding: 1.5rem; }

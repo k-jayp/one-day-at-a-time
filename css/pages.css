@@ -2628,11 +2628,20 @@
 }
 
 /* Walkthrough again button */
+/* Action buttons wrapper */
+.rpp-action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0 auto 1.5rem;
+    flex-wrap: wrap;
+}
+
 .rpp-walkthrough-again {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin: 0 auto 1.5rem;
     padding: 0.65rem 1.5rem;
     background: rgba(255, 255, 255, 0.5);
     border: 1px solid var(--sand);
@@ -2653,6 +2662,33 @@
 
 .rpp-walkthrough-again svg {
     color: var(--forest);
+}
+
+/* Download PDF button */
+.rpp-download-pdf-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--sand);
+    border-radius: 50px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--sage-dark);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.rpp-download-pdf-btn:hover {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--terracotta);
+    border-color: var(--terracotta);
+    transform: translateY(-1px);
+}
+
+.rpp-download-pdf-btn svg {
+    color: var(--terracotta);
 }
 
 /* ---- Journey overlay ---- */
@@ -5853,6 +5889,14 @@ body.dark-mode .rpp-walkthrough-again {
 }
 
 body.dark-mode .rpp-walkthrough-again:hover {
+    background: rgba(46, 38, 31, 0.8);
+}
+
+body.dark-mode .rpp-download-pdf-btn {
+    background: rgba(46, 38, 31, 0.5);
+}
+
+body.dark-mode .rpp-download-pdf-btn:hover {
     background: rgba(46, 38, 31, 0.8);
 }
 

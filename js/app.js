@@ -1139,7 +1139,7 @@ window.finishJourney = finishJourney;
 function updateSafetyPlanViewState() {
     const introCard = document.getElementById('rppIntroCard');
     const sectionsWrapper = document.getElementById('rppSectionsWrapper');
-    const walkthroughBtn = document.getElementById('rppWalkthroughAgain');
+    const actionButtons = document.getElementById('rppActionButtons');
     const lastUpdated = document.getElementById('rppLastUpdated');
 
     // Check if plan has any data
@@ -1153,13 +1153,13 @@ function updateSafetyPlanViewState() {
         // Show completed plan view
         if (introCard) introCard.style.display = 'none';
         if (sectionsWrapper) sectionsWrapper.style.display = 'block';
-        if (walkthroughBtn) walkthroughBtn.style.display = 'flex';
+        if (actionButtons) actionButtons.style.display = 'flex';
         if (lastUpdated) lastUpdated.style.display = '';
     } else {
         // Show intro card (first-time user)
         if (introCard) introCard.style.display = '';
         if (sectionsWrapper) sectionsWrapper.style.display = 'none';
-        if (walkthroughBtn) walkthroughBtn.style.display = 'none';
+        if (actionButtons) actionButtons.style.display = 'none';
         if (lastUpdated) lastUpdated.style.display = 'none';
     }
 }
