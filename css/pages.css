@@ -5300,13 +5300,18 @@ body.dark-mode .theme-toggle:hover {
 .public-profile-back {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    background: none;
-    border: none;
+    gap: 0.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
     color: var(--sage-dark);
-    font-size: 0.9rem;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
     cursor: pointer;
-    padding: 0.5rem 0;
+    padding: 0.65rem 1.25rem;
     margin-bottom: 1.5rem;
     transition: var(--transition-smooth);
 }
@@ -5453,6 +5458,43 @@ body.dark-mode .theme-toggle:hover {
     letter-spacing: 0.5px;
 }
 
+.public-profile-collapse-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.public-profile-collapse-toggle h4 {
+    margin: 0;
+}
+
+.collapse-chevron {
+    color: var(--sage-dark);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+
+.public-profile-collapsible.collapsed .collapse-chevron {
+    transform: rotate(-90deg);
+}
+
+.public-profile-collapse-content {
+    max-height: 600px;
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+
+.public-profile-collapsible.collapsed .public-profile-collapse-content {
+    max-height: 0;
+    opacity: 0;
+}
+
 .public-profile-milestones-grid {
     display: flex;
     flex-wrap: wrap;
@@ -5511,6 +5553,13 @@ body.dark-mode .theme-toggle:hover {
 
 .public-profile-actions {
     margin-top: 1.5rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 15px rgba(92, 74, 61, 0.06);
 }
 
 .public-profile-partner-btn {
@@ -5531,6 +5580,244 @@ body.dark-mode .theme-toggle:hover {
 .public-profile-actions-row .btn {
     flex: 1;
     text-align: center;
+}
+
+/* ========== PARTNER MESSAGING PANEL ========== */
+.messaging-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 9998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.messaging-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.messaging-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 400px;
+    max-width: 100%;
+    height: 100%;
+    background: var(--cream);
+    box-shadow: -8px 0 30px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.messaging-panel.active {
+    transform: translateX(0);
+}
+
+.messaging-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(135deg, var(--forest), #1a3d24);
+    color: white;
+    flex-shrink: 0;
+}
+
+.messaging-panel-header-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.messaging-panel-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.messaging-panel-name {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.messaging-panel-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 8px;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.messaging-panel-close:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.messaging-panel-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.messaging-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 0.75rem;
+    color: var(--sage-dark);
+    opacity: 0.6;
+    font-size: 0.9rem;
+}
+
+.messaging-empty-state p {
+    margin: 0;
+}
+
+.messaging-date-divider {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--sage-dark);
+    margin: 0.75rem 0 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.messaging-bubble {
+    max-width: 80%;
+    padding: 0.65rem 1rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    animation: msgFadeIn 0.2s ease;
+}
+
+@keyframes msgFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.messaging-bubble.sent {
+    align-self: flex-end;
+    background: var(--terracotta);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.messaging-bubble.received {
+    align-self: flex-start;
+    background: var(--sand);
+    color: var(--warm-brown);
+    border-bottom-left-radius: 4px;
+}
+
+.messaging-bubble-time {
+    display: block;
+    font-size: 0.65rem;
+    margin-top: 0.3rem;
+    opacity: 0.7;
+}
+
+.messaging-bubble.sent .messaging-bubble-time {
+    text-align: right;
+}
+
+.messaging-panel-input-area {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    flex-shrink: 0;
+}
+
+.messaging-input {
+    flex: 1;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0.6rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    resize: none;
+    max-height: 100px;
+    background: white;
+    color: var(--warm-brown);
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.messaging-input:focus {
+    border-color: var(--forest);
+}
+
+.messaging-input::placeholder {
+    color: var(--sage-dark);
+    opacity: 0.6;
+}
+
+.messaging-send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--transition-smooth);
+}
+
+.messaging-send-btn:hover {
+    background: #1a3d24;
+    transform: scale(1.05);
+}
+
+.messaging-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@media (max-width: 480px) {
+    .messaging-panel {
+        width: 100%;
+    }
 }
 
 /* ========== ACCOUNTABILITY PARTNERS ========== */
@@ -6216,4 +6503,33 @@ body.dark-mode .partner-remove-btn:hover {
     border-color: #c0392b;
     color: #c0392b;
     background: rgba(192, 57, 43, 0.1);
+}
+
+/* Messaging panel dark mode */
+body.dark-mode .messaging-panel {
+    background: #1a1510;
+}
+
+body.dark-mode .messaging-bubble.received {
+    background: rgba(35, 28, 22, 0.8);
+    color: #E8DDD0;
+}
+
+body.dark-mode .messaging-panel-input-area {
+    background: rgba(35, 28, 22, 0.6);
+    border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .messaging-input {
+    background: rgba(35, 28, 22, 0.8);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #E8DDD0;
+}
+
+body.dark-mode .messaging-input:focus {
+    border-color: var(--sage);
+}
+
+body.dark-mode .messaging-date-divider {
+    color: rgba(255, 255, 255, 0.4);
 }

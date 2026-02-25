@@ -27,7 +27,8 @@ import {
     increment,
     where,
     arrayUnion,
-    arrayRemove
+    arrayRemove,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
     getStorage,
@@ -1808,9 +1809,14 @@ async function loadPublicProfile(uid) {
                         `;
                     });
                     gratitudeHtml = `
-                        <div class="public-profile-section">
-                            <h4>Shared Gratitude</h4>
-                            ${gratitudeItems}
+                        <div class="public-profile-section public-profile-collapsible">
+                            <button class="public-profile-collapse-toggle" onclick="this.parentElement.classList.toggle('collapsed')">
+                                <h4>Shared Gratitude</h4>
+                                <svg class="collapse-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="public-profile-collapse-content">
+                                ${gratitudeItems}
+                            </div>
                         </div>
                     `;
                 }
@@ -2185,11 +2191,159 @@ async function loadMyPartners() {
 }
 window.loadMyPartners = loadMyPartners;
 
-// Stub for Phase 3 — will be fully implemented with messaging
+// ========== PARTNER MESSAGING ==========
+let _messagingUnsubscribe = null;
+let _messagingPartnerUid = null;
+
+function getConversationId(uid1, uid2) {
+    return [uid1, uid2].sort().join('_');
+}
+
 function openMessagingPanel(partnerUid, partnerName) {
-    showToast('Messaging coming soon!');
+    if (!currentUser) { showPage('auth'); return; }
+    _messagingPartnerUid = partnerUid;
+
+    const panel = document.getElementById('messagingPanel');
+    const overlay = document.getElementById('messagingOverlay');
+    const nameEl = document.getElementById('messagingPartnerName');
+    const avatarEl = document.getElementById('messagingPartnerAvatar');
+    const messagesEl = document.getElementById('messagingMessages');
+    const inputEl = document.getElementById('messagingInput');
+
+    nameEl.textContent = partnerName || 'Partner';
+    avatarEl.textContent = (partnerName || '?').charAt(0).toUpperCase();
+
+    // Show panel
+    overlay.classList.add('active');
+    requestAnimationFrame(() => panel.classList.add('active'));
+    document.body.style.overflow = 'hidden';
+
+    // Clear previous messages and show empty state
+    messagesEl.innerHTML = `
+        <div class="messaging-empty-state" id="messagingEmptyState">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--sage-dark); opacity: 0.4;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <p>Start a conversation</p>
+        </div>
+    `;
+
+    // Focus input
+    setTimeout(() => inputEl.focus(), 400);
+
+    // Set up Enter key handler
+    inputEl.onkeydown = function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendPartnerMessage();
+        }
+        // Auto-resize
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    };
+
+    // Start real-time listener
+    if (_messagingUnsubscribe) _messagingUnsubscribe();
+    const convId = getConversationId(currentUser.uid, partnerUid);
+    const messagesQuery = query(
+        collection(db, 'conversations', convId, 'messages'),
+        orderBy('createdAt', 'asc')
+    );
+
+    _messagingUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+        const emptyState = document.getElementById('messagingEmptyState');
+        if (snapshot.empty) {
+            if (emptyState) emptyState.style.display = '';
+            return;
+        }
+        if (emptyState) emptyState.style.display = 'none';
+
+        // Render all messages
+        let html = '';
+        let lastDateStr = '';
+        snapshot.forEach(d => {
+            const msg = d.data();
+            const isMine = msg.senderUid === currentUser.uid;
+            const date = msg.createdAt?.toDate();
+            const timeStr = date ? date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : '';
+
+            // Date divider
+            if (date) {
+                const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                if (dateStr !== lastDateStr) {
+                    html += `<div class="messaging-date-divider">${dateStr}</div>`;
+                    lastDateStr = dateStr;
+                }
+            }
+
+            html += `
+                <div class="messaging-bubble ${isMine ? 'sent' : 'received'}">
+                    ${escapeHtml(msg.text)}
+                    <span class="messaging-bubble-time">${timeStr}</span>
+                </div>
+            `;
+        });
+        messagesEl.innerHTML = html;
+        messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+    }, (error) => {
+        console.error('Error listening to messages:', error);
+    });
 }
 window.openMessagingPanel = openMessagingPanel;
+
+function closeMessagingPanel() {
+    const panel = document.getElementById('messagingPanel');
+    const overlay = document.getElementById('messagingOverlay');
+    const inputEl = document.getElementById('messagingInput');
+
+    panel.classList.remove('active');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    if (inputEl) {
+        inputEl.value = '';
+        inputEl.style.height = 'auto';
+    }
+
+    if (_messagingUnsubscribe) {
+        _messagingUnsubscribe();
+        _messagingUnsubscribe = null;
+    }
+    _messagingPartnerUid = null;
+}
+window.closeMessagingPanel = closeMessagingPanel;
+
+async function sendPartnerMessage() {
+    if (!currentUser || !_messagingPartnerUid) return;
+    const inputEl = document.getElementById('messagingInput');
+    const sendBtn = document.getElementById('messagingSendBtn');
+    const text = (inputEl.value || '').trim();
+    if (!text || text.length > 500) return;
+
+    sendBtn.disabled = true;
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+
+    try {
+        const convId = getConversationId(currentUser.uid, _messagingPartnerUid);
+        await addDoc(collection(db, 'conversations', convId, 'messages'), {
+            senderUid: currentUser.uid,
+            text: text,
+            createdAt: serverTimestamp()
+        });
+
+        // Send notification to partner
+        const senderDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const senderName = senderDoc.exists() ? (senderDoc.data().preferredName || currentUser.displayName || 'Someone') : 'Someone';
+        const preview = text.length > 60 ? text.substring(0, 60) + '...' : text;
+        await createNotification(_messagingPartnerUid, 'message', `${senderName}: ${preview}`, currentUser.uid);
+    } catch (error) {
+        console.error('Error sending message:', error);
+        showToast('Failed to send message');
+        inputEl.value = text; // Restore on failure
+    } finally {
+        sendBtn.disabled = false;
+        inputEl.focus();
+    }
+}
+window.sendPartnerMessage = sendPartnerMessage;
 
 // ========== NOTIFICATIONS ==========
 
@@ -2271,9 +2425,10 @@ async function loadNotifications() {
             const safeType = escapeHtml(n.type || '');
             const safeSenderUid = escapeHtml(n.senderUid || '');
             const safeRefId = escapeHtml(n.referenceId || '');
+            const safeSenderName = escapeHtml(n.senderName || 'Someone').replace(/'/g, "\\'");
 
             html += `
-                <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick('${safeId}', '${safeType}', '${safeSenderUid}', '${safeRefId}')">
+                <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="handleNotificationClick('${safeId}', '${safeType}', '${safeSenderUid}', '${safeRefId}', '${safeSenderName}')">
                     <div class="notification-item-avatar">${avatar}</div>
                     <div class="notification-item-content">
                         <span class="notification-item-text"><strong>${escapeHtml(n.senderName || 'Someone')}</strong> ${escapeHtml(n.message || '')}</span>
@@ -2295,7 +2450,7 @@ async function loadNotifications() {
 }
 window.loadNotifications = loadNotifications;
 
-async function handleNotificationClick(notifId, type, senderUid, referenceId) {
+async function handleNotificationClick(notifId, type, senderUid, referenceId, senderName) {
     if (!currentUser) return;
     // Mark as read
     try {
@@ -2315,13 +2470,15 @@ async function handleNotificationClick(notifId, type, senderUid, referenceId) {
             break;
         case 'partner_request':
         case 'partner_accepted':
-            // Will navigate to partners tab once Phase 2 is built
             if (senderUid && typeof window.viewUserProfile === 'function') window.viewUserProfile(senderUid);
             break;
         case 'nudge':
-        case 'message':
-            // Will open messaging panel once Phase 3 is built
             if (senderUid && typeof window.viewUserProfile === 'function') window.viewUserProfile(senderUid);
+            break;
+        case 'message':
+            if (senderUid && typeof window.openMessagingPanel === 'function') {
+                window.openMessagingPanel(senderUid, senderName || 'Partner');
+            }
             break;
         default:
             break;
