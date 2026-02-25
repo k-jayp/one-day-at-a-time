@@ -213,7 +213,7 @@ function updateWallCharCount() {
 window.updateWallCharCount = updateWallCharCount;
 
 // ========== COMMUNITY HUB DRAWER + TAB SWITCHING ==========
-let _activeCommunityTab = 'milestones';
+let _activeCommunityTab = 'support';
 
 function switchCommunityTab(tabName) {
     _activeCommunityTab = tabName;
