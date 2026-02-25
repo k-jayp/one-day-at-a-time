@@ -1809,7 +1809,7 @@ async function loadPublicProfile(uid) {
                         `;
                     });
                     gratitudeHtml = `
-                        <div class="public-profile-section public-profile-collapsible">
+                        <div class="public-profile-section public-profile-collapsible collapsed">
                             <button class="public-profile-collapse-toggle" onclick="this.parentElement.classList.toggle('collapsed')">
                                 <h4>Shared Gratitude</h4>
                                 <svg class="collapse-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
