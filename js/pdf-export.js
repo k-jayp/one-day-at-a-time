@@ -32,7 +32,7 @@ function loadJsPdf() {
     return new Promise((resolve, reject) => {
         if (window.jspdf) { resolve(); return; }
         const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js';
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
         script.onload = resolve;
         script.onerror = () => reject(new Error('Failed to load PDF library'));
         document.head.appendChild(script);
@@ -57,7 +57,7 @@ function drawHeader(doc) {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
     doc.setTextColor(255, 255, 255);
-    doc.text('WDR', cx, cy + 0.5, { align: 'center', baseline: 'middle' });
+    doc.text('WDR', cx, cy + 3, { align: 'center' });
 
     // Brand text
     doc.setFont('helvetica', 'bold');
@@ -167,7 +167,7 @@ function drawSection(doc, section, items, startY, pageState) {
     doc.setTextColor(255, 255, 255);
     // Use first letter as icon placeholder
     const initial = section.title.replace('My ', '').charAt(0);
-    doc.text(initial, iconX, iconY + 0.3, { align: 'center', baseline: 'middle' });
+    doc.text(initial, iconX, iconY + 2, { align: 'center' });
 
     // Section title
     doc.setFont('helvetica', 'bold');
@@ -217,7 +217,7 @@ function drawSection(doc, section, items, startY, pageState) {
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(7);
             doc.setTextColor(255, 255, 255);
-            doc.text(stepNum, itemX + 1.5, itemY - 1.2, { align: 'center', baseline: 'middle' });
+            doc.text(stepNum, itemX + 1.5, itemY + 1, { align: 'center' });
 
             // Step text
             doc.setFont('helvetica', 'normal');
