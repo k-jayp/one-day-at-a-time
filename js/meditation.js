@@ -345,6 +345,11 @@ function completeMeditationExercise(completionMessage) {
     const fill = document.getElementById('medProgressFill');
     if (fill) fill.style.width = '100%';
 
+    // Track wellness tool completion in Firestore
+    if (typeof window.incrementWellnessToolCount === 'function') {
+        window.incrementWellnessToolCount();
+    }
+
     medTimer = setTimeout(() => {
         closeMeditationOverlay();
         if (completionMessage) {

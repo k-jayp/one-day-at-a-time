@@ -991,16 +991,24 @@ window.updateStreakDisplay = updateStreakDisplay;
 
 async function checkAndCelebrateMilestone(days) {
     if (!currentUser) return;
-    const milestone = MILESTONES.find(m => m.days === days);
-    if (!milestone) return;
+    // Find highest earned milestone not yet celebrated (range-based, not exact day)
+    const earned = MILESTONES.filter(m => days >= m.days);
+    if (earned.length === 0) return;
+    const milestone = earned[earned.length - 1]; // highest earned
     try {
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
         const lastCelebrated = userDoc.data()?.lastCelebratedMilestone || 0;
-        if (days > lastCelebrated) {
-            await setDoc(doc(db, 'users', currentUser.uid), { lastCelebratedMilestone: days }, { merge: true });
-            triggerConfetti();
-            showToast(`Milestone reached: ${milestone.label}! ${milestone.icon}`);
-            postMilestoneToCommunity(milestone);
+        if (milestone.days > lastCelebrated) {
+            // Show enhanced celebration overlay if available
+            if (typeof window.showMilestoneCelebration === 'function') {
+                window.showMilestoneCelebration(milestone, days);
+            } else {
+                // Fallback: old behavior
+                await setDoc(doc(db, 'users', currentUser.uid), { lastCelebratedMilestone: milestone.days }, { merge: true });
+                triggerConfetti();
+                showToast(`Milestone reached: ${milestone.label}! ${milestone.icon}`);
+                postMilestoneToCommunity(milestone);
+            }
         }
     } catch (e) { console.error('Milestone check error:', e); }
 }
@@ -1046,6 +1054,60 @@ function triggerConfetti() {
     animate();
 }
 window.triggerConfetti = triggerConfetti;
+
+// ========== MILESTONE DATA FUNCTIONS ==========
+
+async function gatherRecoveryStats() {
+    if (!currentUser) return {};
+    const uid = currentUser.uid;
+    const stats = {
+        urgesLogged: 0,
+        moodCheckins: 0,
+        gratitudeEntries: 0,
+        journalEntries: 0,
+        wellnessToolsUsed: 0,
+        safetyPlanLastUpdated: null
+    };
+    try {
+        const [urgesSnap, checkinsSnap, gratSnap, journalSnap, userDocSnap, planSnap] = await Promise.all([
+            getDocs(collection(db, 'users', uid, 'urges')),
+            getDocs(collection(db, 'users', uid, 'checkins')),
+            getDocs(collection(db, 'users', uid, 'gratitude')),
+            getDocs(collection(db, 'users', uid, 'journal')),
+            getDoc(doc(db, 'users', uid)),
+            getDoc(doc(db, 'users', uid, 'safetyPlan', 'main'))
+        ]);
+        stats.urgesLogged = urgesSnap.size;
+        stats.moodCheckins = checkinsSnap.size;
+        stats.gratitudeEntries = gratSnap.size;
+        stats.journalEntries = journalSnap.size;
+        const userData = userDocSnap.data() || {};
+        stats.wellnessToolsUsed = userData.wellnessToolsCompleted || 0;
+        if (planSnap.exists() && planSnap.data().lastUpdated) {
+            stats.safetyPlanLastUpdated = planSnap.data().lastUpdated.toDate();
+        }
+    } catch (e) {
+        console.error('Error gathering recovery stats:', e);
+    }
+    return stats;
+}
+window.gatherRecoveryStats = gatherRecoveryStats;
+
+async function markMilestoneCelebrated(milestoneDays) {
+    if (!currentUser) return;
+    await setDoc(doc(db, 'users', currentUser.uid), { lastCelebratedMilestone: milestoneDays }, { merge: true });
+}
+window.markMilestoneCelebrated = markMilestoneCelebrated;
+
+async function incrementWellnessToolCount() {
+    if (!currentUser) return;
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), { wellnessToolsCompleted: increment(1) }, { merge: true });
+    } catch (e) {
+        console.error('Error incrementing wellness tools:', e);
+    }
+}
+window.incrementWellnessToolCount = incrementWellnessToolCount;
 
 // ========== DAILY CHECK-IN ==========
 let selectedCheckinMood = null;
@@ -1229,7 +1291,7 @@ window.renderSponsorBadges = renderSponsorBadges;
 
 // --- Milestone Celebrations ---
 
-async function postMilestoneToCommunity(milestone) {
+async function postMilestoneToCommunity(milestone, commentary) {
     if (!currentUser) return;
     try {
         const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
@@ -1259,6 +1321,7 @@ async function postMilestoneToCommunity(milestone) {
             milestoneLabel: milestone.label,
             milestoneIcon: milestone.icon,
             milestoneDays: milestone.days,
+            commentary: commentary || '',
             createdAt: serverTimestamp(),
             celebrations: 0
         });
@@ -1418,6 +1481,7 @@ async function loadMilestoneFeed() {
                         <span class="milestone-card-icon">${data.milestoneIcon}</span>
                         <span class="milestone-card-label">${escapeHtml(data.milestoneLabel)}</span>
                     </div>
+                    ${data.commentary ? `<div class="milestone-card-commentary"><p>${escapeHtml(data.commentary)}</p></div>` : ''}
                     <div class="milestone-card-footer">
                         <button class="celebrate-btn ${isCelebrated ? 'celebrated' : ''}" onclick="celebrateMilestone('${docId}')" ${isCelebrated ? 'disabled' : ''}>
                             🎉 <span class="celebrate-count">${data.celebrations || 0}</span>

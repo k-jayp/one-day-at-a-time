@@ -1985,3 +1985,274 @@ function closeNotificationPanel() {
     document.body.style.overflow = '';
 }
 window.closeNotificationPanel = closeNotificationPanel;
+
+/* ============================================================
+   MILESTONE CELEBRATION OVERLAY — 3-STEP EXPERIENCE
+   Step 1: Congratulations + Recovery Stats
+   Step 2: Safety Plan Review Prompt
+   Step 3: Share to Community with Commentary
+   ============================================================ */
+
+const CELEBRATION_STEPS = ['congrats', 'safetyPlan', 'share'];
+let celebrationStep = 0;
+let celebrationMilestone = null;
+let celebrationDays = 0;
+let celebrationStats = null;
+let celebrationIsAnimating = false;
+
+async function showMilestoneCelebration(milestone, days) {
+    const overlay = document.getElementById('milestoneCelebrationOverlay');
+    if (!overlay) return;
+
+    celebrationMilestone = milestone;
+    celebrationDays = days;
+    celebrationStep = 0;
+    celebrationIsAnimating = false;
+
+    // Gather stats while building UI
+    celebrationStats = await window.gatherRecoveryStats();
+
+    // Build overlay shell
+    overlay.innerHTML = `
+        <button class="celebration-close" onclick="handleCelebrationRemindLater()" title="Remind me later">&times;</button>
+        <div class="celebration-progress" id="celebrationProgress"></div>
+        <div class="celebration-step-wrapper" id="celebrationStepWrapper"></div>
+        <div class="celebration-actions" id="celebrationActions">
+            <button class="celebration-remind-btn" onclick="handleCelebrationRemindLater()">Remind Me Later</button>
+            <button class="celebration-decline-btn" onclick="handleCelebrationDecline()">Decline Milestone Review</button>
+        </div>
+    `;
+
+    renderCelebrationProgress();
+    renderCelebrationStep(0, 'none');
+
+    // Trigger confetti
+    if (typeof triggerConfetti === 'function') triggerConfetti();
+
+    // Show overlay
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => overlay.classList.add('active'));
+    });
+}
+window.showMilestoneCelebration = showMilestoneCelebration;
+
+function renderCelebrationProgress() {
+    const container = document.getElementById('celebrationProgress');
+    if (!container) return;
+    container.innerHTML = CELEBRATION_STEPS.map((step, i) => {
+        let cls = 'celebration-dot dot-' + step;
+        if (i === celebrationStep) cls += ' active';
+        if (i < celebrationStep) cls += ' completed';
+        return '<div class="' + cls + '"></div>';
+    }).join('');
+}
+
+function renderCelebrationStep(index, direction) {
+    const wrapper = document.getElementById('celebrationStepWrapper');
+    if (!wrapper) return;
+
+    let html = '';
+    if (CELEBRATION_STEPS[index] === 'congrats') html = renderCongratsStep();
+    else if (CELEBRATION_STEPS[index] === 'safetyPlan') html = renderSafetyPlanStep();
+    else if (CELEBRATION_STEPS[index] === 'share') html = renderShareStep();
+
+    let animClass = 'celebration-step';
+    if (direction === 'forward') animClass += ' slide-in-right';
+    else if (direction === 'back') animClass += ' slide-in-left';
+
+    wrapper.innerHTML = '<div class="' + animClass + '" id="celebrationCurrentStep">' + html + '</div>';
+
+    // Wire up character counter on share step
+    if (CELEBRATION_STEPS[index] === 'share') {
+        setTimeout(() => {
+            const textarea = document.getElementById('celebrationCommentary');
+            const counter = document.getElementById('celebrationCharCount');
+            if (textarea && counter) {
+                textarea.addEventListener('input', () => {
+                    counter.textContent = textarea.value.length + '/280';
+                });
+                textarea.focus();
+            }
+        }, 100);
+    }
+}
+
+function renderCongratsStep() {
+    const m = celebrationMilestone;
+    const stats = celebrationStats || {};
+
+    // Build stat items — only show non-zero
+    const statItems = [];
+    if (stats.urgesLogged > 0) statItems.push({ icon: '\uD83C\uDF0A', label: 'Urges Surfed', value: stats.urgesLogged });
+    if (stats.moodCheckins > 0) statItems.push({ icon: '\uD83D\uDE0A', label: 'Mood Check-ins', value: stats.moodCheckins });
+    if (stats.gratitudeEntries > 0) statItems.push({ icon: '\uD83D\uDE4F', label: 'Gratitude Entries', value: stats.gratitudeEntries });
+    if (stats.journalEntries > 0) statItems.push({ icon: '\uD83D\uDCD3', label: 'Journal Entries', value: stats.journalEntries });
+    if (stats.wellnessToolsUsed > 0) statItems.push({ icon: '\uD83E\uDDD8', label: 'Wellness Exercises', value: stats.wellnessToolsUsed });
+
+    const statsHtml = statItems.length > 0
+        ? '<div class="celebration-stats-grid">' +
+          statItems.map(s =>
+              '<div class="celebration-stat-card">' +
+              '<span class="celebration-stat-icon">' + s.icon + '</span>' +
+              '<span class="celebration-stat-value">' + s.value + '</span>' +
+              '<span class="celebration-stat-label">' + s.label + '</span>' +
+              '</div>'
+          ).join('') + '</div>'
+        : '<p class="celebration-stats-empty">Your recovery journey is just beginning. Every step counts.</p>';
+
+    return '<div class="celebration-badge-container">' +
+        '<span class="celebration-milestone-icon">' + m.icon + '</span>' +
+    '</div>' +
+    '<h2 class="celebration-title">' + m.label + '</h2>' +
+    '<p class="celebration-subtitle">' + celebrationDays + ' days in recovery. You are doing incredible work.</p>' +
+    '<div class="celebration-stats-section">' +
+        '<h3 class="celebration-stats-heading">Your Recovery Journey</h3>' +
+        statsHtml +
+    '</div>' +
+    '<div class="celebration-step-nav">' +
+        '<button class="celebration-next-btn" onclick="nextCelebrationStep()">Continue</button>' +
+    '</div>';
+}
+
+function renderSafetyPlanStep() {
+    const stats = celebrationStats || {};
+    const lastUpdated = stats.safetyPlanLastUpdated;
+
+    let lastUpdatedText = 'You haven\'t created a safety plan yet.';
+    let urgency = 'create';
+
+    if (lastUpdated) {
+        const daysSinceUpdate = Math.floor((new Date() - lastUpdated) / (1000 * 60 * 60 * 24));
+        const dateStr = lastUpdated.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        lastUpdatedText = 'Last updated ' + dateStr;
+        urgency = daysSinceUpdate > 90 ? 'review' : 'current';
+    }
+
+    const messages = {
+        create: 'A safety plan is one of the most powerful tools in your recovery. Take a few minutes to create yours.',
+        review: 'It has been a while since you updated your safety plan. Milestones are a great time to check in.',
+        current: 'Your safety plan is up to date. Great job keeping it current!'
+    };
+
+    const shieldSvg = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+
+    let actionBtn = '';
+    if (urgency !== 'current') {
+        const label = urgency === 'create' ? 'Create My Plan' : 'Review My Plan';
+        actionBtn = '<button class="celebration-action-btn" onclick="celebrationGoToSafetyPlan()">' + label + '</button>';
+    }
+
+    return '<div class="celebration-icon-wrapper">' + shieldSvg + '</div>' +
+        '<h2 class="celebration-title">Safety Plan Check</h2>' +
+        '<p class="celebration-safety-date">' + lastUpdatedText + '</p>' +
+        '<p class="celebration-subtitle">' + messages[urgency] + '</p>' +
+        '<div class="celebration-step-nav">' +
+            '<button class="celebration-back-btn" onclick="prevCelebrationStep()">Back</button>' +
+            actionBtn +
+            '<button class="celebration-next-btn" onclick="nextCelebrationStep()">' +
+                (urgency !== 'current' ? 'Skip' : 'Continue') +
+            '</button>' +
+        '</div>';
+}
+
+function renderShareStep() {
+    const m = celebrationMilestone;
+
+    return '<div class="celebration-badge-container small">' +
+        '<span class="celebration-milestone-icon">' + m.icon + '</span>' +
+    '</div>' +
+    '<h2 class="celebration-title">Share Your Milestone</h2>' +
+    '<p class="celebration-subtitle">Celebrate with the community. Add a personal note if you\'d like.</p>' +
+    '<div class="celebration-share-form">' +
+        '<textarea class="celebration-commentary" id="celebrationCommentary" ' +
+            'placeholder="e.g., Grateful for every day. This community helped me get here." ' +
+            'maxlength="280" rows="3"></textarea>' +
+        '<span class="celebration-char-count" id="celebrationCharCount">0/280</span>' +
+    '</div>' +
+    '<div class="celebration-step-nav">' +
+        '<button class="celebration-back-btn" onclick="prevCelebrationStep()">Back</button>' +
+        '<button class="celebration-share-btn" onclick="submitCelebrationShare()">Share ' + m.icon + ' ' + m.label + '</button>' +
+    '</div>';
+}
+
+// --- Navigation ---
+
+function nextCelebrationStep() {
+    if (celebrationIsAnimating || celebrationStep >= CELEBRATION_STEPS.length - 1) return;
+    celebrationIsAnimating = true;
+    const current = document.getElementById('celebrationCurrentStep');
+    if (current) current.className = 'celebration-step slide-out-left';
+    setTimeout(() => {
+        celebrationStep++;
+        renderCelebrationProgress();
+        renderCelebrationStep(celebrationStep, 'forward');
+        celebrationIsAnimating = false;
+    }, 400);
+}
+window.nextCelebrationStep = nextCelebrationStep;
+
+function prevCelebrationStep() {
+    if (celebrationIsAnimating || celebrationStep <= 0) return;
+    celebrationIsAnimating = true;
+    const current = document.getElementById('celebrationCurrentStep');
+    if (current) current.className = 'celebration-step slide-out-right';
+    setTimeout(() => {
+        celebrationStep--;
+        renderCelebrationProgress();
+        renderCelebrationStep(celebrationStep, 'back');
+        celebrationIsAnimating = false;
+    }, 400);
+}
+window.prevCelebrationStep = prevCelebrationStep;
+
+// --- Action Handlers ---
+
+function handleCelebrationRemindLater() {
+    closeCelebrationOverlay();
+    showToast('We\'ll celebrate next time you sign in!');
+}
+window.handleCelebrationRemindLater = handleCelebrationRemindLater;
+
+async function handleCelebrationDecline() {
+    if (celebrationMilestone) {
+        await window.markMilestoneCelebrated(celebrationMilestone.days);
+    }
+    closeCelebrationOverlay();
+    showToast(celebrationMilestone.icon + ' ' + celebrationMilestone.label + ' recorded');
+}
+window.handleCelebrationDecline = handleCelebrationDecline;
+
+async function submitCelebrationShare() {
+    const commentary = (document.getElementById('celebrationCommentary')?.value || '').trim();
+    if (celebrationMilestone) {
+        await window.markMilestoneCelebrated(celebrationMilestone.days);
+        await window.postMilestoneToCommunity(celebrationMilestone, commentary);
+    }
+    closeCelebrationOverlay();
+    if (typeof triggerConfetti === 'function') triggerConfetti();
+    showToast(celebrationMilestone.icon + ' ' + celebrationMilestone.label + ' shared with the community!');
+}
+window.submitCelebrationShare = submitCelebrationShare;
+
+function celebrationGoToSafetyPlan() {
+    if (celebrationMilestone) {
+        window.markMilestoneCelebrated(celebrationMilestone.days);
+    }
+    closeCelebrationOverlay();
+    showPage('safety-plan');
+}
+window.celebrationGoToSafetyPlan = celebrationGoToSafetyPlan;
+
+function closeCelebrationOverlay() {
+    const overlay = document.getElementById('milestoneCelebrationOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.innerHTML = '';
+    }, 600);
+}
+window.closeCelebrationOverlay = closeCelebrationOverlay;
