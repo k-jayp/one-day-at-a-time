@@ -6,13 +6,16 @@ const NAV_PARENT_MAP = {
     'gratitude': true,
     'journal': true,
     'urges': true,
+    'thought-log': true,
+    'coping-toolbox': true,
+    'workbook': true,
     'safety-plan': true,
     'events': true,
     'community': true,
 };
 
 // Pages that require authentication — guests are redirected to auth
-const AUTH_GATED_PAGES = new Set(['gratitude', 'journal', 'urges', 'safety-plan', 'profile', 'public-profile']);
+const AUTH_GATED_PAGES = new Set(['gratitude', 'journal', 'urges', 'safety-plan', 'thought-log', 'coping-toolbox', 'workbook', 'profile', 'public-profile']);
 let _showPageActive = false;
 
 function showPage(pageId) {
@@ -73,6 +76,15 @@ function showPage(pageId) {
         if (typeof window.loadProfileData === 'function') window.loadProfileData();
         if (typeof syncA11yUI === 'function') syncA11yUI();
         if (typeof initProfilePage === 'function') initProfilePage();
+    }
+    if (pageId === 'thought-log' && typeof window.loadThoughtEntries === 'function') {
+        window.loadThoughtEntries();
+    }
+    if (pageId === 'coping-toolbox' && typeof window.loadCopingToolbox === 'function') {
+        window.loadCopingToolbox();
+    }
+    if (pageId === 'workbook' && typeof window.loadWorkbookGrid === 'function') {
+        window.loadWorkbookGrid();
     }
     if (pageId === 'public-profile') {
         const uid = window._pendingPublicProfileUid;
@@ -2257,3 +2269,672 @@ function closeCelebrationOverlay() {
     }, 600);
 }
 window.closeCelebrationOverlay = closeCelebrationOverlay;
+
+// ========== FEELINGS WHEEL ==========
+const FEELINGS_DATA = {
+    happy: { color: '#F2C94C', emoji: '😊', specific: ['Joyful','Content','Grateful','Proud','Hopeful','Amused','Peaceful','Excited','Optimistic','Relieved'] },
+    sad: { color: '#5B8DEF', emoji: '😢', specific: ['Lonely','Heartbroken','Disappointed','Hopeless','Grief','Empty','Regretful','Melancholy','Dejected','Helpless'] },
+    angry: { color: '#EB5757', emoji: '😤', specific: ['Frustrated','Bitter','Jealous','Hostile','Resentful','Irritated','Violated','Furious','Provoked','Hateful'] },
+    fearful: { color: '#9B51E0', emoji: '😰', specific: ['Anxious','Insecure','Overwhelmed','Scared','Vulnerable','Panicked','Worried','Dread','Helpless','Terrified'] },
+    surprised: { color: '#F2994A', emoji: '😮', specific: ['Confused','Amazed','Shocked','Dismayed','Startled','Moved','Awestruck','Speechless','Disillusioned','Perplexed'] },
+    disgusted: { color: '#6FCF97', emoji: '🤢', specific: ['Contempt','Revulsion','Judgmental','Loathing','Disapproving','Repelled','Nauseated','Detestable','Horrified','Hesitant'] }
+};
+
+let _fwCallback = null;
+let _fwSelectedCore = null;
+let _fwSelectedSpecific = null;
+
+function openFeelingsWheel(context) {
+    _fwCallback = context;
+    _fwSelectedCore = null;
+    _fwSelectedSpecific = null;
+    const overlay = document.getElementById('feelingsWheelOverlay');
+    const coreEl = document.getElementById('wheelCore');
+    const specEl = document.getElementById('wheelSpecific');
+    const badge = document.getElementById('fwBadge');
+    const selected = document.getElementById('fwSelected');
+    const confirmBtn = document.getElementById('fwConfirmBtn');
+
+    confirmBtn.disabled = true;
+    selected.style.display = 'none';
+    specEl.innerHTML = '';
+    coreEl.innerHTML = '';
+
+    Object.entries(FEELINGS_DATA).forEach(([key, data]) => {
+        const btn = document.createElement('button');
+        btn.className = 'wheel-core-btn';
+        btn.style.setProperty('--emotion-color', data.color);
+        btn.innerHTML = `<span class="wheel-core-emoji">${data.emoji}</span><span class="wheel-core-label">${key.charAt(0).toUpperCase() + key.slice(1)}</span>`;
+        btn.onclick = () => selectCoreEmotion(key);
+        coreEl.appendChild(btn);
+    });
+
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+window.openFeelingsWheel = openFeelingsWheel;
+
+function selectCoreEmotion(core) {
+    _fwSelectedCore = core;
+    _fwSelectedSpecific = null;
+    const data = FEELINGS_DATA[core];
+    const specEl = document.getElementById('wheelSpecific');
+    const confirmBtn = document.getElementById('fwConfirmBtn');
+    confirmBtn.disabled = true;
+
+    document.querySelectorAll('.wheel-core-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.wheel-core-btn').forEach(b => {
+        if (b.textContent.toLowerCase().includes(core)) b.classList.add('selected');
+    });
+
+    specEl.innerHTML = '';
+    data.specific.forEach(name => {
+        const btn = document.createElement('button');
+        btn.className = 'wheel-specific-btn';
+        btn.style.setProperty('--emotion-color', data.color);
+        btn.textContent = name;
+        btn.onclick = () => selectSpecificEmotion(core, name);
+        specEl.appendChild(btn);
+    });
+}
+
+function selectSpecificEmotion(core, specific) {
+    _fwSelectedSpecific = specific;
+    const data = FEELINGS_DATA[core];
+    document.querySelectorAll('.wheel-specific-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.wheel-specific-btn').forEach(b => {
+        if (b.textContent === specific) b.classList.add('selected');
+    });
+    const badge = document.getElementById('fwBadge');
+    const selected = document.getElementById('fwSelected');
+    badge.textContent = `${data.emoji} ${specific}`;
+    badge.style.setProperty('--emotion-color', data.color);
+    selected.style.display = 'flex';
+    document.getElementById('fwConfirmBtn').disabled = false;
+}
+
+function confirmEmotion() {
+    if (!_fwSelectedCore || !_fwSelectedSpecific) return;
+    const data = FEELINGS_DATA[_fwSelectedCore];
+    const result = { core: _fwSelectedCore, specific: _fwSelectedSpecific, color: data.color, emoji: data.emoji };
+
+    if (_fwCallback === 'checkin') {
+        window._checkinEmotion = result;
+        const badge = document.getElementById('checkinEmotionBadge');
+        const row = document.getElementById('checkinEmotionDetail');
+        badge.textContent = `${result.emoji} ${result.specific}`;
+        badge.style.setProperty('--emotion-color', result.color);
+        row.style.display = 'flex';
+    } else if (_fwCallback === 'journal') {
+        window._journalEmotion = result;
+        const badge = document.getElementById('journalEmotionBadge');
+        const row = document.getElementById('journalEmotionDetail');
+        badge.textContent = `${result.emoji} ${result.specific}`;
+        badge.style.setProperty('--emotion-color', result.color);
+        row.style.display = 'flex';
+    } else if (_fwCallback === 'urge') {
+        window._urgeEmotion = result;
+        const badge = document.getElementById('urgeEmotionBadge');
+        const row = document.getElementById('urgeEmotionDetail');
+        if (badge && row) {
+            badge.textContent = `${result.emoji} ${result.specific}`;
+            badge.style.setProperty('--emotion-color', result.color);
+            row.style.display = 'flex';
+        }
+    }
+    closeFeelingsWheel();
+}
+window.confirmEmotion = confirmEmotion;
+
+function closeFeelingsWheel() {
+    document.getElementById('feelingsWheelOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
+window.closeFeelingsWheel = closeFeelingsWheel;
+
+// ========== THOUGHT LOG ==========
+let _thoughtEmotionBefore = null;
+let _thoughtEmotionAfter = null;
+
+function selectThoughtIntensity(btn, type) {
+    const row = btn.parentElement;
+    row.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    if (type === 'before') _thoughtEmotionBefore = parseInt(btn.dataset.val);
+    else _thoughtEmotionAfter = parseInt(btn.dataset.val);
+}
+window.selectThoughtIntensity = selectThoughtIntensity;
+
+function toggleDistortion(btn) {
+    btn.classList.toggle('selected');
+}
+window.toggleDistortion = toggleDistortion;
+
+async function submitThoughtEntry() {
+    const thought = document.getElementById('thoughtInput').value.trim();
+    const reframe = document.getElementById('reframeInput').value.trim();
+    const distortions = Array.from(document.querySelectorAll('.distortion-card.selected')).map(b => b.dataset.distortion);
+
+    if (!thought) { showToast('Please enter a thought'); return; }
+    if (distortions.length === 0) { showToast('Select at least one distortion'); return; }
+
+    try {
+        await window.saveThoughtEntry(thought, distortions, reframe, _thoughtEmotionBefore, _thoughtEmotionAfter);
+        showToast('Thought entry saved!');
+        document.getElementById('thoughtInput').value = '';
+        document.getElementById('reframeInput').value = '';
+        document.querySelectorAll('.distortion-card.selected').forEach(b => b.classList.remove('selected'));
+        document.querySelectorAll('#emotionBeforeRow .intensity-btn, #emotionAfterRow .intensity-btn').forEach(b => b.classList.remove('selected'));
+        _thoughtEmotionBefore = null;
+        _thoughtEmotionAfter = null;
+        loadThoughtEntries();
+    } catch (e) {
+        showToast('Error saving entry');
+    }
+}
+window.submitThoughtEntry = submitThoughtEntry;
+
+async function loadThoughtEntries() {
+    if (typeof window.loadThoughtEntriesFromDB !== 'function') return;
+    const entries = await window.loadThoughtEntriesFromDB();
+    if (!entries || entries.length === 0) return;
+
+    const section = document.getElementById('thoughtEntriesSection');
+    const container = document.getElementById('thoughtEntriesContainer');
+    section.style.display = 'block';
+    container.innerHTML = '';
+
+    // Insights
+    const distortionCounts = {};
+    entries.forEach(e => {
+        (e.distortions || []).forEach(d => { distortionCounts[d] = (distortionCounts[d] || 0) + 1; });
+    });
+    const sorted = Object.entries(distortionCounts).sort((a, b) => b[1] - a[1]);
+    if (sorted.length > 0) {
+        const insights = document.getElementById('thoughtInsights');
+        const content = document.getElementById('thoughtInsightsContent');
+        insights.style.display = 'block';
+        content.innerHTML = sorted.slice(0, 5).map(([name, count]) => {
+            const max = sorted[0][1];
+            const pct = Math.round((count / max) * 100);
+            return `<div class="insight-bar-row"><span class="insight-bar-label">${name}</span><div class="insight-bar"><div class="insight-bar-fill" style="width:${pct}%"></div></div><span class="insight-bar-count">${count}</span></div>`;
+        }).join('');
+    }
+
+    entries.forEach(entry => {
+        const card = document.createElement('div');
+        card.className = 'thought-entry-card glass-card';
+        const date = entry.createdAt?.toDate ? entry.createdAt.toDate().toLocaleDateString() : '';
+        card.innerHTML = `
+            <div class="thought-entry-header">
+                <span class="thought-entry-date">${date}</span>
+                <button class="thought-entry-delete" onclick="deleteThoughtEntryUI('${entry.id}')">&times;</button>
+            </div>
+            <p class="thought-entry-thought">"${escapeHtml(entry.thought)}"</p>
+            <div class="thought-entry-distortions">${(entry.distortions || []).map(d => `<span class="distortion-badge">${d}</span>`).join('')}</div>
+            ${entry.reframe ? `<p class="thought-entry-reframe"><strong>Reframe:</strong> ${escapeHtml(entry.reframe)}</p>` : ''}
+            ${entry.emotionBefore && entry.emotionAfter ? `<p class="thought-entry-intensity">Intensity: ${entry.emotionBefore} → ${entry.emotionAfter}</p>` : ''}
+        `;
+        container.appendChild(card);
+    });
+}
+window.loadThoughtEntries = loadThoughtEntries;
+
+async function deleteThoughtEntryUI(entryId) {
+    if (typeof window.deleteThoughtEntry === 'function') {
+        await window.deleteThoughtEntry(entryId);
+        showToast('Entry deleted');
+        loadThoughtEntries();
+    }
+}
+window.deleteThoughtEntryUI = deleteThoughtEntryUI;
+
+// ========== COPING TOOLBOX ==========
+const DEFAULT_COPING_SKILLS = {
+    physical: ['Walk/run','Yoga/stretching','Dance','Clean/organize','Warm shower','Stress ball'],
+    emotional: ['Journal feelings','Cry if needed','Affirmations','Self-compassion','Listen to music'],
+    mental: ['Reframe thoughts','Positive visualization','Deep breathing','Crossword/puzzle','Read'],
+    sensory: ['Scented candle','Favorite tea/snack','Soft blanket','Calming photos','Calming sounds'],
+    social: ['Call/text sponsor','Attend meeting','Supportive friends','Volunteer','Recovery network']
+};
+
+let _copingToolbox = null;
+let _activeCopingTab = 'physical';
+
+async function loadCopingToolbox() {
+    if (typeof window.loadCopingToolboxFromDB === 'function') {
+        _copingToolbox = await window.loadCopingToolboxFromDB();
+    }
+    if (!_copingToolbox) {
+        _copingToolbox = {};
+        Object.entries(DEFAULT_COPING_SKILLS).forEach(([cat, skills]) => {
+            _copingToolbox[cat] = skills.map(name => ({ name, active: false, starred: false, custom: false }));
+        });
+    }
+    renderCopingTab(_activeCopingTab);
+    renderStarredSkills();
+}
+window.loadCopingToolbox = loadCopingToolbox;
+
+function switchCopingTab(tab) {
+    _activeCopingTab = tab;
+    document.querySelectorAll('.coping-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    renderCopingTab(tab);
+}
+window.switchCopingTab = switchCopingTab;
+
+function renderCopingTab(tab) {
+    const container = document.getElementById('copingCategoryContent');
+    const skills = _copingToolbox[tab] || [];
+    container.innerHTML = skills.map((s, i) => `
+        <button class="coping-skill ${s.active ? 'active' : ''} ${s.starred ? 'starred' : ''}" onclick="toggleCopingSkill('${tab}',${i})">
+            <span class="coping-skill-star" onclick="event.stopPropagation(); starCopingSkill('${tab}',${i})">★</span>
+            ${escapeHtml(s.name)}
+        </button>
+    `).join('');
+}
+
+function toggleCopingSkill(cat, index) {
+    _copingToolbox[cat][index].active = !_copingToolbox[cat][index].active;
+    saveCopingState();
+    renderCopingTab(_activeCopingTab);
+}
+window.toggleCopingSkill = toggleCopingSkill;
+
+function starCopingSkill(cat, index) {
+    _copingToolbox[cat][index].starred = !_copingToolbox[cat][index].starred;
+    saveCopingState();
+    renderCopingTab(_activeCopingTab);
+    renderStarredSkills();
+}
+window.starCopingSkill = starCopingSkill;
+
+function addCustomCopingSkill() {
+    const input = document.getElementById('copingCustomInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (!_copingToolbox[_activeCopingTab]) _copingToolbox[_activeCopingTab] = [];
+    _copingToolbox[_activeCopingTab].push({ name, active: true, starred: false, custom: true });
+    input.value = '';
+    saveCopingState();
+    renderCopingTab(_activeCopingTab);
+}
+window.addCustomCopingSkill = addCustomCopingSkill;
+
+function renderStarredSkills() {
+    const container = document.getElementById('copingStarredSkills');
+    const quickAccess = document.getElementById('copingQuickAccess');
+    const starred = [];
+    Object.entries(_copingToolbox).forEach(([cat, skills]) => {
+        skills.forEach(s => { if (s.starred) starred.push(s.name); });
+    });
+    if (starred.length === 0) { quickAccess.style.display = 'none'; return; }
+    quickAccess.style.display = 'block';
+    container.innerHTML = starred.map(name => `<span class="coping-skill active starred">${escapeHtml(name)}</span>`).join('');
+}
+
+function saveCopingState() {
+    if (typeof window.saveCopingToolboxToDB === 'function') {
+        window.saveCopingToolboxToDB(_copingToolbox);
+    }
+}
+
+// Coping suggestions for urge log integration
+// ========== RECOVERY WORKBOOK ==========
+const WORKSHEETS = {
+    'core-beliefs': {
+        title: 'Core Beliefs Explorer',
+        icon: '🧠',
+        description: 'Identify and challenge negative core beliefs',
+        steps: [
+            { type: 'multi-select', title: 'Select beliefs that resonate with you', options: [
+                "I'm not good enough", "I'm unlovable", "I'm worthless", "I'm a failure",
+                "I'm broken", "I don't belong", "I'm helpless", "I can't trust anyone",
+                "I'm different from everyone", "I don't deserve happiness", "I'm weak", "I'm stupid"
+            ]},
+            { type: 'textarea', title: 'Describe a situation where this belief showed up', placeholder: 'What happened? How did the belief influence your actions or feelings?' },
+            { type: 'multi-textarea', title: 'List 3 pieces of evidence that contradict this belief', count: 3, placeholder: 'Evidence #' }
+        ]
+    },
+    'strengths': {
+        title: 'Strengths & Qualities',
+        icon: '💪',
+        description: 'Discover and celebrate your strengths',
+        steps: [
+            { type: 'multi-textarea', title: 'Things I\'m good at', count: 3, placeholder: 'Strength' },
+            { type: 'multi-textarea', title: 'Challenges I\'ve overcome', count: 3, placeholder: 'Challenge' },
+            { type: 'multi-textarea', title: 'Compliments I\'ve received', count: 3, placeholder: 'Compliment' },
+            { type: 'multi-textarea', title: 'What makes me unique', count: 3, placeholder: 'Quality' },
+            { type: 'multi-textarea', title: 'How I\'ve helped others', count: 3, placeholder: 'Example' },
+            { type: 'multi-textarea', title: 'What I value most', count: 3, placeholder: 'Value' }
+        ]
+    },
+    'frustration': {
+        title: 'Frustration Tolerance',
+        icon: '🌊',
+        description: 'Build healthier responses to frustration',
+        steps: [
+            { type: 'multi-select', title: 'Check beliefs that contribute to your frustration', options: [
+                "Things should always go my way", "I can't stand being uncomfortable",
+                "Life should be fair", "People should behave the way I want",
+                "I shouldn't have to wait", "It's terrible when things go wrong",
+                "I can't cope with this", "This will never get better"
+            ]},
+            { type: 'textarea', title: 'Write your frustration story', placeholder: 'Describe a recent frustrating situation and how you reacted...' },
+            { type: 'multi-select', title: 'Select challenge thoughts that help', options: [
+                "I can handle discomfort", "This feeling is temporary",
+                "I've dealt with worse before", "Getting upset won't change the situation",
+                "I can choose my response", "Frustration is normal but doesn't have to control me",
+                "I can problem-solve instead of reacting", "This is an opportunity to practice patience"
+            ]},
+            { type: 'textarea', title: 'Write your chosen coping thoughts', placeholder: 'What will you tell yourself next time frustration arises?' }
+        ]
+    },
+    'values': {
+        title: 'Values Clarification',
+        icon: '🧭',
+        description: 'Understand what matters most and close the gap',
+        steps: [
+            { type: 'value-rating', title: 'Rate the importance of each value (1-10)', values: ['Family','Career','Relationships','Health','Spirituality','Community','Growth','Fun'], ratingType: 'importance' },
+            { type: 'value-rating', title: 'Rate your current alignment (1-10)', values: ['Family','Career','Relationships','Health','Spirituality','Community','Growth','Fun'], ratingType: 'alignment' },
+            { type: 'value-gap', title: 'Your values gap chart' },
+            { type: 'textarea', title: 'Choose one value to focus on this week', placeholder: 'Which value has the biggest gap? What one small action can you take this week?' }
+        ]
+    },
+    'treatment-attitudes': {
+        title: 'Treatment Attitudes',
+        icon: '📋',
+        description: 'Check your readiness and openness to treatment',
+        steps: [
+            { type: 'true-false', title: 'Respond to each statement', statements: [
+                'I am willing to try new approaches to recovery',
+                'I believe I can change my life for the better',
+                'I am honest with my counselor/sponsor',
+                'I attend meetings or sessions regularly',
+                'I am open to feedback from others',
+                'I take responsibility for my actions',
+                'I practice the skills I learn in treatment',
+                'I reach out for help when I need it',
+                'I believe recovery is possible for me',
+                'I am committed to my recovery plan',
+                'I can identify my triggers',
+                'I have healthy coping strategies',
+                'I am patient with my progress',
+                'I forgive myself for past mistakes',
+                'I see setbacks as learning opportunities'
+            ]}
+        ]
+    }
+};
+
+let _currentWorksheet = null;
+let _currentWsStep = 0;
+let _worksheetData = {};
+
+async function loadWorkbookGrid() {
+    const grid = document.getElementById('workbookGrid');
+    if (!grid) return;
+    let statuses = {};
+    if (typeof window.loadAllWorksheetStatus === 'function') {
+        statuses = await window.loadAllWorksheetStatus();
+    }
+    grid.innerHTML = Object.entries(WORKSHEETS).map(([id, ws]) => {
+        const status = statuses[id];
+        const completed = status && status.completed;
+        const inProgress = status && !status.completed && status.currentStep > 0;
+        return `<div class="worksheet-card ${completed ? 'completed' : ''} ${inProgress ? 'in-progress' : ''}" onclick="openWorksheet('${id}')">
+            <span class="worksheet-icon">${ws.icon}</span>
+            <h3>${ws.title}</h3>
+            <p>${ws.description}</p>
+            ${completed ? '<span class="worksheet-badge completed-badge">Completed ✓</span>' : inProgress ? '<span class="worksheet-badge progress-badge">In Progress</span>' : ''}
+            <button class="btn btn-secondary worksheet-btn">${completed ? 'Review' : inProgress ? 'Continue' : 'Start'}</button>
+        </div>`;
+    }).join('');
+}
+window.loadWorkbookGrid = loadWorkbookGrid;
+
+async function openWorksheet(worksheetId) {
+    _currentWorksheet = worksheetId;
+    _currentWsStep = 0;
+    _worksheetData = {};
+
+    if (typeof window.loadWorksheetData === 'function') {
+        const saved = await window.loadWorksheetData(worksheetId);
+        if (saved && saved.data) {
+            _worksheetData = saved.data;
+            _currentWsStep = saved.currentStep || 0;
+        }
+    }
+
+    const overlay = document.getElementById('worksheetOverlay');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderWorksheetStep();
+}
+window.openWorksheet = openWorksheet;
+
+function closeWorksheet() {
+    const overlay = document.getElementById('worksheetOverlay');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    _currentWorksheet = null;
+    loadWorkbookGrid();
+}
+window.closeWorksheet = closeWorksheet;
+
+function renderWorksheetStep() {
+    const ws = WORKSHEETS[_currentWorksheet];
+    if (!ws) return;
+    const step = ws.steps[_currentWsStep];
+    const header = document.getElementById('worksheetHeader');
+    const content = document.getElementById('worksheetStepContent');
+    const nav = document.getElementById('worksheetNav');
+    const totalSteps = ws.steps.length;
+
+    header.innerHTML = `<h3>${ws.icon} ${ws.title}</h3><p class="worksheet-progress">Step ${_currentWsStep + 1} of ${totalSteps}</p>`;
+
+    let html = `<h4 class="worksheet-step-title">${step.title}</h4>`;
+    const stepKey = `step_${_currentWsStep}`;
+    const saved = _worksheetData[stepKey] || {};
+
+    switch (step.type) {
+        case 'multi-select':
+            html += '<div class="worksheet-options">';
+            step.options.forEach((opt, i) => {
+                const checked = (saved.selected || []).includes(opt);
+                html += `<button class="worksheet-option ${checked ? 'selected' : ''}" onclick="toggleWsOption(this, '${stepKey}')">${opt}</button>`;
+            });
+            html += '</div>';
+            break;
+        case 'textarea':
+            html += `<textarea class="worksheet-textarea" id="wsTextarea" placeholder="${step.placeholder || ''}" onchange="saveWsText('${stepKey}', this.value)">${saved.text || ''}</textarea>`;
+            break;
+        case 'multi-textarea':
+            html += '<div class="worksheet-multi-inputs">';
+            for (let i = 0; i < step.count; i++) {
+                html += `<input type="text" class="worksheet-text-input" placeholder="${step.placeholder} ${i+1}" value="${(saved.texts || [])[i] || ''}" onchange="saveWsMultiText('${stepKey}', ${i}, this.value)">`;
+            }
+            html += '</div>';
+            break;
+        case 'value-rating':
+            html += '<div class="worksheet-value-ratings">';
+            step.values.forEach(val => {
+                const rating = (saved.ratings || {})[val] || 5;
+                html += `<div class="value-rating-row">
+                    <span class="value-rating-label">${val}</span>
+                    <input type="range" min="1" max="10" value="${rating}" class="value-slider" onchange="saveWsRating('${stepKey}','${val}',this.value)">
+                    <span class="value-rating-num">${rating}</span>
+                </div>`;
+            });
+            html += '</div>';
+            break;
+        case 'value-gap':
+            html += renderValueGapChart();
+            break;
+        case 'true-false':
+            html += '<div class="worksheet-tf-list">';
+            step.statements.forEach((stmt, i) => {
+                const answer = (saved.answers || {})[i];
+                html += `<div class="tf-statement">
+                    <p>${stmt}</p>
+                    <div class="tf-buttons">
+                        <button class="tf-btn ${answer === true ? 'selected true' : ''}" onclick="saveWsTF('${stepKey}',${i},true)">True</button>
+                        <button class="tf-btn ${answer === false ? 'selected false' : ''}" onclick="saveWsTF('${stepKey}',${i},false)">False</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            // Show score if all answered
+            const answers = saved.answers || {};
+            const answered = Object.keys(answers).length;
+            if (answered === step.statements.length) {
+                const trueCount = Object.values(answers).filter(v => v === true).length;
+                const pct = Math.round((trueCount / step.statements.length) * 100);
+                html += `<div class="tf-score"><strong>Score: ${trueCount}/${step.statements.length} (${pct}%)</strong><p>${pct >= 80 ? 'Strong treatment engagement!' : pct >= 60 ? 'Good foundation — keep building!' : 'Consider discussing openness to change with your support system.'}</p></div>`;
+            }
+            break;
+    }
+
+    content.innerHTML = html;
+
+    // Nav buttons
+    const isFirst = _currentWsStep === 0;
+    const isLast = _currentWsStep === totalSteps - 1;
+    nav.innerHTML = `
+        <button class="btn btn-secondary" ${isFirst ? 'disabled' : ''} onclick="prevWorksheetStep()">Back</button>
+        ${isLast ? '<button class="btn btn-primary" onclick="finishWorksheet()">Complete</button>' : '<button class="btn btn-primary" onclick="nextWorksheetStep()">Next</button>'}
+    `;
+
+    // Attach range slider live update
+    content.querySelectorAll('.value-slider').forEach(slider => {
+        slider.addEventListener('input', function() {
+            this.nextElementSibling.textContent = this.value;
+        });
+    });
+}
+
+function toggleWsOption(btn, stepKey) {
+    btn.classList.toggle('selected');
+    const selected = Array.from(btn.parentElement.querySelectorAll('.selected')).map(b => b.textContent);
+    if (!_worksheetData[stepKey]) _worksheetData[stepKey] = {};
+    _worksheetData[stepKey].selected = selected;
+    autoSaveWorksheet();
+}
+window.toggleWsOption = toggleWsOption;
+
+function saveWsText(stepKey, value) {
+    if (!_worksheetData[stepKey]) _worksheetData[stepKey] = {};
+    _worksheetData[stepKey].text = value;
+    autoSaveWorksheet();
+}
+window.saveWsText = saveWsText;
+
+function saveWsMultiText(stepKey, index, value) {
+    if (!_worksheetData[stepKey]) _worksheetData[stepKey] = {};
+    if (!_worksheetData[stepKey].texts) _worksheetData[stepKey].texts = [];
+    _worksheetData[stepKey].texts[index] = value;
+    autoSaveWorksheet();
+}
+window.saveWsMultiText = saveWsMultiText;
+
+function saveWsRating(stepKey, valueName, rating) {
+    if (!_worksheetData[stepKey]) _worksheetData[stepKey] = {};
+    if (!_worksheetData[stepKey].ratings) _worksheetData[stepKey].ratings = {};
+    _worksheetData[stepKey].ratings[valueName] = parseInt(rating);
+    autoSaveWorksheet();
+}
+window.saveWsRating = saveWsRating;
+
+function saveWsTF(stepKey, index, answer) {
+    if (!_worksheetData[stepKey]) _worksheetData[stepKey] = {};
+    if (!_worksheetData[stepKey].answers) _worksheetData[stepKey].answers = {};
+    _worksheetData[stepKey].answers[index] = answer;
+    autoSaveWorksheet();
+    renderWorksheetStep(); // Re-render to update selection + score
+}
+window.saveWsTF = saveWsTF;
+
+function renderValueGapChart() {
+    const importanceData = (_worksheetData['step_0'] || {}).ratings || {};
+    const alignmentData = (_worksheetData['step_1'] || {}).ratings || {};
+    const values = WORKSHEETS['values'].steps[0].values;
+    let html = '<div class="gap-chart">';
+    values.forEach(val => {
+        const imp = importanceData[val] || 5;
+        const align = alignmentData[val] || 5;
+        const gap = Math.abs(imp - align);
+        html += `<div class="gap-chart-row">
+            <span class="gap-chart-label">${val}</span>
+            <div class="gap-chart-bars">
+                <div class="gap-bar importance" style="width:${imp * 10}%"><span>${imp}</span></div>
+                <div class="gap-bar alignment" style="width:${align * 10}%"><span>${align}</span></div>
+            </div>
+            ${gap >= 3 ? '<span class="gap-alert">Gap: ' + gap + '</span>' : ''}
+        </div>`;
+    });
+    html += '<div class="gap-legend"><span class="gap-legend-item importance">Importance</span><span class="gap-legend-item alignment">Alignment</span></div>';
+    html += '</div>';
+    return html;
+}
+
+function nextWorksheetStep() {
+    const ws = WORKSHEETS[_currentWorksheet];
+    if (_currentWsStep < ws.steps.length - 1) {
+        _currentWsStep++;
+        autoSaveWorksheet();
+        renderWorksheetStep();
+    }
+}
+window.nextWorksheetStep = nextWorksheetStep;
+
+function prevWorksheetStep() {
+    if (_currentWsStep > 0) {
+        _currentWsStep--;
+        renderWorksheetStep();
+    }
+}
+window.prevWorksheetStep = prevWorksheetStep;
+
+async function autoSaveWorksheet() {
+    if (typeof window.saveWorksheetData === 'function') {
+        await window.saveWorksheetData(_currentWorksheet, {
+            data: _worksheetData,
+            currentStep: _currentWsStep,
+            completed: false
+        });
+    }
+}
+
+async function finishWorksheet() {
+    if (typeof window.saveWorksheetData === 'function') {
+        await window.saveWorksheetData(_currentWorksheet, {
+            data: _worksheetData,
+            currentStep: _currentWsStep,
+            completed: true,
+            completedAt: new Date().toISOString()
+        });
+    }
+    showToast('Worksheet completed! Great work! 🎉');
+    closeWorksheet();
+}
+window.finishWorksheet = finishWorksheet;
+
+window.getCopingSuggestions = function(triggerType) {
+    if (!_copingToolbox) return [];
+    const mapping = {
+        'Stress': ['physical','mental'],
+        'Social': ['social','emotional'],
+        'Emotional': ['emotional','sensory'],
+        'Boredom': ['mental','physical'],
+        'HALT': ['physical','sensory'],
+        'Environmental': ['sensory','mental'],
+        'Celebratory': ['social','emotional']
+    };
+    const cats = mapping[triggerType] || ['physical','emotional'];
+    const suggestions = [];
+    cats.forEach(cat => {
+        const skills = (_copingToolbox[cat] || []).filter(s => s.starred || s.active);
+        skills.forEach(s => { if (suggestions.length < 3) suggestions.push(s.name); });
+    });
+    return suggestions;
+};

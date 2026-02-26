@@ -467,4 +467,131 @@
     max-width: 100%;
 }
 
+/* ---- ACT Exercise Badge / Tag ---- */
+.wellness-badge.defusion {
+    background: linear-gradient(135deg, #2D9C9C, #4ECDC4);
+}
+.wellness-tag.defusion {
+    background: rgba(45, 156, 156, 0.15);
+    color: #2D9C9C;
+}
+
+/* ---- Leaves on a Stream ---- */
+.leaves-stream {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    margin: 1rem auto;
+    overflow: hidden;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(72, 154, 181, 0.15) 0%, rgba(72, 154, 181, 0.35) 100%);
+}
+.leaves-water {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(180deg, rgba(72, 154, 181, 0.2) 0%, rgba(72, 154, 181, 0.5) 100%);
+    animation: waterFlow 3s ease-in-out infinite;
+}
+@keyframes waterFlow {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-5px); }
+}
+.leaves-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.floating-leaf {
+    position: absolute;
+    top: 30%;
+    left: -20%;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: var(--warm-brown, #3D3229);
+    animation: leafFloat 8s linear forwards;
+    white-space: nowrap;
+}
+.leaf-icon {
+    font-size: 1.2rem;
+}
+@keyframes leafFloat {
+    0% { left: -20%; opacity: 0; transform: translateY(0) rotate(-5deg); }
+    10% { opacity: 1; }
+    80% { opacity: 0.7; }
+    100% { left: 120%; opacity: 0; transform: translateY(-15px) rotate(10deg); }
+}
+.leaves-input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    align-items: center;
+}
+.leaves-thought-input,
+.defusion-thought-input {
+    width: 90%;
+    max-width: 320px;
+    padding: 0.75rem 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-family: var(--font-body, 'Open Sans', sans-serif);
+    font-size: 0.95rem;
+    text-align: center;
+}
+.leaves-thought-input::placeholder,
+.defusion-thought-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+.leaves-thought-input:focus,
+.defusion-thought-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+.leaves-release-btn {
+    max-width: 200px;
+}
+
+/* ---- Thought Defusion ---- */
+.defusion-display {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+.defusion-thought-text {
+    font-size: 1.3rem;
+    font-family: var(--font-serif, 'Playfair Display', serif);
+    font-style: italic;
+    color: white;
+    text-align: center;
+    max-width: 340px;
+    line-height: 1.5;
+    transition: opacity 0.5s ease;
+}
+.defusion-fade {
+    animation: defusionPulse 1s ease-out;
+}
+@keyframes defusionPulse {
+    0% { opacity: 0; transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
+}
+.defusion-input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
 /* ========== END MEDITATION OVERLAY ========== */
