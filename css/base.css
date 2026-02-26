@@ -495,6 +495,34 @@ footer .quote {
     margin-bottom: 1rem;
 }
 
+.footer-social {
+    margin: 1rem 0;
+}
+
+.instagram-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #833AB4, #E1306C, #F77737);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.instagram-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(225, 48, 108, 0.35);
+}
+
+.instagram-badge svg {
+    flex-shrink: 0;
+}
+
 .toast {
     position: fixed;
     bottom: 2rem;
