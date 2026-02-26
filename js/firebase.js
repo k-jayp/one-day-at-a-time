@@ -55,6 +55,12 @@ const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null;
 
+// Return YYYY-MM-DD in the user's local timezone (avoids UTC date drift)
+function localDateStr(date) {
+    const d = date || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
 // Make currentUser accessible globally
 window.getCurrentUser = () => currentUser;
 
@@ -557,7 +563,7 @@ window.saveGratitudeEntry = async function(items) {
         // This replaces the separate createSharedGratitude call
         await addDoc(collection(db, 'shared'), {
             items: items,
-            date: new Date().toISOString().split('T')[0],
+            date: localDateStr(),
             sharedBy: currentUser.uid,
             sharedAt: serverTimestamp(),
             sourceEntryId: docRef.id
@@ -654,7 +660,7 @@ window.createSharedGratitude = async function(items) {
     try {
         const sharedRef = await addDoc(collection(db, 'shared'), {
             items: items,
-            date: new Date().toISOString().split('T')[0],
+            date: localDateStr(),
             sharedBy: currentUser.uid,
             sharedAt: serverTimestamp()
         });
@@ -1122,7 +1128,7 @@ window.selectCheckinMood = function(btn) {
 window.submitCheckin = async function() {
     if (!currentUser || !selectedCheckinMood) return;
     const note = document.getElementById('checkinNote').value.trim();
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateStr();
     try {
         await setDoc(doc(db, 'users', currentUser.uid, 'checkins', today), {
             mood: selectedCheckinMood.mood,
@@ -1150,7 +1156,7 @@ async function loadCheckinWidget() {
     if (!currentUser) return;
     const widget = document.getElementById('checkinWidget');
     widget.style.display = 'block';
-    const today = new Date().toISOString().split('T')[0];
+    const today = localDateStr();
     try {
         const todayDoc = await getDoc(doc(db, 'users', currentUser.uid, 'checkins', today));
         if (todayDoc.exists()) {
@@ -1172,14 +1178,14 @@ async function loadMoodTimeline() {
     for (let i = 13; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        days.push(d.toISOString().split('T')[0]);
+        days.push(localDateStr(d));
     }
     try {
         const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         for (const dateStr of days) {
             const checkinDoc = await getDoc(doc(db, 'users', currentUser.uid, 'checkins', dateStr));
             const d = new Date(dateStr + 'T00:00:00');
-            const isToday = dateStr === new Date().toISOString().split('T')[0];
+            const isToday = dateStr === localDateStr();
             const dayEl = document.createElement('div');
             dayEl.className = 'mood-day';
             dayEl.innerHTML = `
