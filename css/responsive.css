@@ -403,4 +403,26 @@
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
     }
+
+    /* New feature pages responsive */
+    .distortion-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+    .workbook-grid {
+        grid-template-columns: 1fr;
+    }
+    .gap-chart-label,
+    .insight-bar-label,
+    .value-rating-label {
+        flex: 0 0 70px;
+        font-size: 0.7rem;
+    }
+    .tf-statement {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+    }
+    .worksheet-overlay-inner {
+        padding: 1.5rem 1rem;
+    }
 }

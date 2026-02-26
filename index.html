@@ -91,6 +91,9 @@
                     <li><a data-page="gratitude">Gratitude List</a></li>
                     <li><a data-page="journal">Journal Entries</a></li>
                     <li><a data-page="urges">Urge Log</a></li>
+                    <li><a data-page="thought-log">Thought Log</a></li>
+                    <li><a data-page="coping-toolbox">Coping Toolbox</a></li>
+                    <li><a data-page="workbook">Recovery Work</a></li>
                     <li><a data-page="safety-plan">Safety Plan</a></li>
                 </ul>
             </li>
@@ -328,6 +331,19 @@
                                 <button class="checkin-mood-btn" data-mood="grateful" data-emoji="🙏" onclick="selectCheckinMood(this)">🙏</button>
                                 <button class="checkin-mood-btn" data-mood="strong" data-emoji="💪" onclick="selectCheckinMood(this)">💪</button>
                             </div>
+                            <div class="emotion-detail-row" id="checkinEmotionDetail" style="display:none;">
+                                <span class="emotion-badge" id="checkinEmotionBadge"></span>
+                            </div>
+                            <a class="feelings-wheel-link" onclick="openFeelingsWheel('checkin')">Want to be more specific?</a>
+                            <div class="halt-check" id="haltCheck">
+                                <p class="halt-label">Quick HALT Check</p>
+                                <div class="halt-options">
+                                    <label class="halt-option"><input type="checkbox" value="hungry"><span>Hungry</span></label>
+                                    <label class="halt-option"><input type="checkbox" value="angry"><span>Angry</span></label>
+                                    <label class="halt-option"><input type="checkbox" value="lonely"><span>Lonely</span></label>
+                                    <label class="halt-option"><input type="checkbox" value="tired"><span>Tired</span></label>
+                                </div>
+                            </div>
                             <textarea class="checkin-note" id="checkinNote" placeholder="Optional: a quick note about how you're feeling..." rows="2"></textarea>
                             <button class="btn btn-primary" id="checkinSubmitBtn" onclick="submitCheckin()" disabled>Check In</button>
                         </div>
@@ -335,6 +351,11 @@
                             <p>You've checked in today! <span id="checkinTodayMood"></span></p>
                         </div>
                         <div class="mood-timeline" id="moodTimeline"></div>
+                        <div class="early-warning-card" id="earlyWarningCard" style="display: none;">
+                            <button class="early-warning-close" onclick="document.getElementById('earlyWarningCard').style.display='none'">&times;</button>
+                            <p class="early-warning-msg">We've noticed a few tough days in a row. That's okay — recovery isn't linear. <strong>Would you like to review your safety plan?</strong></p>
+                            <button class="btn btn-secondary" onclick="showPage('safety-plan');document.getElementById('earlyWarningCard').style.display='none'">View Safety Plan</button>
+                        </div>
                     </div>
                 </div>
 
@@ -604,6 +625,10 @@
                         <button type="button" class="mood-btn" data-mood="🙏" onclick="selectMood(this)">🙏</button>
                         <button type="button" class="mood-btn" data-mood="💪" onclick="selectMood(this)">💪</button>
                     </div>
+                    <div class="emotion-detail-row" id="journalEmotionDetail" style="display:none;">
+                        <span class="emotion-badge" id="journalEmotionBadge"></span>
+                    </div>
+                    <a class="feelings-wheel-link" onclick="openFeelingsWheel('journal')">Explore more emotions</a>
                     <textarea class="journal-content-input" id="journalContent" placeholder="Write your thoughts..."></textarea>
                     <div class="gratitude-actions">
                         <button type="submit" class="btn btn-primary">Save Entry</button>
@@ -1056,6 +1081,179 @@
         </div>
     </section>
 
+    <!-- Thought Log Page -->
+    <section id="thought-log" class="page">
+        <div class="thought-log-container">
+            <div class="page-header">
+                <h2>Thought Log</h2>
+                <p>Identify and reframe cognitive distortions</p>
+            </div>
+            <div class="glass-card thought-log-form-card">
+                <h3>Log a Thought</h3>
+                <form id="thoughtLogForm" onsubmit="event.preventDefault(); submitThoughtEntry();">
+                    <textarea class="thought-input" id="thoughtInput" placeholder="What's the thought?" rows="3"></textarea>
+
+                    <label class="thought-form-label">Emotion intensity before (1-10)</label>
+                    <div class="thought-intensity-row" id="emotionBeforeRow">
+                        <button type="button" class="intensity-btn" data-val="1" onclick="selectThoughtIntensity(this,'before')">1</button>
+                        <button type="button" class="intensity-btn" data-val="2" onclick="selectThoughtIntensity(this,'before')">2</button>
+                        <button type="button" class="intensity-btn" data-val="3" onclick="selectThoughtIntensity(this,'before')">3</button>
+                        <button type="button" class="intensity-btn" data-val="4" onclick="selectThoughtIntensity(this,'before')">4</button>
+                        <button type="button" class="intensity-btn" data-val="5" onclick="selectThoughtIntensity(this,'before')">5</button>
+                        <button type="button" class="intensity-btn" data-val="6" onclick="selectThoughtIntensity(this,'before')">6</button>
+                        <button type="button" class="intensity-btn" data-val="7" onclick="selectThoughtIntensity(this,'before')">7</button>
+                        <button type="button" class="intensity-btn" data-val="8" onclick="selectThoughtIntensity(this,'before')">8</button>
+                        <button type="button" class="intensity-btn" data-val="9" onclick="selectThoughtIntensity(this,'before')">9</button>
+                        <button type="button" class="intensity-btn" data-val="10" onclick="selectThoughtIntensity(this,'before')">10</button>
+                    </div>
+
+                    <label class="thought-form-label">What distortions do you notice?</label>
+                    <div class="distortion-grid" id="distortionGrid">
+                        <button type="button" class="distortion-card" data-distortion="Catastrophizing" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">🌪️</span>
+                            <strong>Catastrophizing</strong>
+                            <small>Expecting the worst possible outcome</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="All-or-Nothing" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">⚫</span>
+                            <strong>All-or-Nothing</strong>
+                            <small>Thinking in black and white terms</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Mind Reading" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">🔮</span>
+                            <strong>Mind Reading</strong>
+                            <small>Assuming you know what others think</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Fortune Telling" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">🎱</span>
+                            <strong>Fortune Telling</strong>
+                            <small>Predicting things will go badly</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Overgeneralization" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">🔁</span>
+                            <strong>Overgeneralization</strong>
+                            <small>Using "always" or "never" thinking</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Magnification" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">🔎</span>
+                            <strong>Magnification</strong>
+                            <small>Blowing things out of proportion</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Emotional Reasoning" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">💭</span>
+                            <strong>Emotional Reasoning</strong>
+                            <small>Feeling it, so it must be true</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Should Statements" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">📋</span>
+                            <strong>Should Statements</strong>
+                            <small>Rigid rules about how things should be</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Personalization" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">🎯</span>
+                            <strong>Personalization</strong>
+                            <small>Blaming yourself for things outside your control</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Disqualifying the Positive" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">🚫</span>
+                            <strong>Disqualifying the Positive</strong>
+                            <small>Dismissing good things that happen</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Jumping to Conclusions" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">⚡</span>
+                            <strong>Jumping to Conclusions</strong>
+                            <small>Making assumptions without evidence</small>
+                        </button>
+                        <button type="button" class="distortion-card" data-distortion="Magical Thinking" onclick="toggleDistortion(this)">
+                            <span class="distortion-icon">✨</span>
+                            <strong>Magical Thinking</strong>
+                            <small>Believing thoughts can cause events</small>
+                        </button>
+                    </div>
+
+                    <textarea class="thought-input" id="reframeInput" placeholder="How can you reframe this thought?" rows="3"></textarea>
+
+                    <label class="thought-form-label">Emotion intensity after reframing (1-10)</label>
+                    <div class="thought-intensity-row" id="emotionAfterRow">
+                        <button type="button" class="intensity-btn" data-val="1" onclick="selectThoughtIntensity(this,'after')">1</button>
+                        <button type="button" class="intensity-btn" data-val="2" onclick="selectThoughtIntensity(this,'after')">2</button>
+                        <button type="button" class="intensity-btn" data-val="3" onclick="selectThoughtIntensity(this,'after')">3</button>
+                        <button type="button" class="intensity-btn" data-val="4" onclick="selectThoughtIntensity(this,'after')">4</button>
+                        <button type="button" class="intensity-btn" data-val="5" onclick="selectThoughtIntensity(this,'after')">5</button>
+                        <button type="button" class="intensity-btn" data-val="6" onclick="selectThoughtIntensity(this,'after')">6</button>
+                        <button type="button" class="intensity-btn" data-val="7" onclick="selectThoughtIntensity(this,'after')">7</button>
+                        <button type="button" class="intensity-btn" data-val="8" onclick="selectThoughtIntensity(this,'after')">8</button>
+                        <button type="button" class="intensity-btn" data-val="9" onclick="selectThoughtIntensity(this,'after')">9</button>
+                        <button type="button" class="intensity-btn" data-val="10" onclick="selectThoughtIntensity(this,'after')">10</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Save Entry</button>
+                </form>
+            </div>
+
+            <div class="thought-insights glass-card" id="thoughtInsights" style="display:none;">
+                <h3>Your Patterns</h3>
+                <div id="thoughtInsightsContent"></div>
+            </div>
+
+            <div class="thought-entries-section" id="thoughtEntriesSection" style="display:none;">
+                <h3>Past Entries</h3>
+                <div id="thoughtEntriesContainer"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coping Toolbox Page -->
+    <section id="coping-toolbox" class="page">
+        <div class="coping-container">
+            <div class="page-header">
+                <h2>My Coping Toolbox</h2>
+                <p>Build your personal coping skills menu</p>
+            </div>
+
+            <div class="coping-quick-access glass-card" id="copingQuickAccess" style="display:none;">
+                <h3>Quick Access</h3>
+                <div class="coping-starred-skills" id="copingStarredSkills"></div>
+            </div>
+
+            <div class="coping-tabs">
+                <button class="coping-tab active" data-tab="physical" onclick="switchCopingTab('physical')">Physical</button>
+                <button class="coping-tab" data-tab="emotional" onclick="switchCopingTab('emotional')">Emotional</button>
+                <button class="coping-tab" data-tab="mental" onclick="switchCopingTab('mental')">Mental</button>
+                <button class="coping-tab" data-tab="sensory" onclick="switchCopingTab('sensory')">Sensory</button>
+                <button class="coping-tab" data-tab="social" onclick="switchCopingTab('social')">Social</button>
+            </div>
+
+            <div class="coping-category glass-card" id="copingCategoryContent"></div>
+
+            <div class="coping-add-custom">
+                <input type="text" class="coping-custom-input" id="copingCustomInput" placeholder="Add your own skill..." maxlength="40">
+                <button class="btn btn-secondary" onclick="addCustomCopingSkill()">Add</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recovery Workbook Page -->
+    <section id="workbook" class="page">
+        <div class="workbook-container">
+            <div class="page-header">
+                <h2>My Recovery Work</h2>
+                <p>Interactive worksheets for your recovery journey</p>
+            </div>
+            <div class="workbook-grid" id="workbookGrid"></div>
+        </div>
+    </section>
+
+    <!-- Workbook Overlay -->
+    <div class="worksheet-overlay" id="worksheetOverlay">
+        <div class="worksheet-overlay-inner">
+            <button class="worksheet-close" onclick="closeWorksheet()">&times;</button>
+            <div class="worksheet-header" id="worksheetHeader"></div>
+            <div class="worksheet-step-content" id="worksheetStepContent"></div>
+            <div class="worksheet-nav" id="worksheetNav"></div>
+        </div>
+    </div>
+
     <!-- Wellness Toolkit Page -->
     <section id="wellness" class="page">
         <div class="wellness-container">
@@ -1146,6 +1344,28 @@
                     <div class="wellness-meta">
                         <span class="wellness-duration">~1.5 min</span>
                         <span class="wellness-tag calming">Calming</span>
+                    </div>
+                </button>
+                <button class="wellness-card" onclick="openMeditationOverlay('leaves')">
+                    <div class="wellness-badge defusion">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 2c1 2 2 4.5 2 8 0 5.5-4.5 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+                    </div>
+                    <h3>Leaves on a Stream</h3>
+                    <p>Let thoughts float away like leaves on water</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~3 min</span>
+                        <span class="wellness-tag defusion">ACT</span>
+                    </div>
+                </button>
+                <button class="wellness-card" onclick="openMeditationOverlay('defusion')">
+                    <div class="wellness-badge defusion">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>
+                    </div>
+                    <h3>Thought Defusion</h3>
+                    <p>Create distance from difficult thoughts using ACT techniques</p>
+                    <div class="wellness-meta">
+                        <span class="wellness-duration">~3 min</span>
+                        <span class="wellness-tag defusion">ACT</span>
                     </div>
                 </button>
             </div>
@@ -2444,6 +2664,22 @@
     </footer>
 
     <div class="toast" id="toast"></div>
+    <!-- Feelings Wheel Overlay -->
+    <div class="feelings-wheel-overlay" id="feelingsWheelOverlay">
+        <div class="feelings-wheel-container">
+            <button class="feelings-wheel-close" onclick="closeFeelingsWheel()">&times;</button>
+            <h3 class="feelings-wheel-title">How are you feeling?</h3>
+            <p class="feelings-wheel-subtitle">Tap a core emotion, then choose something more specific</p>
+            <div class="feelings-wheel-selected" id="fwSelected" style="display:none;">
+                <span class="emotion-badge" id="fwBadge"></span>
+            </div>
+            <div class="feelings-wheel" id="feelingsWheel">
+                <div class="wheel-core" id="wheelCore"></div>
+                <div class="wheel-specific" id="wheelSpecific"></div>
+            </div>
+            <button class="btn btn-primary feelings-wheel-confirm" id="fwConfirmBtn" onclick="confirmEmotion()" disabled>Select This Feeling</button>
+        </div>
+    </div>
     <div id="meditationOverlay"></div>
     <div id="rppJourneyOverlay"></div>
     <div id="milestoneCelebrationOverlay"></div>

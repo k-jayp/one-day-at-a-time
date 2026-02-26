@@ -741,12 +741,17 @@ window.saveJournalEntry = async function(title, content, mood) {
         await setDoc(userDocRef, { lastUpdated: serverTimestamp() }, { merge: true });
         
         // Now add the journal entry
-        const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'journal'), {
+        const journalData = {
             title: title,
             content: content,
             mood: mood,
             createdAt: serverTimestamp()
-        });
+        };
+        if (window._journalEmotion) {
+            journalData.emotion = { core: window._journalEmotion.core, specific: window._journalEmotion.specific };
+            window._journalEmotion = null;
+        }
+        const docRef = await addDoc(collection(db, 'users', currentUser.uid, 'journal'), journalData);
         return docRef.id;
     } catch (error) {
         console.error('Error saving journal:', error);
@@ -1128,16 +1133,26 @@ window.selectCheckinMood = function(btn) {
 window.submitCheckin = async function() {
     if (!currentUser || !selectedCheckinMood) return;
     const note = document.getElementById('checkinNote').value.trim();
+    const haltChecks = Array.from(document.querySelectorAll('#haltCheck input[type="checkbox"]:checked')).map(cb => cb.value);
     const today = localDateStr();
     try {
-        await setDoc(doc(db, 'users', currentUser.uid, 'checkins', today), {
+        const checkinData = {
             mood: selectedCheckinMood.mood,
             emoji: selectedCheckinMood.emoji,
             note: note,
+            halt: haltChecks,
             date: today,
             createdAt: serverTimestamp()
-        });
+        };
+        if (window._checkinEmotion) {
+            checkinData.emotion = { core: window._checkinEmotion.core, specific: window._checkinEmotion.specific };
+            window._checkinEmotion = null;
+        }
+        await setDoc(doc(db, 'users', currentUser.uid, 'checkins', today), checkinData);
         showToast('Check-in saved! ' + selectedCheckinMood.emoji);
+        if (haltChecks.length >= 2) {
+            setTimeout(() => showToast('HALT alert: Take care of your basic needs first 💛'), 3500);
+        }
         showCheckinComplete(selectedCheckinMood.emoji);
         loadMoodTimeline();
     } catch (error) {
@@ -1182,6 +1197,7 @@ async function loadMoodTimeline() {
     }
     try {
         const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const recentMoods = [];
         for (const dateStr of days) {
             const checkinDoc = await getDoc(doc(db, 'users', currentUser.uid, 'checkins', dateStr));
             const d = new Date(dateStr + 'T00:00:00');
@@ -1193,9 +1209,95 @@ async function loadMoodTimeline() {
                 <span class="mood-day-label">${dayNames[d.getDay()]}</span>
             `;
             container.appendChild(dayEl);
+            if (checkinDoc.exists()) recentMoods.push(checkinDoc.data().mood);
+        }
+        // Early warning: check last 3 check-ins for consecutive low moods
+        const lowMoods = ['struggling', 'tough'];
+        const last3 = recentMoods.slice(-3);
+        const warningCard = document.getElementById('earlyWarningCard');
+        if (warningCard && last3.length >= 3 && last3.every(m => lowMoods.includes(m))) {
+            warningCard.style.display = 'block';
         }
     } catch (e) { console.error('Error loading mood timeline:', e); }
 }
+
+// ========== THOUGHT LOG ==========
+window.saveThoughtEntry = async function(thought, distortions, reframe, emotionBefore, emotionAfter) {
+    if (!currentUser) return;
+    const data = {
+        thought,
+        distortions,
+        reframe: reframe || '',
+        emotionBefore: emotionBefore || null,
+        emotionAfter: emotionAfter || null,
+        createdAt: serverTimestamp()
+    };
+    await addDoc(collection(db, 'users', currentUser.uid, 'thoughtLog'), data);
+};
+
+window.loadThoughtEntriesFromDB = async function() {
+    if (!currentUser) return [];
+    try {
+        const q = query(collection(db, 'users', currentUser.uid, 'thoughtLog'), orderBy('createdAt', 'desc'), limit(20));
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (e) { console.error('Error loading thought entries:', e); return []; }
+};
+
+window.deleteThoughtEntry = async function(entryId) {
+    if (!currentUser) return;
+    await deleteDoc(doc(db, 'users', currentUser.uid, 'thoughtLog', entryId));
+};
+
+// ========== RECOVERY WORKBOOK ==========
+window.saveWorksheetData = async function(worksheetId, data) {
+    if (!currentUser) return;
+    await setDoc(doc(db, 'users', currentUser.uid, 'workbook', worksheetId), {
+        ...data,
+        lastUpdated: serverTimestamp()
+    });
+};
+
+window.loadWorksheetData = async function(worksheetId) {
+    if (!currentUser) return null;
+    try {
+        const snap = await getDoc(doc(db, 'users', currentUser.uid, 'workbook', worksheetId));
+        return snap.exists() ? snap.data() : null;
+    } catch (e) { console.error('Error loading worksheet:', e); return null; }
+};
+
+window.loadAllWorksheetStatus = async function() {
+    if (!currentUser) return {};
+    try {
+        const q = query(collection(db, 'users', currentUser.uid, 'workbook'));
+        const snap = await getDocs(q);
+        const statuses = {};
+        snap.docs.forEach(d => { statuses[d.id] = d.data(); });
+        return statuses;
+    } catch (e) { console.error('Error loading worksheet statuses:', e); return {}; }
+};
+
+// ========== COPING TOOLBOX ==========
+window.saveCopingToolboxToDB = async function(data) {
+    if (!currentUser) return;
+    await setDoc(doc(db, 'users', currentUser.uid, 'copingToolbox', 'main'), {
+        ...data,
+        lastUpdated: serverTimestamp()
+    });
+};
+
+window.loadCopingToolboxFromDB = async function() {
+    if (!currentUser) return null;
+    try {
+        const snap = await getDoc(doc(db, 'users', currentUser.uid, 'copingToolbox', 'main'));
+        if (snap.exists()) {
+            const data = snap.data();
+            delete data.lastUpdated;
+            return data;
+        }
+        return null;
+    } catch (e) { console.error('Error loading coping toolbox:', e); return null; }
+};
 
 // ========== COMMUNITY WALL ==========
 async function loadCommunityWall() {

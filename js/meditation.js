@@ -108,6 +108,28 @@ const MEDITATION_EXERCISES = {
         ],
         completionMessage: 'I just completed a safe place visualization. I feel calmer and more centered.',
         audio: { fundamentals: [196, 261.63, 349.23], lfoRate: 0.08, character: 'ethereal' }
+    },
+    leaves: {
+        name: 'Leaves on a Stream',
+        subtitle: 'ACT Defusion Exercise',
+        type: 'leaves',
+        rounds: 5,
+        completionMessage: 'I just practiced the Leaves on a Stream exercise. My thoughts feel lighter.',
+        audio: { fundamentals: [174.61, 220, 293.66], lfoRate: 0.1, character: 'airy' }
+    },
+    defusion: {
+        name: 'Thought Defusion',
+        subtitle: 'ACT Cognitive Defusion',
+        type: 'defusion',
+        steps: [
+            { instruction: 'Think of a difficult thought about yourself — something that hooks you.', duration: 0, input: true },
+            { instruction: 'Say it silently:', prefix: '', duration: 6000 },
+            { instruction: 'Now say:', prefix: 'I\'m having the thought that ', duration: 8000 },
+            { instruction: 'Now say:', prefix: 'I notice I\'m having the thought that ', duration: 8000 },
+            { instruction: 'Notice how adding distance changes how it feels.', duration: 8000, reflect: true }
+        ],
+        completionMessage: 'I just practiced thought defusion. I created some distance from a difficult thought.',
+        audio: { fundamentals: [220, 329.63, 440], lfoRate: 0.12, character: 'gentle' }
     }
 };
 
@@ -308,6 +330,8 @@ function openMeditationOverlay(type) {
         case 'pmr': renderPMRExercise(config); break;
         case 'metta': renderLovingKindnessExercise(config); break;
         case 'visualization': renderVisualizationExercise(config); break;
+        case 'leaves': renderLeavesExercise(config); break;
+        case 'defusion': renderDefusionExercise(config); break;
     }
 }
 window.openMeditationOverlay = openMeditationOverlay;
@@ -952,6 +976,143 @@ function renderVisualizationExercise(config) {
     const origCleanup = medCleanup;
     medCleanup = () => { running = false; if (origCleanup) origCleanup(); };
     runScene();
+}
+
+// ========== LEAVES ON A STREAM (ACT) ==========
+function renderLeavesExercise(config) {
+    const content = document.getElementById('medContent');
+    const instruction = document.getElementById('medInstruction');
+    const subInstruction = document.getElementById('medSubInstruction');
+    const counter = document.getElementById('medCounter');
+    const progressFill = document.getElementById('medProgressFill');
+    let running = true;
+    let round = 0;
+    const totalRounds = config.rounds;
+
+    content.innerHTML = `
+        <div class="leaves-stream">
+            <div class="leaves-water"></div>
+            <div class="leaves-container" id="leavesContainer"></div>
+        </div>
+        <div class="leaves-input-area" id="leavesInputArea">
+            <input type="text" class="leaves-thought-input" id="leavesThoughtInput" placeholder="Type a thought that's on your mind..." maxlength="80">
+            <button class="btn btn-primary leaves-release-btn" id="leavesReleaseBtn" onclick="window._releaseLeaf()">Place on leaf</button>
+        </div>
+    `;
+
+    instruction.textContent = 'What thought is on your mind?';
+    subInstruction.textContent = 'Type it and place it on a leaf to float away';
+
+    window._releaseLeaf = function() {
+        const input = document.getElementById('leavesThoughtInput');
+        const thought = input.value.trim();
+        if (!thought || !running) return;
+
+        const container = document.getElementById('leavesContainer');
+        const leaf = document.createElement('div');
+        leaf.className = 'floating-leaf';
+        leaf.innerHTML = `<span class="leaf-icon">🍃</span><span class="leaf-text">${thought.length > 40 ? thought.substring(0, 40) + '...' : thought}</span>`;
+        container.appendChild(leaf);
+
+        input.value = '';
+        round++;
+        counter.textContent = `${round} of ${totalRounds}`;
+        progressFill.style.width = ((round / totalRounds) * 100) + '%';
+
+        if (round < totalRounds) {
+            instruction.textContent = 'Watch it float away... what else is on your mind?';
+            subInstruction.textContent = `${totalRounds - round} more thoughts to release`;
+        } else {
+            instruction.textContent = 'Watch your thoughts float away...';
+            subInstruction.textContent = 'You are not your thoughts';
+            const inputArea = document.getElementById('leavesInputArea');
+            if (inputArea) inputArea.style.display = 'none';
+            const t = setTimeout(() => {
+                if (running) completeMeditationExercise(config.completionMessage);
+            }, 6000);
+            medTimers.push(t);
+        }
+
+        // Remove leaf after animation
+        setTimeout(() => leaf.remove(), 8000);
+    };
+
+    const origCleanup = medCleanup;
+    medCleanup = () => { running = false; window._releaseLeaf = null; if (origCleanup) origCleanup(); };
+}
+
+// ========== THOUGHT DEFUSION (ACT) ==========
+function renderDefusionExercise(config) {
+    const content = document.getElementById('medContent');
+    const instruction = document.getElementById('medInstruction');
+    const subInstruction = document.getElementById('medSubInstruction');
+    const counter = document.getElementById('medCounter');
+    const progressFill = document.getElementById('medProgressFill');
+    let running = true;
+    let stepIndex = 0;
+    let userThought = '';
+    const totalSteps = config.steps.length;
+
+    content.innerHTML = `
+        <div class="defusion-display" id="defusionDisplay">
+            <p class="defusion-thought-text" id="defusionThoughtText"></p>
+        </div>
+        <div class="defusion-input-area" id="defusionInputArea">
+            <input type="text" class="defusion-thought-input" id="defusionThoughtInput" placeholder="e.g., I'm not good enough..." maxlength="60">
+            <button class="btn btn-primary" id="defusionStartBtn" onclick="window._startDefusion()">Begin</button>
+        </div>
+    `;
+
+    instruction.textContent = config.steps[0].instruction;
+    subInstruction.textContent = 'This exercise helps create distance from difficult thoughts';
+
+    window._startDefusion = function() {
+        const input = document.getElementById('defusionThoughtInput');
+        userThought = input.value.trim();
+        if (!userThought || !running) return;
+        // Lowercase first letter for sentence flow
+        userThought = userThought.charAt(0).toLowerCase() + userThought.slice(1);
+        // Remove trailing period if present
+        if (userThought.endsWith('.')) userThought = userThought.slice(0, -1);
+
+        const inputArea = document.getElementById('defusionInputArea');
+        if (inputArea) inputArea.style.display = 'none';
+        stepIndex = 1;
+        runDefusionStep();
+    };
+
+    async function runDefusionStep() {
+        if (!running || stepIndex >= totalSteps) {
+            if (running) completeMeditationExercise(config.completionMessage);
+            return;
+        }
+
+        const step = config.steps[stepIndex];
+        const display = document.getElementById('defusionThoughtText');
+        counter.textContent = `Step ${stepIndex} of ${totalSteps - 1}`;
+        progressFill.style.width = ((stepIndex / (totalSteps - 1)) * 100) + '%';
+
+        instruction.textContent = step.instruction;
+
+        if (step.reflect) {
+            display.textContent = '';
+            subInstruction.textContent = 'Each layer of awareness created more space between you and the thought.';
+        } else if (step.prefix !== undefined) {
+            const fullText = `"${step.prefix}${userThought}"`;
+            display.textContent = fullText;
+            display.classList.remove('defusion-fade');
+            void display.offsetWidth;
+            display.classList.add('defusion-fade');
+            subInstruction.textContent = 'Say this silently to yourself...';
+        }
+
+        await new Promise(resolve => { const t = setTimeout(resolve, step.duration); medTimers.push(t); });
+        stepIndex++;
+        if (running) runDefusionStep();
+    }
+
+    const origCleanup = medCleanup;
+    medCleanup = () => { running = false; window._startDefusion = null; if (origCleanup) origCleanup(); };
 }
 
 // Launch point
