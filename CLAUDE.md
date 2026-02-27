@@ -99,15 +99,15 @@ All JS files loaded as `<script type="module">` in order: firebase.js → app.js
 ### Challenges Hub (`js/games.js`)
 6 therapeutic CBT games rendered as a card grid. Each game opens in a full-screen overlay (`#gameOverlay`). Games award XP via the shared gamification system and save sessions to `gameSessions` subcollection.
 
-**Games:**
-1. **Identify Distortions** — Multiple choice quiz: identify cognitive distortions in 5 random scenarios (7 distortion types, 10 scenarios). 20 XP per correct, max 100 XP.
-2. **Thought Categorizer** — Drag-and-drop: sort 6 thoughts into 3 categories (All-or-Nothing, Catastrophizing, Mind Reading). HTML5 drag + touch fallback. 15 XP per correct, max 90 XP. Badge: `master_dichotomous`.
-3. **Reframe Builder** — Fill-in-the-blank: complete balanced reframes using inline `<select>` dropdowns. 2 scenarios, 2 blanks each. 20 XP per correct, max 80 XP.
-4. **Coping Skills Menu** — Drag-and-drop: sort 10 coping skills into 5 categories (Physical, Emotional, Mental, Sensory, Social). 10 XP per correct, max 100 XP. Badge: `coping_master`.
-5. **Frustration Tolerance** — Click-to-reveal: challenge 8 rigid beliefs to see balanced reframes (red→green card flip). 15 XP per belief, max 120 XP.
-6. **AI Reframe Studio** — AI-powered 5-step flow (Input → Analyzing → Reveal → Reframe → Complete). Uses Cloudflare Worker `analyze-thought` route. 30 base + 10/distortion + 5/intensity-drop XP. Badge: `ai_reframe_master`.
+**Games (display order):**
+1. **The Reframe Room** (`ai-reframe-studio`) — AI-powered 5-step flow (Input → Analyzing → Reveal → Reframe → Complete). Uses Cloudflare Worker `analyze-thought` route. 30 base + 10/distortion + 5/intensity-drop XP. Badge: `ai_reframe_master`. Featured card with "Powered by Mona" badge.
+2. **Spot the Thought** (`identify-distortions`) — Multiple choice quiz: identify cognitive distortions in 5 random scenarios (7 distortion types, 10 scenarios). 20 XP per correct, max 100 XP.
+3. **Distorted Sorted** (`thought-categorizer`) — Drag-and-drop: sort 6 thoughts into 3 categories (All-or-Nothing, Catastrophizing, Mind Reading). HTML5 drag + touch fallback. 15 XP per correct, max 90 XP. Badge: `master_dichotomous`.
+4. **Balance Beam** (`reframe-builder`) — Fill-in-the-blank: complete balanced reframes using inline `<select>` dropdowns. 2 scenarios, 2 blanks each. 20 XP per correct, max 80 XP.
+5. **Skills that Soothe** (`coping-skills-game`) — Drag-and-drop: sort 10 coping skills into 5 categories (Physical, Emotional, Mental, Sensory, Social). 10 XP per correct, max 100 XP. Badge: `coping_master`.
+6. **Tolerance Tilt** (`frustration-tolerance`) — Click-to-reveal: challenge 8 rigid beliefs to see balanced reframes (red→green card flip). 15 XP per belief, max 120 XP.
 
-**Shared drag-drop pattern:** Both Thought Categorizer and Coping Skills Menu use HTML5 drag events for desktop + touch events (`touchstart`/`touchmove`/`touchend`) with manual hit-testing for mobile.
+**Shared drag-drop pattern:** Both Distorted Sorted and Skills that Soothe use HTML5 drag events for desktop + touch events (`touchstart`/`touchmove`/`touchend`) with manual hit-testing for mobile.
 
 **Key functions (on window):** `renderChallengesHub()`, `openGame(id)`, `closeGame()`, plus per-game `init*()`, `render*()`, `handle*()` functions.
 

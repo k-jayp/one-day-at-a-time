@@ -5,21 +5,21 @@ const WORKER_URL = typeof CHAT_WORKER_URL !== 'undefined' ? CHAT_WORKER_URL : 'h
 
 // ========== GAME CONFIGS ==========
 const GAME_CONFIGS = [
-    { id: 'identify-distortions', title: 'Identify Distortions', icon: '🧠', desc: 'Test your ability to spot cognitive distortions in everyday thoughts', xpRange: 'Up to 100 XP', featured: false },
-    { id: 'thought-categorizer', title: 'Thought Categorizer', icon: '🗂️', desc: 'Drag distorted thoughts into their correct category', xpRange: 'Up to 90 XP', featured: false },
-    { id: 'reframe-builder', title: 'Reframe Builder', icon: '🔧', desc: 'Complete balanced reframes by filling in the right words', xpRange: 'Up to 80 XP', featured: false },
-    { id: 'coping-skills-game', title: 'Coping Skills Menu', icon: '🛡️', desc: 'Sort coping strategies into the right wellness categories', xpRange: 'Up to 100 XP', featured: false },
-    { id: 'frustration-tolerance', title: 'Frustration Tolerance', icon: '🌊', desc: 'Challenge rigid beliefs and build tolerance with balanced reframes', xpRange: 'Up to 120 XP', featured: false },
-    { id: 'ai-reframe-studio', title: 'AI Reframe Studio', icon: '✨', desc: 'Get AI-powered analysis of your thought patterns with personalized reframes', xpRange: '30+ XP', featured: true },
+    { id: 'ai-reframe-studio', title: 'The Reframe Room', icon: '✨', desc: 'Get AI-powered analysis of your thought patterns with personalized reframes', xpRange: '30+ XP', featured: true, badge: 'Powered by Mona' },
+    { id: 'identify-distortions', title: 'Spot the Thought', icon: '🧠', desc: 'Test your ability to spot cognitive distortions in everyday thoughts', xpRange: 'Up to 100 XP', featured: false },
+    { id: 'thought-categorizer', title: 'Distorted Sorted', icon: '🗂️', desc: 'Drag distorted thoughts into their correct category', xpRange: 'Up to 90 XP', featured: false },
+    { id: 'reframe-builder', title: 'Balance Beam', icon: '🔧', desc: 'Complete balanced reframes by filling in the right words', xpRange: 'Up to 80 XP', featured: false },
+    { id: 'coping-skills-game', title: 'Skills that Soothe', icon: '🛡️', desc: 'Sort coping strategies into the right wellness categories', xpRange: 'Up to 100 XP', featured: false },
+    { id: 'frustration-tolerance', title: 'Tolerance Tilt', icon: '🌊', desc: 'Challenge rigid beliefs and build tolerance with balanced reframes', xpRange: 'Up to 120 XP', featured: false },
 ];
 
 // ========== BADGE DEFINITIONS ==========
 const CHALLENGE_BADGES = [
     { id: 'first_session', name: 'First Step', icon: '💡', desc: 'Earned your first XP' },
     { id: 'xp_100', name: 'Century Club', icon: '⭐', desc: 'Accumulated 100+ total XP' },
-    { id: 'master_dichotomous', name: 'Nuance Seeker', icon: '🧩', desc: 'Completed Thought Categorizer' },
-    { id: 'ai_reframe_master', name: 'AI Insight', icon: '🔮', desc: 'Used AI Reframe Studio' },
-    { id: 'coping_master', name: 'Toolkit Builder', icon: '🛡️', desc: 'Completed Coping Skills Menu' },
+    { id: 'master_dichotomous', name: 'Nuance Seeker', icon: '🧩', desc: 'Completed Distorted Sorted' },
+    { id: 'ai_reframe_master', name: 'AI Insight', icon: '🔮', desc: 'Used The Reframe Room' },
+    { id: 'coping_master', name: 'Toolkit Builder', icon: '🛡️', desc: 'Completed Skills that Soothe' },
 ];
 
 // ========== IDENTIFY DISTORTIONS DATA ==========
@@ -247,7 +247,8 @@ async function renderChallengesHub() {
     for (const game of GAME_CONFIGS) {
         const featuredClass = game.featured ? ' featured' : '';
         html += `<div class="game-card${featuredClass}" onclick="openGame('${game.id}')">`;
-        if (game.featured) html += '<span class="game-card-new-badge">AI Powered</span>';
+        if (game.badge) html += `<span class="game-card-new-badge">${game.badge}</span>`;
+        else if (game.featured) html += '<span class="game-card-new-badge">Featured</span>';
         html += `<div class="game-card-icon">${game.icon}</div>`;
         html += `<div class="game-card-title">${game.title}</div>`;
         html += `<div class="game-card-desc">${game.desc}</div>`;
@@ -654,7 +655,7 @@ function renderCsmGame(content, progress) {
     progress.innerHTML = `<span class="game-progress-label">Placed ${placedCount} of ${_csmSkills.length}</span><span class="game-progress-xp">${_csmScore} XP</span>`;
 
     let html = '<div class="game-step-card">';
-    html += '<div class="game-step-title">Build Your Coping Menu</div>';
+    html += '<div class="game-step-title">Skills that Soothe</div>';
     html += '<div class="game-step-subtitle">Drag each coping skill into its correct category.</div>';
 
     html += '<div class="game-dd-layout">';
@@ -750,7 +751,7 @@ function renderFtGame(content, progress) {
 
     const belief = FT_BELIEFS[_ftCurrentIndex];
     let html = '<div class="game-step-card">';
-    html += '<div class="game-step-title">Frustration Tolerance</div>';
+    html += '<div class="game-step-title">Tolerance Tilt</div>';
     html += '<div class="game-step-subtitle">Challenge this frustration-driving belief.</div>';
 
     if (!_ftShowReframe) {
@@ -821,7 +822,7 @@ function renderAiGame(content, progress) {
     if (!progress) progress = document.getElementById('gameProgress');
 
     const stepLabels = { input: 'Share Your Thought', analyzing: 'Analyzing...', reveal: 'Distortions Found', reframe: 'Write Your Reframe', complete: 'Complete' };
-    progress.innerHTML = `<span class="game-progress-label">${stepLabels[_aiStep]}</span><span class="game-progress-xp">AI Reframe Studio</span>`;
+    progress.innerHTML = `<span class="game-progress-label">${stepLabels[_aiStep]}</span><span class="game-progress-xp">The Reframe Room</span>`;
 
     switch (_aiStep) {
         case 'input': renderAiInput(content); break;
