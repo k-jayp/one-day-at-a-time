@@ -91,7 +91,7 @@
                     <li><a data-page="gratitude">Gratitude List</a></li>
                     <li><a data-page="journal">Journal Entries</a></li>
                     <li><a data-page="urges">Urge Log</a></li>
-                    <li><a data-page="thought-log">Thought Log</a></li>
+                    <li><a data-page="thought-log">Reframe Studio</a></li>
                     <li><a data-page="coping-toolbox">Coping Toolbox</a></li>
                     <li><a data-page="workbook">Recovery Work</a></li>
                     <li><a data-page="safety-plan">Safety Plan</a></li>
@@ -1081,124 +1081,38 @@
         </div>
     </section>
 
-    <!-- Thought Log Page -->
+    <!-- Reframe Studio Page -->
     <section id="thought-log" class="page">
-        <div class="thought-log-container">
+        <div class="rs-container">
             <div class="page-header">
-                <h2>Thought Log</h2>
-                <p>Identify and reframe cognitive distortions</p>
+                <h2>Reframe Studio</h2>
+                <p>Transform unhelpful thoughts, one step at a time</p>
             </div>
-            <div class="glass-card thought-log-form-card">
-                <h3>Log a Thought</h3>
-                <form id="thoughtLogForm" onsubmit="event.preventDefault(); submitThoughtEntry();">
-                    <textarea class="thought-input" id="thoughtInput" placeholder="What's the thought?" rows="3"></textarea>
-
-                    <label class="thought-form-label">Emotion intensity before (1-10)</label>
-                    <div class="thought-intensity-row" id="emotionBeforeRow">
-                        <button type="button" class="intensity-btn" data-val="1" onclick="selectThoughtIntensity(this,'before')">1</button>
-                        <button type="button" class="intensity-btn" data-val="2" onclick="selectThoughtIntensity(this,'before')">2</button>
-                        <button type="button" class="intensity-btn" data-val="3" onclick="selectThoughtIntensity(this,'before')">3</button>
-                        <button type="button" class="intensity-btn" data-val="4" onclick="selectThoughtIntensity(this,'before')">4</button>
-                        <button type="button" class="intensity-btn" data-val="5" onclick="selectThoughtIntensity(this,'before')">5</button>
-                        <button type="button" class="intensity-btn" data-val="6" onclick="selectThoughtIntensity(this,'before')">6</button>
-                        <button type="button" class="intensity-btn" data-val="7" onclick="selectThoughtIntensity(this,'before')">7</button>
-                        <button type="button" class="intensity-btn" data-val="8" onclick="selectThoughtIntensity(this,'before')">8</button>
-                        <button type="button" class="intensity-btn" data-val="9" onclick="selectThoughtIntensity(this,'before')">9</button>
-                        <button type="button" class="intensity-btn" data-val="10" onclick="selectThoughtIntensity(this,'before')">10</button>
-                    </div>
-
-                    <label class="thought-form-label">What distortions do you notice?</label>
-                    <div class="distortion-grid" id="distortionGrid">
-                        <button type="button" class="distortion-card" data-distortion="Catastrophizing" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">🌪️</span>
-                            <strong>Catastrophizing</strong>
-                            <small>Expecting the worst possible outcome</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="All-or-Nothing" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">⚫</span>
-                            <strong>All-or-Nothing</strong>
-                            <small>Thinking in black and white terms</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Mind Reading" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">🔮</span>
-                            <strong>Mind Reading</strong>
-                            <small>Assuming you know what others think</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Fortune Telling" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">🎱</span>
-                            <strong>Fortune Telling</strong>
-                            <small>Predicting things will go badly</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Overgeneralization" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">🔁</span>
-                            <strong>Overgeneralization</strong>
-                            <small>Using "always" or "never" thinking</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Magnification" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">🔎</span>
-                            <strong>Magnification</strong>
-                            <small>Blowing things out of proportion</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Emotional Reasoning" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">💭</span>
-                            <strong>Emotional Reasoning</strong>
-                            <small>Feeling it, so it must be true</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Should Statements" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">📋</span>
-                            <strong>Should Statements</strong>
-                            <small>Rigid rules about how things should be</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Personalization" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">🎯</span>
-                            <strong>Personalization</strong>
-                            <small>Blaming yourself for things outside your control</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Disqualifying the Positive" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">🚫</span>
-                            <strong>Disqualifying the Positive</strong>
-                            <small>Dismissing good things that happen</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Jumping to Conclusions" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">⚡</span>
-                            <strong>Jumping to Conclusions</strong>
-                            <small>Making assumptions without evidence</small>
-                        </button>
-                        <button type="button" class="distortion-card" data-distortion="Magical Thinking" onclick="toggleDistortion(this)">
-                            <span class="distortion-icon">✨</span>
-                            <strong>Magical Thinking</strong>
-                            <small>Believing thoughts can cause events</small>
-                        </button>
-                    </div>
-
-                    <textarea class="thought-input" id="reframeInput" placeholder="How can you reframe this thought?" rows="3"></textarea>
-
-                    <label class="thought-form-label">Emotion intensity after reframing (1-10)</label>
-                    <div class="thought-intensity-row" id="emotionAfterRow">
-                        <button type="button" class="intensity-btn" data-val="1" onclick="selectThoughtIntensity(this,'after')">1</button>
-                        <button type="button" class="intensity-btn" data-val="2" onclick="selectThoughtIntensity(this,'after')">2</button>
-                        <button type="button" class="intensity-btn" data-val="3" onclick="selectThoughtIntensity(this,'after')">3</button>
-                        <button type="button" class="intensity-btn" data-val="4" onclick="selectThoughtIntensity(this,'after')">4</button>
-                        <button type="button" class="intensity-btn" data-val="5" onclick="selectThoughtIntensity(this,'after')">5</button>
-                        <button type="button" class="intensity-btn" data-val="6" onclick="selectThoughtIntensity(this,'after')">6</button>
-                        <button type="button" class="intensity-btn" data-val="7" onclick="selectThoughtIntensity(this,'after')">7</button>
-                        <button type="button" class="intensity-btn" data-val="8" onclick="selectThoughtIntensity(this,'after')">8</button>
-                        <button type="button" class="intensity-btn" data-val="9" onclick="selectThoughtIntensity(this,'after')">9</button>
-                        <button type="button" class="intensity-btn" data-val="10" onclick="selectThoughtIntensity(this,'after')">10</button>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top:1rem;">Save Entry</button>
-                </form>
+            <div class="rs-gamification-row" id="rsGamificationRow" style="display:none;">
+                <span class="rs-level-badge" id="rsLevelBadge">🌱 Thought Observer</span>
             </div>
-
-            <div class="thought-insights glass-card" id="thoughtInsights" style="display:none;">
-                <h3>Your Patterns</h3>
-                <div id="thoughtInsightsContent"></div>
+            <div class="rs-stats glass-card" id="rsStats">
+                <div class="rs-stat">
+                    <span class="rs-stat-num" id="rsReframeCount">0</span>
+                    <span class="rs-stat-label">Reframes</span>
+                </div>
+                <div class="rs-stat">
+                    <span class="rs-stat-num" id="rsStreak">0</span>
+                    <span class="rs-stat-label">Day Streak</span>
+                </div>
+                <div class="rs-stat">
+                    <span class="rs-stat-num" id="rsTotalXP">0</span>
+                    <span class="rs-stat-label">Total XP</span>
+                </div>
             </div>
-
-            <div class="thought-entries-section" id="thoughtEntriesSection" style="display:none;">
-                <h3>Past Entries</h3>
-                <div id="thoughtEntriesContainer"></div>
+            <div class="rs-landing-level" id="rsLandingLevel" style="display:none;">
+                <div class="rs-level-bar"><div class="rs-level-fill" id="rsLandingLevelFill" style="width:0%"></div></div>
+                <span class="rs-landing-level-xp" id="rsLandingLevelXP">0 / 100 XP</span>
+            </div>
+            <button class="btn btn-primary rs-start-btn" onclick="openReframeFlow()">✨ Analyze a Thought</button>
+            <div class="rs-past-section" id="rsPastSection" style="display:none;">
+                <h3>Your Reframe Journey</h3>
+                <div id="rsPastEntries"></div>
             </div>
         </div>
     </section>
@@ -2664,6 +2578,15 @@
     </footer>
 
     <div class="toast" id="toast"></div>
+    <!-- Reframe Studio Overlay -->
+    <div class="rs-overlay" id="rsOverlay">
+        <div class="rs-overlay-inner">
+            <button class="rs-overlay-close" onclick="closeReframeFlow()">&times;</button>
+            <div class="rs-progress" id="rsProgress"></div>
+            <div class="rs-step-content" id="rsStepContent"></div>
+        </div>
+    </div>
+
     <!-- Feelings Wheel Overlay -->
     <div class="feelings-wheel-overlay" id="feelingsWheelOverlay">
         <div class="feelings-wheel-container">
@@ -2704,8 +2627,8 @@
             <div class="whats-new-item">
                 <div class="whats-new-item-icon">💭</div>
                 <div class="whats-new-item-text">
-                    <h4>Thought Log</h4>
-                    <p>Identify cognitive distortions, reframe negative thoughts, and track your thinking patterns over time</p>
+                    <h4>Reframe Studio</h4>
+                    <p>AI-powered thought analysis that identifies cognitive distortions, guides you through reframing, and tracks your growth with XP and levels</p>
                 </div>
             </div>
             <div class="whats-new-item">
