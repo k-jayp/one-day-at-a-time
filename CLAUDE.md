@@ -20,20 +20,22 @@
 index.html          — Single page with all HTML sections
 js/
   firebase.js       — Firebase init, auth, all Firestore CRUD
-  app.js            — Main app logic, all feature modules (routing, Reframe Studio, coping toolbox, workbook, etc.)
+  app.js            — Main app logic, routing, coping toolbox, gamification system
+  games.js          — Challenges Hub: 6 therapeutic games, hub rendering, overlay management
   chat.js           — Mona AI chat UI and worker communication
   meditation.js     — Guided meditation/breathing exercises
   pdf-export.js     — Worksheet PDF export
 css/
   base.css          — Design system, variables, nav, dark mode, accessibility
   pages.css         — All page/feature styles
+  games.css         — Challenges Hub grid, game overlays, all 6 game UIs, dark mode
   responsive.css    — Mobile breakpoints (max-width: 600px)
   chat.css          — Chat panel styles
   meditation.css    — Meditation overlay styles
 recovery-chat-worker.js — Cloudflare Worker (deploy separately)
 ```
 
-All JS files loaded as `<script type="module">` in order: firebase.js → app.js → chat.js → meditation.js → pdf-export.js.
+All JS files loaded as `<script type="module">` in order: firebase.js → app.js → games.js → chat.js → meditation.js → pdf-export.js.
 
 ### Key Patterns
 - **SPA navigation:** `showPage('page-id')` toggles `<section>` visibility with fade transitions
@@ -49,10 +51,11 @@ All JS files loaded as `<script type="module">` in order: firebase.js → app.js
 - `users/{uid}/checkins/{YYYY-MM-DD}` — daily mood check-ins
 - `users/{uid}/gratitude/{id}` — gratitude entries
 - `users/{uid}/journal/{id}` — journal entries
-- `users/{uid}/thoughtLog/{id}` — Reframe Studio entries (version 1/2/3)
+- `users/{uid}/thoughtLog/{id}` — Reframe Studio entries (version 1/2/3, legacy)
 - `users/{uid}/safetyPlan/{id}` — safety plan data
 - `users/{uid}/urges/{id}` — urge tracking entries
-- `users/{uid}/workbook/{worksheetId}` — Growth Lab worksheet data (v2: `data`, `aiInsight`, `currentStep`, `completed`, `xpAwarded`, `completedAt`)
+- `users/{uid}/workbook/{worksheetId}` — Growth Lab worksheet data (legacy)
+- `users/{uid}/gameSessions/{id}` — Challenges Hub game session results (gameId, score, xpEarned, details)
 - `users/{uid}/copingToolbox/main` — coping skills and favorites
 - `shared/{id}` — publicly shared gratitude
 - `communityWall/{id}` — anonymous community messages
@@ -84,53 +87,41 @@ All JS files loaded as `<script type="module">` in order: firebase.js → app.js
 8. **HALT Check** — Hungry/Angry/Lonely/Tired self-assessment with daily mood
 9. **Feelings Wheel** — 60 specific emotions organized by core emotions
 10. **ACT Exercises** — Leaves on a Stream, Thought Defusion
-11. **Reframe Studio** — AI-powered cognitive distortion analysis with gamification (v3)
-12. **Coping Toolbox** — 5-category coping skills builder with favorites
-13. **Growth Lab** — AI-powered guided CBT worksheets (v2, formerly Recovery Workbook)
-14. **Wellness Toolkit** — 4-7-8 Breathing, 5-4-3-2-1 Grounding, Body Scan, Urge Surfing, Muscle Relaxation, Loving-Kindness, Safe Place Visualization
+11. **Challenges Hub** — 6 interactive CBT games with shared XP/level gamification (see below)
+12. **Coping Toolbox** — 5-category coping skills builder with favorites (in My Journey)
+13. **Wellness Toolkit** — 4-7-8 Breathing, 5-4-3-2-1 Grounding, Body Scan, Urge Surfing, Muscle Relaxation, Loving-Kindness, Safe Place Visualization
 
 ### Navigation Structure
-- **My Journey** — Sobriety Tracker, Check-In, Gratitude, Journal, Safety Plan, Urge Tracking
-- **Challenges** (auth-gated) — Reframe Studio, Growth Lab
+- **My Journey** — Sobriety Tracker, Check-In, Gratitude, Journal, Safety Plan, Urge Tracking, Coping Toolbox
+- **Challenges** (auth-gated) — Challenges Hub (single page with 6 games)
 - **Daily Readings, Mona, Wellness, Find Help, Connect** — Top-level nav items
 
+### Challenges Hub (`js/games.js`)
+6 therapeutic CBT games rendered as a card grid. Each game opens in a full-screen overlay (`#gameOverlay`). Games award XP via the shared gamification system and save sessions to `gameSessions` subcollection.
+
+**Games:**
+1. **Identify Distortions** — Multiple choice quiz: identify cognitive distortions in 5 random scenarios (7 distortion types, 10 scenarios). 20 XP per correct, max 100 XP.
+2. **Thought Categorizer** — Drag-and-drop: sort 6 thoughts into 3 categories (All-or-Nothing, Catastrophizing, Mind Reading). HTML5 drag + touch fallback. 15 XP per correct, max 90 XP. Badge: `master_dichotomous`.
+3. **Reframe Builder** — Fill-in-the-blank: complete balanced reframes using inline `<select>` dropdowns. 2 scenarios, 2 blanks each. 20 XP per correct, max 80 XP.
+4. **Coping Skills Menu** — Drag-and-drop: sort 10 coping skills into 5 categories (Physical, Emotional, Mental, Sensory, Social). 10 XP per correct, max 100 XP. Badge: `coping_master`.
+5. **Frustration Tolerance** — Click-to-reveal: challenge 8 rigid beliefs to see balanced reframes (red→green card flip). 15 XP per belief, max 120 XP.
+6. **AI Reframe Studio** — AI-powered 5-step flow (Input → Analyzing → Reveal → Reframe → Complete). Uses Cloudflare Worker `analyze-thought` route. 30 base + 10/distortion + 5/intensity-drop XP. Badge: `ai_reframe_master`.
+
+**Shared drag-drop pattern:** Both Thought Categorizer and Coping Skills Menu use HTML5 drag events for desktop + touch events (`touchstart`/`touchmove`/`touchend`) with manual hit-testing for mobile.
+
+**Key functions (on window):** `renderChallengesHub()`, `openGame(id)`, `closeGame()`, plus per-game `init*()`, `render*()`, `handle*()` functions.
+
 ### Shared Gamification System
-Reframe Studio and Growth Lab share a unified XP/level system:
+All 6 Challenges Hub games share a unified XP/level system:
 - **7 levels:** Seedling (0) → Sprout (50) → Sapling (150) → Growing Tree (350) → Mighty Oak (700) → Ancient Redwood (1200) → Recovery Master (2500)
-- **JS constants:** `GAME_LEVELS`, `GAME_BADGES` (renamed from RS_LEVELS/RS_BADGES)
-- **Functions:** `awardXP()`, `getLevelForXP()`, `getGameData()`, `saveGameData()`
-- **Firestore fields:** `reframeXP`, `reframeLevel`, `reframeLevelName` on user document root (field names kept for backward compatibility)
-
-### Reframe Studio (v3)
-AI-powered 4-step flow:
-1. **Capture** — User enters thought + distress level (1-10)
-2. **AI Reveals** — Claude analyzes thought, returns identified cognitive distortions with personalized explanations (fallback: manual quiz through all 12 distortions)
-3. **Reframe** — AI-guided reframing questions + suggested reframe per distortion
-4. **Finale** — New thought + distress re-rate → XP celebration
-
-**XP:** Completion (25), per distortion (10), distress reduction bonus (15 or 25).
-
-### Growth Lab (v2)
-5 AI-powered guided worksheets, each following the same flow:
-1. **Intro** — Therapeutic context explaining purpose and what to expect
-2. **Guided Input** (1-3 steps) — Hints, prompt pills, examples at every step
-3. **AI Analysis** — Personalized insight via `worksheet-guide` worker route (error fallback: "Continue Without AI")
-4. **Reflection** — AI-generated prompt pills + suggestion card + user writes takeaway
-5. **Celebration** — XP breakdown with level progress
-
-**Worksheets:** Core Beliefs Explorer, Strengths & Qualities, Frustration Tolerance, Values Clarification, Treatment Attitudes
-
-**Step types:** `intro`, `guided-select`, `guided-textarea`, `guided-multi-textarea`, `ai-analysis`, `reflection`, `value-rating`, `value-gap`, `true-false`
-
-**XP per worksheet (max 60):** Base (30) + Thoroughness (10) + AI engagement (10) + Reflection (10). All-worksheets bonus: +50 one-time.
-
-**Review mode:** Completed worksheets (`xpAwarded: true`) open as read-only summary cards. "Redo" clears data and restarts. No duplicate XP.
-
-**Key state:** `_wsAiInsight` (stored AI analysis), `_wsReviewMode` (review flag)
+- **JS constants:** `GAME_LEVELS`, `GAME_BADGES` in app.js; `CHALLENGE_BADGES` in games.js
+- **Functions:** `awardXP()`, `getLevelForXP()`, `getGameData()`, `saveGameData()` (app.js → window); `completeGame()`, `checkAndAwardBadges()`, `renderGameCelebration()` (games.js)
+- **Firestore fields:** `reframeXP`, `reframeLevel`, `reframeLevelName`, `gameBadges` on user document root
+- **Badges:** `first_session`, `xp_100`, `master_dichotomous`, `ai_reframe_master`, `coping_master`
 
 **Worker routes:**
 - `{ type: "analyze-thought", thought: "...", distressLevel: N }` → CBT analysis (JSON)
-- `{ type: "worksheet-guide", worksheetType: "...", responses: {...} }` → Personalized worksheet insight (JSON)
+- `{ type: "worksheet-guide", worksheetType: "...", responses: {...} }` → Personalized worksheet insight (JSON, legacy)
 - `{ messages: [...] }` → Mona chat (default)
 
 ## Branding & Language
@@ -165,9 +156,9 @@ Config in `.claude/launch.json`.
 5. **Cross-file function access** — Must use `window.fnName = fnName`; ES module scope isolates each file
 6. **Async error isolation** — Never put save + UI render in the same try block; a Firestore error must not block the user-facing celebration/completion UI
 7. **aiAnalysis sanitization** — Always `JSON.parse(JSON.stringify())` the AI analysis before saving to Firestore to strip non-serializable values
-8. **Schema versioning** — `thoughtLog` entries have `version` field (1, 2, or 3); always check version when reading
+8. **Schema versioning** — `thoughtLog` entries have `version` field (1, 2, or 3); always check version when reading (legacy data)
 9. **AI response markdown fences** — Claude may wrap JSON responses in `` ```json `` code blocks; always strip markdown fences before `JSON.parse`
-10. **Firestore rules must list every subcollection** — New subcollections under `users/{uid}` need explicit rules in the Firebase Console; a wildcard (`{document=**}`) is NOT used
-11. **Growth Lab step indices** — Worksheet step data is keyed as `step_0`, `step_1`, etc. matching the WORKSHEETS steps array. Adding/removing steps shifts all saved data keys.
-12. **XP duplicate prevention** — Growth Lab worksheets use `xpAwarded: true` flag on the workbook document. Always check before awarding XP on completion. Reframe Studio does not have this (each session is unique).
+10. **Firestore rules must list every subcollection** — New subcollections under `users/{uid}` need explicit rules in the Firebase Console; a wildcard (`{document=**}`) is NOT used. `gameSessions` subcollection rule must be added manually.
+11. **Games.js module-scoped state** — Each game uses module-scoped `let` variables (e.g., `_idQuestions`, `_tcPlaced`). These reset on each `init*()` call. Don't assume state persists between game opens.
+12. **Touch drag-drop** — Mobile drag uses `touchstart`/`touchmove`/`touchend` with manual `getBoundingClientRect()` hit-testing. The ghost element follows the finger and zones highlight on hover. Both Thought Categorizer and Coping Skills Menu share this pattern.
 13. **Auth-gated nav dropdowns** — Both `myJourneyDropdown` and `challengesDropdown` are hidden/shown in `firebase.js` `updateUIForAuthState()`. New auth-gated nav items need the same treatment.
