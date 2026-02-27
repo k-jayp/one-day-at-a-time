@@ -3,23 +3,60 @@
 
 const WORKER_URL = typeof CHAT_WORKER_URL !== 'undefined' ? CHAT_WORKER_URL : 'https://recovery-chat.kidell-powellj.workers.dev';
 
+// ========== SVG ICON HELPERS ==========
+function svgIcon(paths, size = 24) {
+    return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+}
+
+const ICONS = {
+    // Game card icons
+    sparkles: svgIcon('<path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/><path d="M17 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/>'),
+    brain: svgIcon('<path d="M9.5 2a3.5 3.5 0 0 0-3.3 4.7A3.5 3.5 0 0 0 5 10a3.5 3.5 0 0 0 1.8 3.1A3.5 3.5 0 0 0 9 17h1V2z"/><path d="M14.5 2a3.5 3.5 0 0 1 3.3 4.7A3.5 3.5 0 0 1 19 10a3.5 3.5 0 0 1-1.8 3.1A3.5 3.5 0 0 1 15 17h-1V2z"/><path d="M12 2v15"/>'),
+    sortAsc: svgIcon('<path d="M3 6h7"/><path d="M3 12h11"/><path d="M3 18h15"/><path d="M18 6l3 3-3 3"/>'),
+    scale: svgIcon('<path d="M12 3v18"/><path d="M4 7l8-4 8 4"/><path d="M4 7v0a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4"/><path d="M12 7v0a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4"/>'),
+    shield: svgIcon('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'),
+    waves: svgIcon('<path d="M2 12c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0"/><path d="M2 7c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0"/><path d="M2 17c1.5-2 3.5-2 5 0s3.5 2 5 0 3.5-2 5 0 3.5 2 5 0"/>'),
+    // Badge icons
+    lightbulb: svgIcon('<path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>'),
+    star: svgIcon('<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'),
+    puzzle: svgIcon('<path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.404 2.404 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.315 8.685a.98.98 0 0 1 .837-.276c.47.07.802.48.968.925a2.501 2.501 0 1 0 3.214-3.214c-.446-.166-.855-.497-.925-.968a.979.979 0 0 1 .276-.837l1.61-1.61A2.404 2.404 0 0 1 12 2c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02z"/>'),
+    compass: svgIcon('<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>'),
+    heart: svgIcon('<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'),
+    // In-game UI icons
+    zap: svgIcon('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'),
+    target: svgIcon('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'),
+    award: svgIcon('<circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>'),
+    trophy: svgIcon('<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'),
+    arrowUp: svgIcon('<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>'),
+    gripVertical: svgIcon('<circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/>'),
+    check: svgIcon('<polyline points="20 6 9 17 4 12"/>'),
+    // Level icons
+    seedling: svgIcon('<path d="M12 22V10"/><path d="M6 14c0-4 6-8 6-8s6 4 6 8"/>'),
+    sprout: svgIcon('<path d="M12 22V12"/><path d="M7 12c0-3.5 5-7 5-7s5 3.5 5 7"/><path d="M4 17c0-2.5 4-5 4-5"/><path d="M20 17c0-2.5-4-5-4-5"/>'),
+    tree: svgIcon('<path d="M12 22v-6"/><path d="M12 16l-4 0"/><path d="M12 13l4 0"/><path d="M12 2l-6 10h12z"/><path d="M12 6l-4.5 7.5h9z"/>'),
+    flame: svgIcon('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'),
+    crown: svgIcon('<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M5 16h14v3H5z"/>'),
+    gem: svgIcon('<polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><path d="M12 22l4-13"/><path d="M12 22l-4-13"/><path d="M2 9h20"/>'),
+    sunburst: svgIcon('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/>'),
+};
+
 // ========== GAME CONFIGS ==========
 const GAME_CONFIGS = [
-    { id: 'ai-reframe-studio', title: 'The Reframe Room', icon: '✨', desc: 'Get AI-powered analysis of your thought patterns with personalized reframes', xpRange: '30+ XP', featured: true, badge: 'Powered by Mona' },
-    { id: 'identify-distortions', title: 'Spot the Thought', icon: '🧠', desc: 'Test your ability to spot cognitive distortions in everyday thoughts', xpRange: 'Up to 100 XP', featured: false },
-    { id: 'thought-categorizer', title: 'Distorted Sorted', icon: '🗂️', desc: 'Drag distorted thoughts into their correct category', xpRange: 'Up to 90 XP', featured: false },
-    { id: 'reframe-builder', title: 'Balance Beam', icon: '🔧', desc: 'Complete balanced reframes by filling in the right words', xpRange: 'Up to 80 XP', featured: false },
-    { id: 'coping-skills-game', title: 'Skills that Soothe', icon: '🛡️', desc: 'Sort coping strategies into the right wellness categories', xpRange: 'Up to 100 XP', featured: false },
-    { id: 'frustration-tolerance', title: 'Tolerance Tilt', icon: '🌊', desc: 'Challenge rigid beliefs and build tolerance with balanced reframes', xpRange: 'Up to 120 XP', featured: false },
+    { id: 'ai-reframe-studio', title: 'The Reframe Room', icon: ICONS.sparkles, desc: 'Get AI-powered analysis of your thought patterns with personalized reframes', xpRange: '30+ XP', featured: true, badge: 'Powered by Mona' },
+    { id: 'identify-distortions', title: 'Spot the Thought', icon: ICONS.brain, desc: 'Test your ability to spot cognitive distortions in everyday thoughts', xpRange: 'Up to 100 XP', featured: false },
+    { id: 'thought-categorizer', title: 'Distorted Sorted', icon: ICONS.sortAsc, desc: 'Drag distorted thoughts into their correct category', xpRange: 'Up to 90 XP', featured: false },
+    { id: 'reframe-builder', title: 'Balance Beam', icon: ICONS.scale, desc: 'Complete balanced reframes by filling in the right words', xpRange: 'Up to 80 XP', featured: false },
+    { id: 'coping-skills-game', title: 'Skills that Soothe', icon: ICONS.shield, desc: 'Sort coping strategies into the right wellness categories', xpRange: 'Up to 100 XP', featured: false },
+    { id: 'frustration-tolerance', title: 'Tolerance Tilt', icon: ICONS.waves, desc: 'Challenge rigid beliefs and build tolerance with balanced reframes', xpRange: 'Up to 120 XP', featured: false },
 ];
 
 // ========== BADGE DEFINITIONS ==========
 const CHALLENGE_BADGES = [
-    { id: 'first_session', name: 'First Step', icon: '💡', desc: 'Earned your first XP' },
-    { id: 'xp_100', name: 'Century Club', icon: '⭐', desc: 'Accumulated 100+ total XP' },
-    { id: 'master_dichotomous', name: 'Nuance Seeker', icon: '🧩', desc: 'Completed Distorted Sorted' },
-    { id: 'ai_reframe_master', name: 'AI Insight', icon: '🔮', desc: 'Used The Reframe Room' },
-    { id: 'coping_master', name: 'Toolkit Builder', icon: '🛡️', desc: 'Completed Skills that Soothe' },
+    { id: 'first_session', name: 'First Step', icon: ICONS.lightbulb, desc: 'Earned your first XP' },
+    { id: 'xp_100', name: 'Century Club', icon: ICONS.star, desc: 'Accumulated 100+ total XP' },
+    { id: 'master_dichotomous', name: 'Nuance Seeker', icon: ICONS.puzzle, desc: 'Completed Distorted Sorted' },
+    { id: 'ai_reframe_master', name: 'AI Insight', icon: ICONS.compass, desc: 'Used The Reframe Room' },
+    { id: 'coping_master', name: 'Toolkit Builder', icon: ICONS.heart, desc: 'Completed Skills that Soothe' },
 ];
 
 // ========== IDENTIFY DISTORTIONS DATA ==========
@@ -231,7 +268,7 @@ async function renderChallengesHub() {
         }
     } catch (e) { console.error('Hub gamification error:', e); }
 
-    if (!levelInfo) levelInfo = { current: { icon: '🌱', name: 'Seedling' }, next: { xpRequired: 100 }, progress: 0 };
+    if (!levelInfo) levelInfo = { current: { icon: ICONS.seedling, name: 'Seedling' }, next: { xpRequired: 100 }, progress: 0 };
 
     let html = '';
 
@@ -324,7 +361,7 @@ async function checkAndAwardBadges(gameId) {
 
 function renderGameCelebration(content, title, subtitle, xpResult, newBadges) {
     let html = '<div class="game-celebration">';
-    html += '<div class="game-celebration-icon">🎉</div>';
+    html += `<div class="game-celebration-icon">${ICONS.trophy}</div>`;
     html += `<div class="game-celebration-title">${title}</div>`;
     if (subtitle) html += `<div class="game-celebration-subtitle">${subtitle}</div>`;
 
@@ -343,7 +380,7 @@ function renderGameCelebration(content, title, subtitle, xpResult, newBadges) {
             </div>`;
         }
         if (xpResult.leveledUp) {
-            html += `<div class="game-level-up">🎉 Level Up! You are now <strong>${xpResult.currentLevel.name}</strong></div>`;
+            html += `<div class="game-level-up">${ICONS.arrowUp} Level Up! You are now <strong>${xpResult.currentLevel.name}</strong></div>`;
         }
     }
 
@@ -472,7 +509,7 @@ function renderTcGame(content, progress) {
             html += `<div class="game-dd-item" draggable="true" data-id="${t.id}"
                 ontouchstart="handleTouchStart(event, '${t.id}', '${escapeHtmlGame(t.text)}')"
                 ondragstart="event.dataTransfer.setData('text/plain','${t.id}')">
-                <span class="grip-icon">&#9776;</span>${escapeHtmlGame(t.text)}</div>`;
+                <span class="grip-icon">${ICONS.gripVertical}</span>${escapeHtmlGame(t.text)}</div>`;
         }
     });
     html += '</div>';
@@ -488,7 +525,7 @@ function renderTcGame(content, progress) {
         // Show placed items
         _tcThoughts.forEach(t => {
             if (_tcPlaced[t.id] === cat.id) {
-                html += `<div class="game-dd-placed"><span class="check-icon">&#10003;</span>${escapeHtmlGame(t.text)}</div>`;
+                html += `<div class="game-dd-placed"><span class="check-icon">${ICONS.check}</span>${escapeHtmlGame(t.text)}</div>`;
             }
         });
         html += '</div>';
@@ -667,7 +704,7 @@ function renderCsmGame(content, progress) {
             html += `<div class="game-dd-item" draggable="true" data-id="${s.id}"
                 ontouchstart="handleTouchStart(event, '${s.id}', '${escapeHtmlGame(s.text)}')"
                 ondragstart="event.dataTransfer.setData('text/plain','${s.id}')">
-                <span class="grip-icon">&#9776;</span>${escapeHtmlGame(s.text)}</div>`;
+                <span class="grip-icon">${ICONS.gripVertical}</span>${escapeHtmlGame(s.text)}</div>`;
         }
     });
     html += '</div>';
@@ -682,7 +719,7 @@ function renderCsmGame(content, progress) {
             <div class="game-dd-zone-title">${cat.name}</div>`;
         _csmSkills.forEach(s => {
             if (_csmPlaced[s.id] === cat.id) {
-                html += `<div class="game-dd-placed"><span class="check-icon">&#10003;</span>${escapeHtmlGame(s.text)}</div>`;
+                html += `<div class="game-dd-placed"><span class="check-icon">${ICONS.check}</span>${escapeHtmlGame(s.text)}</div>`;
             }
         });
         html += '</div>';
@@ -756,13 +793,13 @@ function renderFtGame(content, progress) {
 
     if (!_ftShowReframe) {
         html += `<div class="game-ft-card belief">
-            <div class="game-ft-card-icon">⚡</div>
+            <div class="game-ft-card-icon">${ICONS.zap}</div>
             <div class="game-ft-card-text">"${escapeHtmlGame(belief.text)}"</div>
             <button class="game-btn game-btn-warning" onclick="handleFtChallenge()">Challenge This Thought</button>
         </div>`;
     } else {
         html += `<div class="game-ft-card reframe">
-            <div class="game-ft-card-icon">🎯</div>
+            <div class="game-ft-card-icon">${ICONS.target}</div>
             <div class="game-ft-card-text">"${escapeHtmlGame(belief.reframe)}"</div>`;
         const isLast = _ftCurrentIndex >= FT_BELIEFS.length - 1;
         html += '<div class="game-action-row">';
@@ -967,7 +1004,7 @@ async function renderAiComplete(content) {
 
     // Custom celebration with distress display
     let html = '<div class="game-celebration">';
-    html += '<div class="game-celebration-icon">✨</div>';
+    html += `<div class="game-celebration-icon">${ICONS.sparkles}</div>`;
     html += '<div class="game-celebration-title">Excellent Work!</div>';
 
     if (intensityDrop > 0) {
@@ -996,7 +1033,7 @@ async function renderAiComplete(content) {
         </div>`;
     }
     if (xpResult.leveledUp) {
-        html += `<div class="game-level-up">🎉 Level Up! You are now <strong>${xpResult.currentLevel.name}</strong></div>`;
+        html += `<div class="game-level-up">${ICONS.arrowUp} Level Up! You are now <strong>${xpResult.currentLevel.name}</strong></div>`;
     }
 
     newBadges.forEach(badgeId => {
@@ -1139,13 +1176,13 @@ function getLevelForXP(xp) {
     if (typeof window._getLevelForXP === 'function') return window._getLevelForXP(xp);
     // Fallback using GAME_LEVELS if available on window
     const levels = window.GAME_LEVELS || [
-        { level: 1, name: 'Seedling', icon: '🌱', xpRequired: 0 },
-        { level: 2, name: 'Sprout', icon: '🌿', xpRequired: 100 },
-        { level: 3, name: 'Growing Strong', icon: '🌳', xpRequired: 300 },
-        { level: 4, name: 'Flourishing', icon: '🔥', xpRequired: 600 },
-        { level: 5, name: 'Thriving', icon: '👑', xpRequired: 1000 },
-        { level: 6, name: 'Radiant', icon: '💎', xpRequired: 1500 },
-        { level: 7, name: 'Recovery Master', icon: '🌟', xpRequired: 2500 }
+        { level: 1, name: 'Seedling', icon: ICONS.seedling, xpRequired: 0 },
+        { level: 2, name: 'Sprout', icon: ICONS.sprout, xpRequired: 100 },
+        { level: 3, name: 'Growing Strong', icon: ICONS.tree, xpRequired: 300 },
+        { level: 4, name: 'Flourishing', icon: ICONS.flame, xpRequired: 600 },
+        { level: 5, name: 'Thriving', icon: ICONS.crown, xpRequired: 1000 },
+        { level: 6, name: 'Radiant', icon: ICONS.gem, xpRequired: 1500 },
+        { level: 7, name: 'Recovery Master', icon: ICONS.sunburst, xpRequired: 2500 }
     ];
     let current = levels[0], next = levels[1] || levels[0];
     for (let i = levels.length - 1; i >= 0; i--) {

@@ -94,6 +94,14 @@
     font-weight: 800;
     font-size: 1.2rem;
     color: var(--warm-brown);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.challenges-hub-level svg {
+    width: 22px;
+    height: 22px;
+    color: var(--terracotta);
 }
 .challenges-hub-xp {
     font-family: var(--font-heading);
@@ -140,8 +148,12 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 .game-card-icon {
-    font-size: 2rem;
     line-height: 1;
+    color: var(--terracotta);
+}
+.game-card-icon svg {
+    width: 32px;
+    height: 32px;
 }
 .game-card-title {
     font-family: var(--font-heading);
@@ -169,6 +181,10 @@
     border-color: var(--sage);
     border-width: 2px;
     position: relative;
+}
+.game-card.featured .game-card-icon svg {
+    width: 40px;
+    height: 40px;
 }
 .game-card-new-badge {
     position: absolute;
@@ -240,7 +256,11 @@
     filter: grayscale(1);
 }
 .badge-item-icon {
-    font-size: 1.8rem;
+    color: var(--terracotta);
+}
+.badge-item-icon svg {
+    width: 28px;
+    height: 28px;
 }
 .badge-item-name {
     font-family: var(--font-heading);
@@ -438,6 +458,10 @@
     opacity: 0.3;
     flex-shrink: 0;
 }
+.game-dd-item .grip-icon svg {
+    width: 16px;
+    height: 16px;
+}
 .game-dd-zones {
     display: grid;
     gap: 0.75rem;
@@ -477,7 +501,11 @@
 }
 .game-dd-zone .game-dd-placed .check-icon {
     color: var(--sage);
-    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.game-dd-zone .game-dd-placed .check-icon svg {
+    width: 14px;
+    height: 14px;
 }
 /* Zone colors by category */
 .game-dd-zone[data-cat="all-or-nothing"],
@@ -550,8 +578,15 @@
     border: 2px solid rgba(74, 124, 89, 0.15);
 }
 .game-ft-card-icon {
-    font-size: 2rem;
     margin-bottom: 1rem;
+    color: var(--terracotta);
+}
+.game-ft-card.reframe .game-ft-card-icon {
+    color: var(--sage);
+}
+.game-ft-card-icon svg {
+    width: 32px;
+    height: 32px;
 }
 .game-ft-card-text {
     font-family: var(--font-serif);
@@ -731,8 +766,12 @@
     animation: gameFadeIn 0.5s ease;
 }
 .game-celebration-icon {
-    font-size: 3rem;
     margin-bottom: 0.75rem;
+    color: var(--terracotta);
+}
+.game-celebration-icon svg {
+    width: 48px;
+    height: 48px;
 }
 .game-celebration-title {
     font-family: var(--font-heading);
@@ -793,6 +832,15 @@
     font-size: 1rem;
     color: var(--warm-brown);
     margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+.game-level-name svg {
+    width: 20px;
+    height: 20px;
+    color: var(--terracotta);
 }
 .game-level-bar {
     height: 8px;
@@ -819,6 +867,14 @@
     font-size: 1.1rem;
     color: var(--terracotta);
     margin: 0.75rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+.game-level-up svg {
+    width: 20px;
+    height: 20px;
     animation: gamePulse 0.6s ease;
 }
 @keyframes gamePulse {
@@ -838,7 +894,13 @@
     margin: 0.5rem 0;
 }
 .game-badge-award-icon {
-    font-size: 1.3rem;
+    color: var(--terracotta);
+    display: flex;
+    align-items: center;
+}
+.game-badge-award-icon svg {
+    width: 20px;
+    height: 20px;
 }
 .game-badge-award-text {
     font-family: var(--font-heading);

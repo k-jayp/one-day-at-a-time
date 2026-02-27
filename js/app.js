@@ -2389,29 +2389,32 @@ function closeFeelingsWheel() {
 window.closeFeelingsWheel = closeFeelingsWheel;
 
 // ========== GAMIFICATION (Shared XP System) ==========
+function _gameSvg(paths) {
+    return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
+}
 const GAME_LEVELS = [
-    { level: 1, name: 'Seedling', icon: '🌱', xpRequired: 0 },
-    { level: 2, name: 'Sprout', icon: '🌿', xpRequired: 100 },
-    { level: 3, name: 'Growing Strong', icon: '🌳', xpRequired: 300 },
-    { level: 4, name: 'Flourishing', icon: '🔥', xpRequired: 600 },
-    { level: 5, name: 'Thriving', icon: '👑', xpRequired: 1000 },
-    { level: 6, name: 'Radiant', icon: '💎', xpRequired: 1500 },
-    { level: 7, name: 'Recovery Master', icon: '🌟', xpRequired: 2500 }
+    { level: 1, name: 'Seedling', icon: _gameSvg('<path d="M12 22V10"/><path d="M6 14c0-4 6-8 6-8s6 4 6 8"/>'), xpRequired: 0 },
+    { level: 2, name: 'Sprout', icon: _gameSvg('<path d="M12 22V12"/><path d="M7 12c0-3.5 5-7 5-7s5 3.5 5 7"/><path d="M4 17c0-2.5 4-5 4-5"/><path d="M20 17c0-2.5-4-5-4-5"/>'), xpRequired: 100 },
+    { level: 3, name: 'Growing Strong', icon: _gameSvg('<path d="M12 22v-6"/><path d="M12 16l-4 0"/><path d="M12 13l4 0"/><path d="M12 2l-6 10h12z"/><path d="M12 6l-4.5 7.5h9z"/>'), xpRequired: 300 },
+    { level: 4, name: 'Flourishing', icon: _gameSvg('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'), xpRequired: 600 },
+    { level: 5, name: 'Thriving', icon: _gameSvg('<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M5 16h14v3H5z"/>'), xpRequired: 1000 },
+    { level: 6, name: 'Radiant', icon: _gameSvg('<polygon points="6 3 18 3 22 9 12 22 2 9 6 3"/><path d="M12 22l4-13"/><path d="M12 22l-4-13"/><path d="M2 9h20"/>'), xpRequired: 1500 },
+    { level: 7, name: 'Recovery Master', icon: _gameSvg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.93 4.93l1.41 1.41"/><path d="M17.66 17.66l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M6.34 17.66l-1.41 1.41"/><path d="M19.07 4.93l-1.41 1.41"/>'), xpRequired: 2500 }
 ];
 
 const GAME_BADGES = [
-    // Reframe Studio badges
-    { id: 'first-reframe', name: 'First Light', icon: '💡', desc: 'Completed your first reframe', check: s => s.totalReframes >= 1 },
-    { id: 'five-streak', name: 'Consistent Mind', icon: '🔥', desc: '5-day reframe streak', check: s => s.currentStreak >= 5 },
-    { id: 'ten-reframes', name: 'Pattern Expert', icon: '🧩', desc: '10 reframes completed', check: s => s.totalReframes >= 10 },
-    { id: 'all-distortions', name: 'Full Spectrum', icon: '🌈', desc: 'Identified all 12 distortion types', check: s => s.uniqueDistortions >= 12 },
-    { id: 'big-shift', name: 'Breakthrough', icon: '⚡', desc: 'Reduced distress by 7+ points', check: s => s.maxReduction >= 7 },
-    { id: 'level-5', name: 'Champion', icon: '👑', desc: 'Reached Thriving level', check: s => s.level >= 5 },
-    { id: 'twenty-five', name: 'Reframe Master', icon: '🏆', desc: '25 reframes completed', check: s => s.totalReframes >= 25 },
-    { id: 'seven-streak', name: 'Weekly Warrior', icon: '🛡️', desc: '7-day reframe streak', check: s => s.currentStreak >= 7 },
-    // Growth Lab badges
-    { id: 'first-worksheet', name: 'First Step', icon: '📝', desc: 'Completed your first worksheet', check: s => s.worksheetsCompleted >= 1 },
-    { id: 'all-worksheets', name: 'Deep Diver', icon: '🏊', desc: 'Completed all 5 worksheets', check: s => s.worksheetsCompleted >= 5 },
+    // Reframe Studio badges (legacy)
+    { id: 'first-reframe', name: 'First Light', icon: _gameSvg('<path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>'), desc: 'Completed your first reframe', check: s => s.totalReframes >= 1 },
+    { id: 'five-streak', name: 'Consistent Mind', icon: _gameSvg('<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'), desc: '5-day reframe streak', check: s => s.currentStreak >= 5 },
+    { id: 'ten-reframes', name: 'Pattern Expert', icon: _gameSvg('<path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.404 2.404 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.315 8.685a.98.98 0 0 1 .837-.276c.47.07.802.48.968.925a2.501 2.501 0 1 0 3.214-3.214c-.446-.166-.855-.497-.925-.968a.979.979 0 0 1 .276-.837l1.61-1.61A2.404 2.404 0 0 1 12 2c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02z"/>'), desc: '10 reframes completed', check: s => s.totalReframes >= 10 },
+    { id: 'all-distortions', name: 'Full Spectrum', icon: _gameSvg('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'), desc: 'Identified all 12 distortion types', check: s => s.uniqueDistortions >= 12 },
+    { id: 'big-shift', name: 'Breakthrough', icon: _gameSvg('<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>'), desc: 'Reduced distress by 7+ points', check: s => s.maxReduction >= 7 },
+    { id: 'level-5', name: 'Champion', icon: _gameSvg('<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M5 16h14v3H5z"/>'), desc: 'Reached Thriving level', check: s => s.level >= 5 },
+    { id: 'twenty-five', name: 'Reframe Master', icon: _gameSvg('<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>'), desc: '25 reframes completed', check: s => s.totalReframes >= 25 },
+    { id: 'seven-streak', name: 'Weekly Warrior', icon: _gameSvg('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'), desc: '7-day reframe streak', check: s => s.currentStreak >= 7 },
+    // Growth Lab badges (legacy)
+    { id: 'first-worksheet', name: 'First Step', icon: _gameSvg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'), desc: 'Completed your first worksheet', check: s => s.worksheetsCompleted >= 1 },
+    { id: 'all-worksheets', name: 'Deep Diver', icon: _gameSvg('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>'), desc: 'Completed all 5 worksheets', check: s => s.worksheetsCompleted >= 5 },
 ];
 
 // Worker URL used by games.js
