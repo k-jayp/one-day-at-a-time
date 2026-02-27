@@ -1866,11 +1866,11 @@
             </div>
 
             <div class="privacy-card">
-                <p class="privacy-updated">Last Updated: February 12, 2026</p>
+                <p class="privacy-updated">Last Updated: February 27, 2026</p>
 
                 <div class="privacy-section">
                     <h3>Introduction</h3>
-                    <p>We Do Recover ("the App") is a personal recovery support web application operated by Kidell Powell. The App provides tools for tracking recovery milestones, journaling, gratitude practice, mood check-ins, community encouragement, and AI-powered support through Mona, our recovery companion chatbot.</p>
+                    <p>We Do Recover ("the App") is a personal recovery support web application operated by Kidell Powell. The App provides tools for tracking recovery milestones, journaling, gratitude practice, mood check-ins, safety planning, urge tracking, cognitive behavioral therapy (CBT) challenges, wellness exercises, coping skills building, accountability partner connections, community encouragement, and AI-powered support through Mona, our recovery companion chatbot.</p>
                     <p>This Privacy Policy explains what information we collect, how we use it, and your rights regarding your data. We take the privacy of your recovery journey seriously and are committed to protecting your personal information.</p>
                 </div>
 
@@ -1889,18 +1889,36 @@
                     <p>As you use the App, you may provide:</p>
                     <ul>
                         <li><strong>Sobriety date</strong> — used to calculate your time in recovery and milestones</li>
-                        <li><strong>Daily mood check-ins</strong> — mood selection, optional notes, and date (stored for 14-day timeline)</li>
+                        <li><strong>Daily mood check-ins</strong> — mood selection, feelings wheel emotions, HALT assessment (Hungry/Angry/Lonely/Tired), optional notes, and date</li>
                         <li><strong>Gratitude entries</strong> — lists of up to 5 items per entry</li>
                         <li><strong>Journal entries</strong> — titles, content, and mood selections</li>
+                        <li><strong>Safety plan</strong> — warning signs, coping strategies, support contacts, and crisis resources you define</li>
+                        <li><strong>Urge tracking</strong> — urge triggers, intensity levels, coping strategies used, and outcomes</li>
+                        <li><strong>Coping toolbox</strong> — your selected coping skills organized by category and favorites</li>
                     </ul>
 
-                    <h4>AI Chat Data (Mona)</h4>
-                    <p>When you use the Mona chat feature, the following is sent to our AI service provider:</p>
+                    <h4>Challenges Hub & Gamification Data</h4>
+                    <p>When you use the Challenges Hub (CBT games), we store:</p>
                     <ul>
-                        <li>Your chat messages within the current session</li>
-                        <li>Recovery context (time in recovery, recent mood check-ins, latest milestone) — sent with your first message to personalize responses</li>
+                        <li><strong>Game session results</strong> — game played, score, XP earned, and session details</li>
+                        <li><strong>Gamification profile</strong> — total XP, current level, level name, and earned badges</li>
                     </ul>
-                    <p>Chat conversations are <strong>not stored</strong> on our servers. They exist only in your browser session and are cleared when you close or refresh the page.</p>
+
+                    <h4>AI-Powered Features (Mona & The Reframe Room)</h4>
+                    <p>The App uses Anthropic's Claude AI in two features. When you use either, data is sent to our AI service provider via a Cloudflare Worker proxy:</p>
+                    <ul>
+                        <li><strong>Mona chat</strong> — Your chat messages within the current session and recovery context (time in recovery, recent mood check-ins, latest milestone) sent with your first message to personalize responses</li>
+                        <li><strong>The Reframe Room</strong> (Challenges Hub) — The thought you submit for analysis and your self-reported distress level</li>
+                    </ul>
+                    <p>Mona chat conversations are <strong>not stored</strong> on our servers. They exist only in your browser session and are cleared when you close or refresh the page. Reframe Room results are saved to your game session history.</p>
+
+                    <h4>Accountability Partner Data</h4>
+                    <p>When you use the Connect feature to find an accountability partner:</p>
+                    <ul>
+                        <li><strong>Partner requests</strong> — Your display name and request status are visible to the other user</li>
+                        <li><strong>Direct messages</strong> — Messages you send to your partner are stored and visible to both you and your partner in real time</li>
+                        <li><strong>Notifications</strong> — The App generates notifications for partner requests and messages</li>
+                    </ul>
 
                     <h4>Community Wall Posts</h4>
                     <p>Posts to the Community Wall are <strong>anonymous</strong>. We store only the message text (up to 280 characters), a mood emoji, and a timestamp. Your identity is not linked to your posts.</p>
@@ -1912,10 +1930,12 @@
                 <div class="privacy-section">
                     <h3>How We Use Your Information</h3>
                     <ul>
-                        <li><strong>Personalization</strong> — Display your recovery milestones, streaks, and mood history</li>
-                        <li><strong>AI Support</strong> — Provide context-aware responses from Mona based on your recovery progress</li>
-                        <li><strong>Data Storage</strong> — Save your gratitude entries, journal entries, and check-ins so they persist across sessions</li>
+                        <li><strong>Personalization</strong> — Display your recovery milestones, streaks, mood history, and gamification progress (XP, levels, badges)</li>
+                        <li><strong>AI Support</strong> — Provide context-aware responses from Mona and AI-powered CBT analysis in The Reframe Room based on your recovery progress</li>
+                        <li><strong>Data Storage</strong> — Save your gratitude entries, journal entries, check-ins, safety plan, urge logs, coping toolbox, and game sessions so they persist across sessions</li>
                         <li><strong>Sharing</strong> — Generate shareable links for gratitude lists when you choose to share</li>
+                        <li><strong>Partner Connections</strong> — Facilitate accountability partner requests and real-time direct messaging between matched partners</li>
+                        <li><strong>Notifications</strong> — Deliver in-app notifications for partner requests and messages</li>
                         <li><strong>Analytics</strong> — Understand how the App is used to improve features and performance</li>
                         <li><strong>Security</strong> — Prevent bot abuse using reCAPTCHA during account creation</li>
                     </ul>
@@ -1968,14 +1988,14 @@
                                 <tr>
                                     <td>Claude API</td>
                                     <td>Anthropic</td>
-                                    <td>AI chat (Mona)</td>
-                                    <td>Chat messages, recovery context</td>
+                                    <td>AI chat (Mona) and CBT thought analysis (The Reframe Room)</td>
+                                    <td>Chat messages, recovery context, submitted thoughts, distress levels</td>
                                 </tr>
                                 <tr>
                                     <td>Cloudflare Workers</td>
                                     <td>Cloudflare</td>
                                     <td>API proxying</td>
-                                    <td>Chat requests, daily meditation fetch</td>
+                                    <td>Chat requests, CBT analysis requests, daily meditation fetch</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1983,20 +2003,30 @@
                     <p>Each service operates under its own privacy policy. We encourage you to review them:</p>
                     <ul>
                         <li><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a> (Firebase, Analytics, reCAPTCHA, Fonts)</li>
-                        <li><a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic Privacy Policy</a> (Claude AI / Mona chat)</li>
+                        <li><a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic Privacy Policy</a> (Claude AI / Mona chat &amp; The Reframe Room)</li>
                         <li><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare Privacy Policy</a></li>
                     </ul>
                 </div>
 
                 <div class="privacy-section">
-                    <h3>AI Chat (Mona) Disclosure</h3>
-                    <p>Mona is powered by Anthropic's Claude AI. When you chat with Mona:</p>
+                    <h3>AI-Powered Features Disclosure</h3>
+                    <p>The App uses Anthropic's Claude AI in two features. All AI requests are routed through our Cloudflare Worker proxy.</p>
+
+                    <h4>Mona Chat</h4>
                     <ul>
-                        <li>Your messages and recovery context are sent to Anthropic's API via our Cloudflare Worker proxy</li>
+                        <li>Your messages and recovery context are sent to Anthropic's API</li>
                         <li>Conversations are <strong>session-only</strong> and are not persisted on any server</li>
-                        <li>Anthropic may process your messages according to their <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">privacy policy</a></li>
                         <li>Mona is not a medical professional, therapist, or sponsor — responses are for support and encouragement only</li>
                     </ul>
+
+                    <h4>The Reframe Room (Challenges Hub)</h4>
+                    <ul>
+                        <li>When you submit a thought for analysis, the thought text and your distress level are sent to Anthropic's API</li>
+                        <li>The AI returns a CBT analysis identifying cognitive distortions and suggesting reframes</li>
+                        <li>Analysis results are saved to your game session history in Firestore</li>
+                    </ul>
+
+                    <p>Anthropic may process data sent to their API according to their <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">privacy policy</a>. AI-generated content is not reviewed by a human and should not be interpreted as professional clinical advice.</p>
                 </div>
 
                 <div class="privacy-section">
@@ -2005,6 +2035,7 @@
                     <ul>
                         <li><strong>Gratitude Sharing</strong> — When you choose to share a gratitude entry, a link is generated that anyone with the URL can view. Shared entries include your gratitude items and the date, but not your name or email.</li>
                         <li><strong>Community Wall</strong> — Posts are visible to all users but are anonymous and not linked to your account.</li>
+                        <li><strong>Accountability Partners</strong> — When you connect with an accountability partner, your display name is visible to them. Direct messages you send are visible to both you and your partner. Partner requests show your display name to the recipient.</li>
                         <li><strong>Third-Party Processing</strong> — Data is processed by the services listed above for the stated purposes only.</li>
                     </ul>
                 </div>
@@ -2056,8 +2087,11 @@
                     <h3>Data Retention</h3>
                     <ul>
                         <li><strong>Account data</strong> — Retained as long as your account is active. Deleted upon request.</li>
-                        <li><strong>Recovery data</strong> (journal, gratitude, check-ins) — Retained as long as your account is active.</li>
-                        <li><strong>Chat conversations</strong> — Not persisted. Exist only in your browser session.</li>
+                        <li><strong>Recovery data</strong> (journal, gratitude, check-ins, safety plan, urge logs, coping toolbox) — Retained as long as your account is active.</li>
+                        <li><strong>Game session &amp; gamification data</strong> (scores, XP, levels, badges) — Retained as long as your account is active.</li>
+                        <li><strong>Mona chat conversations</strong> — Not persisted. Exist only in your browser session.</li>
+                        <li><strong>Partner messages &amp; requests</strong> — Retained as long as both partner accounts are active.</li>
+                        <li><strong>Notifications</strong> — Retained as long as your account is active.</li>
                         <li><strong>Community wall posts</strong> — Retained indefinitely as they are anonymous.</li>
                         <li><strong>Analytics data</strong> — Retained per Google Analytics' standard retention policies.</li>
                     </ul>
@@ -2093,7 +2127,7 @@
             </div>
 
             <div class="privacy-card">
-                <p class="privacy-updated">Last Updated: February 12, 2026</p>
+                <p class="privacy-updated">Last Updated: February 27, 2026</p>
 
                 <div class="privacy-section">
                     <h3>Acceptance of Terms</h3>
@@ -2105,11 +2139,18 @@
                     <p>We Do Recover is a free, web-based recovery support application that provides:</p>
                     <ul>
                         <li>Recovery milestone and sobriety date tracking</li>
-                        <li>Daily mood check-ins and mood timeline</li>
+                        <li>Daily mood check-ins with feelings wheel and HALT assessment</li>
                         <li>Gratitude list creation and sharing</li>
                         <li>Private journaling</li>
+                        <li>Safety plan builder for crisis preparedness</li>
+                        <li>Urge tracking with triggers, intensity, and coping strategies</li>
+                        <li>Coping toolbox for building personalized coping skills</li>
+                        <li>Challenges Hub with 6 interactive CBT games and a gamification system (XP, levels, badges)</li>
+                        <li>Wellness Toolkit with guided breathing, grounding, body scan, urge surfing, muscle relaxation, loving-kindness, and safe place visualization exercises</li>
+                        <li>ACT exercises (Acceptance and Commitment Therapy techniques)</li>
                         <li>Daily recovery meditations (sourced from NA World Services)</li>
-                        <li>AI-powered support chat (Mona)</li>
+                        <li>AI-powered support chat (Mona) and AI-powered CBT analysis (The Reframe Room)</li>
+                        <li>Accountability partner connections with direct messaging</li>
                         <li>Anonymous community encouragement wall</li>
                         <li>Recovery resource links</li>
                     </ul>
@@ -2118,9 +2159,10 @@
                 <div class="privacy-section">
                     <h3>Not a Substitute for Professional Help</h3>
                     <p><strong>This is the most important section of these terms.</strong></p>
-                    <p>The App, including the Mona AI chat companion, is <strong>not</strong> a substitute for professional medical advice, diagnosis, treatment, therapy, counseling, or any form of professional healthcare. The App is intended solely as a supplemental support tool.</p>
+                    <p>The App, including Mona (AI chat), The Reframe Room (AI-powered CBT analysis), the Challenges Hub (CBT games), the Wellness Toolkit, the Safety Plan builder, and all other features, is <strong>not</strong> a substitute for professional medical advice, diagnosis, treatment, therapy, counseling, or any form of professional healthcare. The App is intended solely as a supplemental support tool.</p>
                     <ul>
                         <li>Mona is an AI chatbot, not a licensed therapist, counselor, sponsor, or medical professional</li>
+                        <li>The CBT games, wellness exercises, and safety plan tools are educational and supportive in nature — they do not constitute clinical therapy or treatment</li>
                         <li>Nothing in the App should be interpreted as medical or clinical advice</li>
                         <li>Always seek the guidance of qualified health providers with any questions regarding your health or recovery</li>
                         <li>Never disregard professional advice or delay seeking it because of something you read or received through the App</li>
@@ -2168,14 +2210,39 @@
                 </div>
 
                 <div class="privacy-section">
-                    <h3>AI Chat (Mona) Terms</h3>
-                    <p>By using the Mona chat feature, you understand and agree that:</p>
+                    <h3>AI-Powered Features Terms</h3>
+                    <p>The App uses Anthropic's Claude AI in two features: Mona (chat) and The Reframe Room (CBT thought analysis). By using either feature, you understand and agree that:</p>
                     <ul>
-                        <li>Mona is powered by artificial intelligence (Anthropic's Claude) and may produce inaccurate, incomplete, or inappropriate responses</li>
-                        <li>Mona's responses are generated in real-time and are not reviewed by a human</li>
-                        <li>You should not rely on Mona for medical, legal, or emergency advice</li>
-                        <li>Chat conversations are processed by third-party AI services (see our <a onclick="showPage('privacy')" style="color: var(--terracotta); cursor: pointer;">Privacy Policy</a>)</li>
-                        <li>We are not liable for any actions taken based on Mona's responses</li>
+                        <li>Both features are powered by artificial intelligence and may produce inaccurate, incomplete, or inappropriate responses</li>
+                        <li>All AI-generated content is produced in real-time and is not reviewed by a human</li>
+                        <li>You should not rely on AI features for medical, legal, or emergency advice</li>
+                        <li>Data sent to AI features is processed by third-party services (see our <a onclick="showPage('privacy')" style="color: var(--terracotta); cursor: pointer;">Privacy Policy</a>)</li>
+                        <li>The Reframe Room's CBT analysis identifies cognitive distortions and suggests reframes for educational purposes only — it is not a clinical assessment</li>
+                        <li>We are not liable for any actions taken based on AI-generated responses or analysis</li>
+                    </ul>
+                </div>
+
+                <div class="privacy-section">
+                    <h3>Accountability Partners &amp; Connect</h3>
+                    <p>When you use the Connect feature to find an accountability partner, you agree to:</p>
+                    <ul>
+                        <li>Communicate respectfully and supportively with your partner at all times</li>
+                        <li>Not share harmful, threatening, abusive, or inappropriate content in direct messages</li>
+                        <li>Not share your partner's personal information or messages with others without their consent</li>
+                        <li>Understand that your display name is visible to your partner and to users you send or receive partner requests from</li>
+                        <li>Understand that direct messages are visible to both you and your partner</li>
+                    </ul>
+                    <p>Accountability partners are fellow users of the App and are not professional counselors, therapists, or sponsors. We are not responsible for the content of messages exchanged between partners.</p>
+                </div>
+
+                <div class="privacy-section">
+                    <h3>Challenges Hub &amp; Gamification</h3>
+                    <p>The Challenges Hub offers interactive CBT-based games with a shared gamification system. By using these features, you understand that:</p>
+                    <ul>
+                        <li>Game scores, XP, levels, and badges are tracked and stored in your account</li>
+                        <li>CBT games are educational and supportive tools — they are not clinical therapy or treatment</li>
+                        <li>Game content (scenarios, distortions, reframes) is for learning purposes and may not apply to your specific situation</li>
+                        <li>Gamification elements (XP, levels, badges) are designed to encourage engagement and are not indicators of clinical progress</li>
                     </ul>
                 </div>
 
@@ -2216,7 +2283,9 @@
                     <p>To the fullest extent permitted by law, Kidell Powell and We Do Recover shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from:</p>
                     <ul>
                         <li>Your use of or inability to use the App</li>
-                        <li>Any content or advice provided by the AI chat feature</li>
+                        <li>Any content or advice provided by AI-powered features (Mona chat and The Reframe Room)</li>
+                        <li>Any interactions with accountability partners or content exchanged via direct messaging</li>
+                        <li>Any outcomes from using CBT games, wellness exercises, or safety plan tools</li>
                         <li>Unauthorized access to your data</li>
                         <li>Loss of data or service interruptions</li>
                         <li>Any actions taken based on information provided through the App</li>
