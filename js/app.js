@@ -2534,8 +2534,11 @@ async function rsAnalyzeThought() {
             })
         });
         const data = await response.json();
-        const text = data.content?.[0]?.text;
+        let text = data.content?.[0]?.text;
         if (!text) throw new Error('Empty response');
+
+        // Strip markdown code fences if the AI wrapped the JSON in them
+        text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
 
         const analysis = JSON.parse(text);
         if (!analysis.distortions || !Array.isArray(analysis.distortions) || analysis.distortions.length === 0) {
