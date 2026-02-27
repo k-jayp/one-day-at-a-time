@@ -52,7 +52,7 @@ All JS files loaded as `<script type="module">` in order: firebase.js → app.js
 - `users/{uid}/thoughtLog/{id}` — Reframe Studio entries (version 1/2/3)
 - `users/{uid}/safetyPlan/{id}` — safety plan data
 - `users/{uid}/urges/{id}` — urge tracking entries
-- `users/{uid}/workbook/{worksheetId}` — recovery workbook responses
+- `users/{uid}/workbook/{worksheetId}` — Growth Lab worksheet data (v2: `data`, `aiInsight`, `currentStep`, `completed`, `xpAwarded`, `completedAt`)
 - `users/{uid}/copingToolbox/main` — coping skills and favorites
 - `shared/{id}` — publicly shared gratitude
 - `communityWall/{id}` — anonymous community messages
@@ -86,8 +86,20 @@ All JS files loaded as `<script type="module">` in order: firebase.js → app.js
 10. **ACT Exercises** — Leaves on a Stream, Thought Defusion
 11. **Reframe Studio** — AI-powered cognitive distortion analysis with gamification (v3)
 12. **Coping Toolbox** — 5-category coping skills builder with favorites
-13. **Recovery Workbook** — Interactive CBT worksheets (Core Beliefs, Strengths, Frustration Tolerance, Values, Treatment Attitudes)
+13. **Growth Lab** — AI-powered guided CBT worksheets (v2, formerly Recovery Workbook)
 14. **Wellness Toolkit** — 4-7-8 Breathing, 5-4-3-2-1 Grounding, Body Scan, Urge Surfing, Muscle Relaxation, Loving-Kindness, Safe Place Visualization
+
+### Navigation Structure
+- **My Journey** — Sobriety Tracker, Check-In, Gratitude, Journal, Safety Plan, Urge Tracking
+- **Challenges** (auth-gated) — Reframe Studio, Growth Lab
+- **Daily Readings, Mona, Wellness, Find Help, Connect** — Top-level nav items
+
+### Shared Gamification System
+Reframe Studio and Growth Lab share a unified XP/level system:
+- **7 levels:** Seedling (0) → Sprout (50) → Sapling (150) → Growing Tree (350) → Mighty Oak (700) → Ancient Redwood (1200) → Recovery Master (2500)
+- **JS constants:** `GAME_LEVELS`, `GAME_BADGES` (renamed from RS_LEVELS/RS_BADGES)
+- **Functions:** `awardXP()`, `getLevelForXP()`, `getGameData()`, `saveGameData()`
+- **Firestore fields:** `reframeXP`, `reframeLevel`, `reframeLevelName` on user document root (field names kept for backward compatibility)
 
 ### Reframe Studio (v3)
 AI-powered 4-step flow:
@@ -96,10 +108,29 @@ AI-powered 4-step flow:
 3. **Reframe** — AI-guided reframing questions + suggested reframe per distortion
 4. **Finale** — New thought + distress re-rate → XP celebration
 
-**Gamification:** 7 levels (Thought Observer → Master Reframer, 0–2500 XP). XP for: completion (25), per distortion (10), distress reduction bonus (15 or 25). XP/level stored on user document root.
+**XP:** Completion (25), per distortion (10), distress reduction bonus (15 or 25).
+
+### Growth Lab (v2)
+5 AI-powered guided worksheets, each following the same flow:
+1. **Intro** — Therapeutic context explaining purpose and what to expect
+2. **Guided Input** (1-3 steps) — Hints, prompt pills, examples at every step
+3. **AI Analysis** — Personalized insight via `worksheet-guide` worker route (error fallback: "Continue Without AI")
+4. **Reflection** — AI-generated prompt pills + suggestion card + user writes takeaway
+5. **Celebration** — XP breakdown with level progress
+
+**Worksheets:** Core Beliefs Explorer, Strengths & Qualities, Frustration Tolerance, Values Clarification, Treatment Attitudes
+
+**Step types:** `intro`, `guided-select`, `guided-textarea`, `guided-multi-textarea`, `ai-analysis`, `reflection`, `value-rating`, `value-gap`, `true-false`
+
+**XP per worksheet (max 60):** Base (30) + Thoroughness (10) + AI engagement (10) + Reflection (10). All-worksheets bonus: +50 one-time.
+
+**Review mode:** Completed worksheets (`xpAwarded: true`) open as read-only summary cards. "Redo" clears data and restarts. No duplicate XP.
+
+**Key state:** `_wsAiInsight` (stored AI analysis), `_wsReviewMode` (review flag)
 
 **Worker routes:**
 - `{ type: "analyze-thought", thought: "...", distressLevel: N }` → CBT analysis (JSON)
+- `{ type: "worksheet-guide", worksheetType: "...", responses: {...} }` → Personalized worksheet insight (JSON)
 - `{ messages: [...] }` → Mona chat (default)
 
 ## Branding & Language
@@ -137,3 +168,6 @@ Config in `.claude/launch.json`.
 8. **Schema versioning** — `thoughtLog` entries have `version` field (1, 2, or 3); always check version when reading
 9. **AI response markdown fences** — Claude may wrap JSON responses in `` ```json `` code blocks; always strip markdown fences before `JSON.parse`
 10. **Firestore rules must list every subcollection** — New subcollections under `users/{uid}` need explicit rules in the Firebase Console; a wildcard (`{document=**}`) is NOT used
+11. **Growth Lab step indices** — Worksheet step data is keyed as `step_0`, `step_1`, etc. matching the WORKSHEETS steps array. Adding/removing steps shifts all saved data keys.
+12. **XP duplicate prevention** — Growth Lab worksheets use `xpAwarded: true` flag on the workbook document. Always check before awarding XP on completion. Reframe Studio does not have this (each session is unique).
+13. **Auth-gated nav dropdowns** — Both `myJourneyDropdown` and `challengesDropdown` are hidden/shown in `firebase.js` `updateUIForAuthState()`. New auth-gated nav items need the same treatment.
