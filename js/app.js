@@ -2392,89 +2392,640 @@ function closeFeelingsWheel() {
 }
 window.closeFeelingsWheel = closeFeelingsWheel;
 
-// ========== THOUGHT LOG ==========
-let _thoughtEmotionBefore = null;
-let _thoughtEmotionAfter = null;
+// ========== REFRAME STUDIO (AI-Powered v3) ==========
+const RS_DISTORTIONS = [
+    { name: 'Catastrophizing', icon: '🌪️', desc: 'Expecting the worst possible outcome', example: 'If one thing goes wrong, everything will fall apart.', prompts: ["What's the MOST likely outcome?", "What would I tell a friend?", "Has this actually happened before?"] },
+    { name: 'All-or-Nothing', icon: '⚫', desc: 'Thinking in black and white terms', example: "If I'm not perfect, I'm a total failure.", prompts: ["Is there a middle ground?", "What's partially true?", "Can two things be true at once?"] },
+    { name: 'Mind Reading', icon: '🔮', desc: 'Assuming you know what others think', example: 'They must think I\'m stupid.', prompts: ["Do I have evidence for this?", "What else could they be thinking?", "Have I asked them directly?"] },
+    { name: 'Fortune Telling', icon: '🎱', desc: 'Predicting things will go badly', example: "There's no point trying — it won't work out.", prompts: ["What's one positive possibility?", "How accurate have my predictions been?", "What if things go okay?"] },
+    { name: 'Overgeneralization', icon: '🔁', desc: 'Using "always" or "never" thinking', example: 'This always happens to me. Nothing ever changes.', prompts: ["Is this really ALWAYS true?", "When has the opposite happened?", "Am I using extreme words?"] },
+    { name: 'Magnification', icon: '🔎', desc: 'Blowing things out of proportion', example: "I made a small mistake — it's a disaster.", prompts: ["How big will this feel in a week?", "Am I zooming in on the negative?", "What's the full picture?"] },
+    { name: 'Emotional Reasoning', icon: '💭', desc: 'Feeling it, so it must be true', example: 'I feel like a burden, so I must be one.', prompts: ["Feelings aren't facts — what ARE the facts?", "Would I think this on a good day?", "What does the evidence say?"] },
+    { name: 'Should Statements', icon: '📋', desc: 'Rigid rules about how things should be', example: 'I should have it together by now.', prompts: ["Who made this rule?", "What if I replaced 'should' with 'could'?", "Am I being realistic?"] },
+    { name: 'Personalization', icon: '🎯', desc: 'Blaming yourself for things outside your control', example: "They're upset — it must be something I did.", prompts: ["What other factors were involved?", "Is this really about me?", "Would I blame a friend for this?"] },
+    { name: 'Disqualifying the Positive', icon: '🚫', desc: 'Dismissing good things that happen', example: "That compliment doesn't count — they were just being nice.", prompts: ["What good things AM I ignoring?", "Would others see this differently?", "What went right today?"] },
+    { name: 'Jumping to Conclusions', icon: '⚡', desc: 'Making assumptions without evidence', example: "They didn't text back — they must be mad.", prompts: ["What evidence do I actually have?", "Am I filling in gaps with fear?", "What's the simplest explanation?"] },
+    { name: 'Magical Thinking', icon: '✨', desc: 'Believing thoughts can cause events', example: 'If I worry about it enough, I can prevent it.', prompts: ["Can thoughts really cause this?", "What do I actually control?", "What's a realistic connection?"] }
+];
 
-function selectThoughtIntensity(btn, type) {
-    const row = btn.parentElement;
-    row.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    if (type === 'before') _thoughtEmotionBefore = parseInt(btn.dataset.val);
-    else _thoughtEmotionAfter = parseInt(btn.dataset.val);
+const RS_ENCOURAGEMENTS = [
+    "Your mind is getting stronger with every reframe.",
+    "That's real growth — you challenged your own thinking.",
+    "Recovery is rewiring your brain, one thought at a time.",
+    "You just proved your thoughts don't control you.",
+    "Each reframe builds a healthier thought pattern.",
+    "You're learning to be your own best counselor.",
+    "This is what progress looks like — well done.",
+    "The more you practice, the more natural this becomes."
+];
+
+const RS_LEVELS = [
+    { level: 1, name: 'Thought Observer', icon: '🌱', xpRequired: 0 },
+    { level: 2, name: 'Pattern Spotter', icon: '🌿', xpRequired: 100 },
+    { level: 3, name: 'Reframe Rookie', icon: '🌳', xpRequired: 300 },
+    { level: 4, name: 'Mind Shifter', icon: '🔥', xpRequired: 600 },
+    { level: 5, name: 'Cognitive Champion', icon: '👑', xpRequired: 1000 },
+    { level: 6, name: 'Wisdom Seeker', icon: '💎', xpRequired: 1500 },
+    { level: 7, name: 'Master Reframer', icon: '🌟', xpRequired: 2500 }
+];
+
+const RS_BADGES = [
+    { id: 'first-reframe', name: 'First Light', icon: '💡', desc: 'Completed your first reframe', check: s => s.totalReframes >= 1 },
+    { id: 'five-streak', name: 'Consistent Mind', icon: '🔥', desc: '5-day reframe streak', check: s => s.currentStreak >= 5 },
+    { id: 'ten-reframes', name: 'Pattern Expert', icon: '🧩', desc: '10 reframes completed', check: s => s.totalReframes >= 10 },
+    { id: 'all-distortions', name: 'Full Spectrum', icon: '🌈', desc: 'Identified all 12 distortion types', check: s => s.uniqueDistortions >= 12 },
+    { id: 'big-shift', name: 'Breakthrough', icon: '⚡', desc: 'Reduced distress by 7+ points', check: s => s.maxReduction >= 7 },
+    { id: 'level-5', name: 'Champion', icon: '👑', desc: 'Reached Cognitive Champion level', check: s => s.level >= 5 },
+    { id: 'twenty-five', name: 'Reframe Master', icon: '🏆', desc: '25 reframes completed', check: s => s.totalReframes >= 25 },
+    { id: 'seven-streak', name: 'Weekly Warrior', icon: '🛡️', desc: '7-day reframe streak', check: s => s.currentStreak >= 7 }
+];
+
+let _rsDraft = {};
+let _rsStep = 0;
+let _rsReframeIndex = 0;
+
+// --- Worker URL (same as Mona chat) ---
+const RS_WORKER_URL = typeof CHAT_WORKER_URL !== 'undefined' ? CHAT_WORKER_URL : 'https://recovery-chat.kidell-powellj.workers.dev';
+
+function openReframeFlow() {
+    _rsDraft = { thought: '', emotionBefore: null, emotionAfter: null, distortionAnswers: {}, reframes: {}, reframedThought: '', aiAnalysis: null };
+    _rsStep = 0;
+    _rsReframeIndex = 0;
+    const overlay = document.getElementById('rsOverlay');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    renderRsStep();
 }
-window.selectThoughtIntensity = selectThoughtIntensity;
+window.openReframeFlow = openReframeFlow;
 
-function toggleDistortion(btn) {
-    btn.classList.toggle('selected');
+function closeReframeFlow() {
+    const overlay = document.getElementById('rsOverlay');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
 }
-window.toggleDistortion = toggleDistortion;
+window.closeReframeFlow = closeReframeFlow;
 
-async function submitThoughtEntry() {
-    const thought = document.getElementById('thoughtInput').value.trim();
-    const reframe = document.getElementById('reframeInput').value.trim();
-    const distortions = Array.from(document.querySelectorAll('.distortion-card.selected')).map(b => b.dataset.distortion);
+function renderRsProgress() {
+    const labels = ['Capture', 'Identify', 'Reframe', 'Complete'];
+    const el = document.getElementById('rsProgress');
+    el.innerHTML = labels.map((l, i) => `<div class="rs-progress-dot ${i === _rsStep ? 'active' : ''} ${i < _rsStep ? 'completed' : ''}"><span>${i + 1}</span></div>`).join('<div class="rs-progress-line"></div>');
+}
 
-    if (!thought) { showToast('Please enter a thought'); return; }
-    if (distortions.length === 0) { showToast('Select at least one distortion'); return; }
-
-    try {
-        await window.saveThoughtEntry(thought, distortions, reframe, _thoughtEmotionBefore, _thoughtEmotionAfter);
-        showToast('Thought entry saved!');
-        document.getElementById('thoughtInput').value = '';
-        document.getElementById('reframeInput').value = '';
-        document.querySelectorAll('.distortion-card.selected').forEach(b => b.classList.remove('selected'));
-        document.querySelectorAll('#emotionBeforeRow .intensity-btn, #emotionAfterRow .intensity-btn').forEach(b => b.classList.remove('selected'));
-        _thoughtEmotionBefore = null;
-        _thoughtEmotionAfter = null;
-        loadThoughtEntries();
-    } catch (e) {
-        showToast('Error saving entry');
+function renderRsStep() {
+    renderRsProgress();
+    const content = document.getElementById('rsStepContent');
+    switch (_rsStep) {
+        case 0: renderRsCapture(content); break;
+        case 1:
+            if (_rsDraft.aiAnalysis) renderRsAIReveals(content);
+            else renderRsLoading(content);
+            break;
+        case 2: renderRsReframe(content); break;
+        case 3: renderRsFinale(content); break;
     }
 }
-window.submitThoughtEntry = submitThoughtEntry;
 
+function rsIntensityRow(prefix, selected) {
+    return Array.from({length: 10}, (_, i) => {
+        const v = i + 1;
+        return `<button type="button" class="intensity-btn ${selected === v ? 'selected' : ''}" data-val="${v}" onclick="selectRsIntensity(this,'${prefix}')">${v}</button>`;
+    }).join('');
+}
+
+function selectRsIntensity(btn, type) {
+    btn.parentElement.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    if (type === 'before') _rsDraft.emotionBefore = parseInt(btn.dataset.val);
+    else _rsDraft.emotionAfter = parseInt(btn.dataset.val);
+}
+window.selectRsIntensity = selectRsIntensity;
+
+// ===== Step 0: Capture =====
+function renderRsCapture(el) {
+    el.innerHTML = `
+        <div class="rs-step-card">
+            <h3 class="rs-step-title">What's on your mind?</h3>
+            <p class="rs-step-hint">There's no wrong answer. Just write what you're thinking.</p>
+            <textarea class="rs-textarea" id="rsThoughtInput" placeholder="Write the thought that's bothering you..." rows="4">${escapeHtml(_rsDraft.thought || '')}</textarea>
+            <label class="rs-label">How much distress does this cause? (1 = low, 10 = high)</label>
+            <div class="rs-intensity-row">${rsIntensityRow('before', _rsDraft.emotionBefore)}</div>
+            <button class="btn btn-primary rs-next-btn" onclick="rsAnalyzeThought()">✨ Analyze My Thought</button>
+        </div>
+    `;
+}
+
+async function rsAnalyzeThought() {
+    const thought = document.getElementById('rsThoughtInput').value.trim();
+    if (!thought) { showToast('Please write your thought first'); return; }
+    if (!_rsDraft.emotionBefore) { showToast('Please rate your distress level'); return; }
+    _rsDraft.thought = thought;
+    _rsStep = 1;
+    renderRsProgress();
+    renderRsLoading(document.getElementById('rsStepContent'));
+
+    try {
+        const response = await fetch(RS_WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'analyze-thought',
+                thought: thought,
+                distressLevel: _rsDraft.emotionBefore
+            })
+        });
+        const data = await response.json();
+        const text = data.content?.[0]?.text;
+        if (!text) throw new Error('Empty response');
+
+        const analysis = JSON.parse(text);
+        if (!analysis.distortions || !Array.isArray(analysis.distortions) || analysis.distortions.length === 0) {
+            throw new Error('No distortions found');
+        }
+        _rsDraft.aiAnalysis = analysis;
+        _rsDraft.distortionAnswers = {};
+        analysis.distortions.forEach(d => {
+            _rsDraft.distortionAnswers[d.name] = d.confidence === 'high' ? 'yes' : 'maybe';
+        });
+        renderRsStep();
+    } catch (err) {
+        console.error('AI analysis error:', err);
+        renderRsAnalysisError(document.getElementById('rsStepContent'));
+    }
+}
+window.rsAnalyzeThought = rsAnalyzeThought;
+
+// ===== Loading State =====
+function renderRsLoading(el) {
+    el.innerHTML = `
+        <div class="rs-step-card rs-loading-card">
+            <div class="rs-loading-brain">
+                <span class="rs-loading-icon">🧠</span>
+                <div class="rs-loading-sparkles">
+                    <span class="rs-sparkle">✨</span>
+                    <span class="rs-sparkle">✨</span>
+                    <span class="rs-sparkle">✨</span>
+                </div>
+            </div>
+            <h3 class="rs-step-title">Analyzing your thought...</h3>
+            <p class="rs-step-hint">Looking for cognitive patterns</p>
+            <div class="rs-loading-bar"><div class="rs-loading-fill"></div></div>
+        </div>
+    `;
+}
+
+// ===== Error / Fallback =====
+function renderRsAnalysisError(el) {
+    el.innerHTML = `
+        <div class="rs-step-card">
+            <h3 class="rs-step-title">Couldn't analyze right now</h3>
+            <p class="rs-step-hint">The AI analysis didn't complete. You can try again or identify patterns manually.</p>
+            <button class="btn btn-primary rs-next-btn" onclick="rsAnalyzeThought()">Try Again</button>
+            <button class="btn rs-next-btn rs-secondary-btn" onclick="rsStartManualMode()">Identify Manually</button>
+        </div>
+    `;
+}
+
+function rsStartManualMode() {
+    _rsDraft.aiAnalysis = null;
+    _rsDraft._manualMode = true;
+    _rsDraft._manualQuizIndex = 0;
+    renderRsManualIdentify(document.getElementById('rsStepContent'));
+}
+window.rsStartManualMode = rsStartManualMode;
+
+// --- Manual fallback quiz (simplified from v2) ---
+function renderRsManualIdentify(el) {
+    const idx = _rsDraft._manualQuizIndex || 0;
+    if (idx >= RS_DISTORTIONS.length) {
+        const matches = RS_DISTORTIONS.filter(d => { const a = _rsDraft.distortionAnswers[d.name]; return a === 'yes' || a === 'maybe'; });
+        if (matches.length === 0) {
+            el.innerHTML = `<div class="rs-step-card"><h3 class="rs-step-title">No patterns selected</h3><p class="rs-step-hint">Pick at least one pattern to reframe.</p>
+            <div class="rs-manual-pick">${RS_DISTORTIONS.map(d => `<button class="distortion-badge rs-pick-badge" onclick="manualPickDistortion('${d.name}', this)">${d.icon} ${d.name}</button>`).join('')}</div>
+            <button class="btn btn-primary rs-next-btn" onclick="rsNextFromManual()">Continue</button></div>`;
+        } else {
+            _rsDraft.aiAnalysis = { distortions: matches.map(d => ({ name: d.name, confidence: _rsDraft.distortionAnswers[d.name] === 'yes' ? 'high' : 'medium', explanation: d.desc, reframingQuestions: d.prompts.slice(0, 2), suggestedReframe: '' })), suggestedReframedThought: '', affirmation: 'Great job examining your thinking!' };
+            _rsStep = 2; _rsReframeIndex = 0; renderRsStep();
+        }
+        return;
+    }
+    const d = RS_DISTORTIONS[idx];
+    el.innerHTML = `
+        <div class="rs-step-card rs-quiz-card">
+            <p class="rs-quiz-progress">${idx + 1} of ${RS_DISTORTIONS.length} patterns</p>
+            <div class="rs-quiz-distortion"><span class="rs-quiz-icon">${d.icon}</span><h3 class="rs-quiz-name">${d.name}</h3><p class="rs-quiz-desc">${d.desc}</p>
+            <div class="rs-quiz-example"><span class="rs-quiz-example-label">Example:</span> <em>"${d.example}"</em></div></div>
+            <p class="rs-quiz-question">Does this sound like your thought?</p>
+            <div class="rs-quiz-answers">
+                <button class="btn rs-quiz-btn rs-quiz-yes" onclick="answerManualQuiz('yes')">Yes, this is me</button>
+                <button class="btn rs-quiz-btn rs-quiz-maybe" onclick="answerManualQuiz('maybe')">Maybe</button>
+                <button class="btn rs-quiz-btn rs-quiz-no" onclick="answerManualQuiz('no')">Not really</button>
+            </div>
+        </div>`;
+}
+
+function answerManualQuiz(answer) {
+    const d = RS_DISTORTIONS[_rsDraft._manualQuizIndex || 0];
+    _rsDraft.distortionAnswers[d.name] = answer;
+    _rsDraft._manualQuizIndex = (_rsDraft._manualQuizIndex || 0) + 1;
+    renderRsManualIdentify(document.getElementById('rsStepContent'));
+    renderRsProgress();
+}
+window.answerManualQuiz = answerManualQuiz;
+
+function manualPickDistortion(name, btn) {
+    btn.classList.toggle('selected');
+    _rsDraft.distortionAnswers[name] = btn.classList.contains('selected') ? 'yes' : 'no';
+}
+window.manualPickDistortion = manualPickDistortion;
+
+function rsNextFromManual() {
+    const matches = RS_DISTORTIONS.filter(d => { const a = _rsDraft.distortionAnswers[d.name]; return a === 'yes' || a === 'maybe'; });
+    if (matches.length === 0) { showToast('Pick at least one pattern'); return; }
+    _rsDraft.aiAnalysis = { distortions: matches.map(d => ({ name: d.name, confidence: _rsDraft.distortionAnswers[d.name] === 'yes' ? 'high' : 'medium', explanation: d.desc, reframingQuestions: d.prompts.slice(0, 2), suggestedReframe: '' })), suggestedReframedThought: '', affirmation: 'Great job examining your thinking!' };
+    _rsStep = 2; _rsReframeIndex = 0; renderRsStep();
+}
+window.rsNextFromManual = rsNextFromManual;
+
+// ===== Step 1: AI Reveals =====
+function renderRsAIReveals(el) {
+    const analysis = _rsDraft.aiAnalysis;
+    let html = '<div class="rs-step-card rs-ai-reveals-card">';
+    html += `<h3 class="rs-step-title">We found ${analysis.distortions.length} thinking pattern${analysis.distortions.length > 1 ? 's' : ''}</h3>`;
+    html += `<p class="rs-step-hint">${escapeHtml(analysis.affirmation)}</p>`;
+    html += '<div class="rs-ai-distortion-list">';
+
+    analysis.distortions.forEach((d, i) => {
+        const def = RS_DISTORTIONS.find(rd => rd.name === d.name);
+        const icon = def ? def.icon : '🔍';
+        const confClass = d.confidence === 'high' ? 'rs-confidence-high' : 'rs-confidence-medium';
+        html += `
+            <div class="rs-ai-distortion-card ${confClass}" style="animation-delay: ${i * 0.15}s" onclick="toggleDistortionExpand(this)">
+                <div class="rs-ai-distortion-header">
+                    <span class="rs-ai-distortion-icon">${icon}</span>
+                    <div class="rs-ai-distortion-meta">
+                        <span class="rs-ai-distortion-name">${escapeHtml(d.name)}</span>
+                        <span class="rs-ai-confidence-pill ${confClass}">${d.confidence === 'high' ? 'Strong match' : 'Possible match'}</span>
+                    </div>
+                    <span class="rs-ai-expand-chevron">▾</span>
+                </div>
+                <div class="rs-ai-distortion-body">
+                    <p class="rs-ai-explanation">${escapeHtml(d.explanation)}</p>
+                </div>
+            </div>`;
+    });
+
+    html += '</div>';
+    html += `<button class="btn btn-primary rs-next-btn" onclick="rsNextFromAIReveals()">Let's reframe these</button>`;
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+function toggleDistortionExpand(card) {
+    card.classList.toggle('expanded');
+}
+window.toggleDistortionExpand = toggleDistortionExpand;
+
+function rsNextFromAIReveals() {
+    _rsStep = 2;
+    _rsReframeIndex = 0;
+    renderRsStep();
+}
+window.rsNextFromAIReveals = rsNextFromAIReveals;
+
+// ===== Step 2: Guided Reframe (AI-powered) =====
+function renderRsReframe(el) {
+    const distortions = _rsDraft.aiAnalysis.distortions;
+    if (_rsReframeIndex >= distortions.length) {
+        _rsStep = 3;
+        renderRsStep();
+        return;
+    }
+    const d = distortions[_rsReframeIndex];
+    const def = RS_DISTORTIONS.find(rd => rd.name === d.name);
+    const icon = def ? def.icon : '🔍';
+    const saved = _rsDraft.reframes[d.name] || {};
+    const questions = d.reframingQuestions || (def ? def.prompts.slice(0, 2) : []);
+
+    el.innerHTML = `
+        <div class="rs-step-card rs-reframe-card">
+            <p class="rs-reframe-progress">Reframing ${_rsReframeIndex + 1} of ${distortions.length}</p>
+            <div class="rs-reframe-header">
+                <span class="rs-reframe-icon">${icon}</span>
+                <h3>${escapeHtml(d.name)}</h3>
+            </div>
+            <div class="rs-original-thought">
+                <span class="rs-ot-label">Your thought:</span>
+                <p>"${escapeHtml(_rsDraft.thought)}"</p>
+            </div>
+            <p class="rs-reframe-ask">Consider these questions:</p>
+            <div class="rs-prompt-pills">
+                ${questions.map(q => `<button class="rs-prompt-pill" onclick="selectReframePrompt(this, '${escapeHtml(d.name)}')">${escapeHtml(q)}</button>`).join('')}
+            </div>
+            ${d.suggestedReframe ? `
+            <div class="rs-ai-suggestion">
+                <span class="rs-ai-suggestion-label">AI suggestion:</span>
+                <button class="rs-use-suggestion-btn" onclick="useAISuggestion('${escapeHtml(d.name)}')">Use as starting point</button>
+            </div>
+            <p class="rs-ai-suggested-text">"${escapeHtml(d.suggestedReframe)}"</p>` : ''}
+            <textarea class="rs-textarea" id="rsReframeText" placeholder="Write your reframe..." rows="3">${escapeHtml(saved.text || '')}</textarea>
+            <button class="btn btn-primary rs-next-btn" onclick="rsNextReframeDistortion('${escapeHtml(d.name)}')">${_rsReframeIndex < distortions.length - 1 ? 'Next Pattern' : 'Write Final Thought'}</button>
+        </div>
+    `;
+}
+
+function useAISuggestion(distortionName) {
+    const d = _rsDraft.aiAnalysis.distortions.find(x => x.name === distortionName);
+    if (d && d.suggestedReframe) {
+        const ta = document.getElementById('rsReframeText');
+        if (ta) { ta.value = d.suggestedReframe; ta.focus(); }
+    }
+}
+window.useAISuggestion = useAISuggestion;
+
+function selectReframePrompt(btn, distortionName) {
+    const textarea = document.getElementById('rsReframeText');
+    if (textarea && !textarea.value.trim()) {
+        textarea.value = btn.textContent + ' ';
+        textarea.focus();
+    }
+    btn.parentElement.querySelectorAll('.rs-prompt-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (!_rsDraft.reframes[distortionName]) _rsDraft.reframes[distortionName] = {};
+    _rsDraft.reframes[distortionName].prompt = btn.textContent;
+}
+window.selectReframePrompt = selectReframePrompt;
+
+function rsNextReframeDistortion(distortionName) {
+    const text = document.getElementById('rsReframeText').value.trim();
+    if (!text) { showToast('Write a reframe before continuing'); return; }
+    if (!_rsDraft.reframes[distortionName]) _rsDraft.reframes[distortionName] = {};
+    _rsDraft.reframes[distortionName].text = text;
+    _rsReframeIndex++;
+    renderRsReframe(document.getElementById('rsStepContent'));
+    renderRsProgress();
+}
+window.rsNextReframeDistortion = rsNextReframeDistortion;
+
+// ===== Step 3: Finale (New Thought + Celebration) =====
+function renderRsFinale(el) {
+    const analysis = _rsDraft.aiAnalysis;
+    const suggested = analysis ? analysis.suggestedReframedThought : '';
+    el.innerHTML = `
+        <div class="rs-step-card">
+            <h3 class="rs-step-title">Your new perspective</h3>
+            <div class="rs-old-thought">
+                <span class="rs-ot-label">Old thought:</span>
+                <p class="rs-old-text">"${escapeHtml(_rsDraft.thought)}"</p>
+            </div>
+            <p class="rs-step-hint">Write your balanced thought — we've started with AI's suggestion:</p>
+            <textarea class="rs-textarea" id="rsNewThought" placeholder="My reframed thought..." rows="4">${escapeHtml(_rsDraft.reframedThought || suggested || '')}</textarea>
+            <label class="rs-label">How much distress do you feel now? (1-10)</label>
+            <div class="rs-intensity-row">${rsIntensityRow('after', _rsDraft.emotionAfter)}</div>
+            <button class="btn btn-primary rs-next-btn" onclick="rsFinish()">Complete & Earn XP</button>
+        </div>
+    `;
+}
+
+// ===== XP Calculation =====
+function calculateReframeXP(draft) {
+    const breakdown = [];
+    let totalXP = 25;
+    breakdown.push({ label: 'Reframe completed', xp: 25 });
+
+    const distCount = draft.aiAnalysis ? draft.aiAnalysis.distortions.length : 0;
+    if (distCount > 0) {
+        const distXP = distCount * 10;
+        totalXP += distXP;
+        breakdown.push({ label: `${distCount} pattern${distCount > 1 ? 's' : ''} reframed`, xp: distXP });
+    }
+
+    const reduction = (draft.emotionBefore || 0) - (draft.emotionAfter || 0);
+    if (reduction >= 5) {
+        totalXP += 25;
+        breakdown.push({ label: 'Major distress reduction', xp: 25 });
+    } else if (reduction >= 3) {
+        totalXP += 15;
+        breakdown.push({ label: 'Distress reduction', xp: 15 });
+    }
+
+    return { totalXP, breakdown };
+}
+
+function getLevelForXP(xp) {
+    let current = RS_LEVELS[0];
+    let next = RS_LEVELS[1] || RS_LEVELS[0];
+    for (let i = RS_LEVELS.length - 1; i >= 0; i--) {
+        if (xp >= RS_LEVELS[i].xpRequired) {
+            current = RS_LEVELS[i];
+            next = RS_LEVELS[i + 1] || RS_LEVELS[i];
+            break;
+        }
+    }
+    const progress = next.xpRequired > current.xpRequired
+        ? Math.round(((xp - current.xpRequired) / (next.xpRequired - current.xpRequired)) * 100)
+        : 100;
+    return { current, next, progress };
+}
+
+async function awardReframeXP(xpResult) {
+    if (typeof window.getReframeGameData !== 'function') return;
+    try {
+        const gameData = await window.getReframeGameData();
+        const prevXP = gameData.reframeXP || 0;
+        const prevLevel = gameData.reframeLevel || 1;
+        const newXP = prevXP + xpResult.totalXP;
+        const levelInfo = getLevelForXP(newXP);
+
+        xpResult.currentXP = newXP;
+        xpResult.currentLevel = levelInfo.current;
+        xpResult.nextLevelXP = levelInfo.next.xpRequired;
+        xpResult.levelProgress = levelInfo.progress;
+        xpResult.leveledUp = levelInfo.current.level > prevLevel;
+
+        await window.saveReframeGameData({
+            reframeXP: newXP,
+            reframeLevel: levelInfo.current.level,
+            reframeLevelName: levelInfo.current.name
+        });
+    } catch (e) {
+        console.error('XP award error:', e);
+        const levelInfo = getLevelForXP(xpResult.totalXP);
+        xpResult.currentXP = xpResult.totalXP;
+        xpResult.currentLevel = levelInfo.current;
+        xpResult.nextLevelXP = levelInfo.next.xpRequired;
+        xpResult.levelProgress = levelInfo.progress;
+        xpResult.leveledUp = false;
+    }
+}
+
+// ===== Finish & Save =====
+async function rsFinish() {
+    const newThought = document.getElementById('rsNewThought').value.trim();
+    if (!newThought) { showToast('Write your reframed thought'); return; }
+    _rsDraft.reframedThought = newThought;
+
+    const xpResult = calculateReframeXP(_rsDraft);
+    const distortionNames = _rsDraft.aiAnalysis ? _rsDraft.aiAnalysis.distortions.map(d => d.name) : [];
+
+    try {
+        await window.saveThoughtEntry({
+            thought: _rsDraft.thought,
+            distortions: distortionNames,
+            distortionAnswers: _rsDraft.distortionAnswers,
+            reframes: _rsDraft.reframes,
+            reframedThought: _rsDraft.reframedThought,
+            emotionBefore: _rsDraft.emotionBefore,
+            emotionAfter: _rsDraft.emotionAfter,
+            aiAnalysis: _rsDraft.aiAnalysis,
+            xpEarned: xpResult.totalXP,
+            version: 3
+        });
+        await awardReframeXP(xpResult);
+        renderRsCelebration(document.getElementById('rsStepContent'), xpResult);
+        // Fire confetti
+        if (typeof launchOnboardingConfetti === 'function') launchOnboardingConfetti();
+    } catch (e) {
+        console.error('Save error:', e);
+        showToast('Error saving — try again');
+    }
+}
+window.rsFinish = rsFinish;
+
+// ===== Celebration with XP =====
+function renderRsCelebration(el, xpResult) {
+    const before = _rsDraft.emotionBefore || 0;
+    const after = _rsDraft.emotionAfter || 0;
+    const reduction = before - after;
+    const pct = before > 0 ? Math.round((reduction / before) * 100) : 0;
+    const analysis = _rsDraft.aiAnalysis;
+    const distDefs = analysis ? analysis.distortions.map(d => {
+        const def = RS_DISTORTIONS.find(rd => rd.name === d.name);
+        return { name: d.name, icon: def ? def.icon : '🔍' };
+    }) : [];
+    const encouragement = RS_ENCOURAGEMENTS[Math.floor(Math.random() * RS_ENCOURAGEMENTS.length)];
+
+    let html = '<div class="rs-step-card rs-celebration-card">';
+    html += '<h3 class="rs-celebration-title">Well done!</h3>';
+
+    // XP gain
+    if (xpResult) {
+        html += `<div class="rs-xp-gain">
+            <span class="rs-xp-number">+${xpResult.totalXP} XP</span>
+            <div class="rs-xp-breakdown">${xpResult.breakdown.map(b => `<span class="rs-xp-item">${b.label}: +${b.xp}</span>`).join('')}</div>
+        </div>`;
+
+        if (xpResult.currentLevel) {
+            html += `<div class="rs-level-display">
+                <span class="rs-level-name">${xpResult.currentLevel.icon} ${xpResult.currentLevel.name}</span>
+                <div class="rs-level-bar"><div class="rs-level-fill" style="width: ${xpResult.levelProgress || 0}%"></div></div>
+                <span class="rs-level-xp">${xpResult.currentXP || 0} / ${xpResult.nextLevelXP || 100} XP</span>
+            </div>`;
+        }
+
+        if (xpResult.leveledUp) {
+            html += `<div class="rs-level-up">🎉 Level Up! You are now a <strong>${xpResult.currentLevel.name}</strong></div>`;
+        }
+    }
+
+    // Distress reduction
+    if (reduction > 0) {
+        html += `<div class="rs-distress-drop">
+            <span class="rs-drop-number">${before}</span>
+            <span class="rs-drop-arrow">→</span>
+            <span class="rs-drop-number rs-drop-after">${after}</span>
+            <p class="rs-drop-text">Distress reduced by ${reduction} point${reduction > 1 ? 's' : ''}${pct > 0 ? ` (${pct}%)` : ''}</p>
+        </div>`;
+    } else if (after > 0) {
+        html += `<p class="rs-step-hint">Even without a big shift, you practiced a powerful skill. That matters.</p>`;
+    }
+
+    html += `<div class="rs-celebration-badges">${distDefs.map(d => `<span class="distortion-badge">${d.icon} ${d.name}</span>`).join('')}</div>`;
+    html += `<p class="rs-encouragement">"${encouragement}"</p>`;
+    html += `<button class="btn btn-primary rs-next-btn" onclick="closeReframeFlow(); loadThoughtEntries();">Save & Close</button>`;
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+// ===== Landing page: load stats + past entries + gamification =====
 async function loadThoughtEntries() {
     if (typeof window.loadThoughtEntriesFromDB !== 'function') return;
     const entries = await window.loadThoughtEntriesFromDB();
-    if (!entries || entries.length === 0) return;
 
-    const section = document.getElementById('thoughtEntriesSection');
-    const container = document.getElementById('thoughtEntriesContainer');
+    // Stats
+    const countEl = document.getElementById('rsReframeCount');
+    const streakEl = document.getElementById('rsStreak');
+    const xpEl = document.getElementById('rsTotalXP');
+    if (countEl) countEl.textContent = entries ? entries.length : 0;
+
+    let streak = 0;
+    if (entries && entries.length > 0) {
+        const today = new Date(); today.setHours(0,0,0,0);
+        for (let i = 0; i < 30; i++) {
+            const d = new Date(today); d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            const hasEntry = entries.some(e => {
+                if (!e.createdAt?.toDate) return false;
+                const ed = e.createdAt.toDate(); ed.setHours(0,0,0,0);
+                return ed.toISOString().split('T')[0] === dateStr;
+            });
+            if (hasEntry) streak++; else if (i > 0) break;
+        }
+    }
+    if (streakEl) streakEl.textContent = streak;
+
+    // Gamification display
+    try {
+        if (typeof window.getReframeGameData === 'function') {
+            const gameData = await window.getReframeGameData();
+            const xp = gameData.reframeXP || 0;
+            const levelInfo = getLevelForXP(xp);
+            if (xpEl) xpEl.textContent = xp;
+            const badgeEl = document.getElementById('rsLevelBadge');
+            if (badgeEl) {
+                badgeEl.textContent = `${levelInfo.current.icon} ${levelInfo.current.name}`;
+                badgeEl.parentElement.style.display = 'flex';
+            }
+            const levelFill = document.getElementById('rsLandingLevelFill');
+            const levelXPText = document.getElementById('rsLandingLevelXP');
+            const levelContainer = document.getElementById('rsLandingLevel');
+            if (levelFill) levelFill.style.width = `${levelInfo.progress}%`;
+            if (levelXPText) levelXPText.textContent = `${xp} / ${levelInfo.next.xpRequired} XP`;
+            if (levelContainer) levelContainer.style.display = 'block';
+        }
+    } catch (e) { console.error('Gamification load error:', e); }
+
+    // Past entries
+    if (!entries || entries.length === 0) return;
+    const section = document.getElementById('rsPastSection');
+    const container = document.getElementById('rsPastEntries');
+    if (!section || !container) return;
     section.style.display = 'block';
     container.innerHTML = '';
 
-    // Insights
-    const distortionCounts = {};
-    entries.forEach(e => {
-        (e.distortions || []).forEach(d => { distortionCounts[d] = (distortionCounts[d] || 0) + 1; });
-    });
-    const sorted = Object.entries(distortionCounts).sort((a, b) => b[1] - a[1]);
-    if (sorted.length > 0) {
-        const insights = document.getElementById('thoughtInsights');
-        const content = document.getElementById('thoughtInsightsContent');
-        insights.style.display = 'block';
-        content.innerHTML = sorted.slice(0, 5).map(([name, count]) => {
-            const max = sorted[0][1];
-            const pct = Math.round((count / max) * 100);
-            return `<div class="insight-bar-row"><span class="insight-bar-label">${name}</span><div class="insight-bar"><div class="insight-bar-fill" style="width:${pct}%"></div></div><span class="insight-bar-count">${count}</span></div>`;
-        }).join('');
-    }
-
     entries.forEach(entry => {
         const card = document.createElement('div');
-        card.className = 'thought-entry-card glass-card';
+        card.className = 'rs-entry-card glass-card';
         const date = entry.createdAt?.toDate ? entry.createdAt.toDate().toLocaleDateString() : '';
-        card.innerHTML = `
-            <div class="thought-entry-header">
-                <span class="thought-entry-date">${date}</span>
-                <button class="thought-entry-delete" onclick="deleteThoughtEntryUI('${entry.id}')">&times;</button>
-            </div>
-            <p class="thought-entry-thought">"${escapeHtml(entry.thought)}"</p>
-            <div class="thought-entry-distortions">${(entry.distortions || []).map(d => `<span class="distortion-badge">${d}</span>`).join('')}</div>
-            ${entry.reframe ? `<p class="thought-entry-reframe"><strong>Reframe:</strong> ${escapeHtml(entry.reframe)}</p>` : ''}
-            ${entry.emotionBefore && entry.emotionAfter ? `<p class="thought-entry-intensity">Intensity: ${entry.emotionBefore} → ${entry.emotionAfter}</p>` : ''}
-        `;
+        const before = entry.emotionBefore || 0;
+        const after = entry.emotionAfter || 0;
+        const drop = before - after;
+
+        let inner = `<div class="rs-entry-header"><span class="rs-entry-date">${date}</span>`;
+        if (drop > 0) inner += `<span class="rs-entry-drop">-${drop} distress</span>`;
+        if (entry.xpEarned) inner += `<span class="rs-entry-xp">+${entry.xpEarned} XP</span>`;
+        inner += `<button class="thought-entry-delete" onclick="deleteThoughtEntryUI('${entry.id}')">&times;</button></div>`;
+        inner += `<p class="rs-entry-thought">"${escapeHtml(entry.thought)}"</p>`;
+        if (entry.reframedThought) {
+            inner += `<p class="rs-entry-reframed">"${escapeHtml(entry.reframedThought)}"</p>`;
+        } else if (entry.reframe) {
+            inner += `<p class="rs-entry-reframed">"${escapeHtml(entry.reframe)}"</p>`;
+        }
+        const distortionIcons = (entry.distortions || []).map(name => {
+            const def = RS_DISTORTIONS.find(rd => rd.name === name);
+            return `<span class="distortion-badge">${def ? def.icon : ''} ${name}</span>`;
+        }).join('');
+        inner += `<div class="rs-entry-badges">${distortionIcons}</div>`;
+        card.innerHTML = inner;
         container.appendChild(card);
     });
 }

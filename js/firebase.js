@@ -1221,17 +1221,38 @@ async function loadMoodTimeline() {
     } catch (e) { console.error('Error loading mood timeline:', e); }
 }
 
-// ========== THOUGHT LOG ==========
-window.saveThoughtEntry = async function(thought, distortions, reframe, emotionBefore, emotionAfter) {
+// ========== REFRAME STUDIO (formerly Thought Log) ==========
+window.saveThoughtEntry = async function(entryOrThought, distortions, reframe, emotionBefore, emotionAfter) {
     if (!currentUser) return;
-    const data = {
-        thought,
-        distortions,
-        reframe: reframe || '',
-        emotionBefore: emotionBefore || null,
-        emotionAfter: emotionAfter || null,
-        createdAt: serverTimestamp()
-    };
+    let data;
+    if (typeof entryOrThought === 'object' && entryOrThought !== null) {
+        // New v2/v3 format: single object with all fields
+        data = {
+            thought: entryOrThought.thought || '',
+            distortions: entryOrThought.distortions || [],
+            distortionAnswers: entryOrThought.distortionAnswers || {},
+            reframes: entryOrThought.reframes || {},
+            reframedThought: entryOrThought.reframedThought || '',
+            reframe: entryOrThought.reframedThought || '',
+            emotionBefore: entryOrThought.emotionBefore || null,
+            emotionAfter: entryOrThought.emotionAfter || null,
+            version: entryOrThought.version || 2,
+            createdAt: serverTimestamp()
+        };
+        // v3 fields: AI analysis and XP
+        if (entryOrThought.aiAnalysis) data.aiAnalysis = entryOrThought.aiAnalysis;
+        if (entryOrThought.xpEarned) data.xpEarned = entryOrThought.xpEarned;
+    } else {
+        // Legacy v1 format: individual parameters (backward compatible)
+        data = {
+            thought: entryOrThought,
+            distortions: distortions || [],
+            reframe: reframe || '',
+            emotionBefore: emotionBefore || null,
+            emotionAfter: emotionAfter || null,
+            createdAt: serverTimestamp()
+        };
+    }
     await addDoc(collection(db, 'users', currentUser.uid, 'thoughtLog'), data);
 };
 
@@ -1247,6 +1268,37 @@ window.loadThoughtEntriesFromDB = async function() {
 window.deleteThoughtEntry = async function(entryId) {
     if (!currentUser) return;
     await deleteDoc(doc(db, 'users', currentUser.uid, 'thoughtLog', entryId));
+};
+
+// ========== REFRAME STUDIO GAMIFICATION ==========
+window.getReframeGameData = async function() {
+    if (!currentUser) return {};
+    try {
+        const snap = await getDoc(doc(db, 'users', currentUser.uid));
+        if (snap.exists()) {
+            const d = snap.data();
+            return {
+                reframeXP: d.reframeXP || 0,
+                reframeLevel: d.reframeLevel || 1,
+                reframeLevelName: d.reframeLevelName || 'Thought Observer',
+                reframeBadges: d.reframeBadges || [],
+                reframeStats: d.reframeStats || { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 }
+            };
+        }
+        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Thought Observer', reframeBadges: [], reframeStats: { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 } };
+    } catch (e) {
+        console.error('Error loading game data:', e);
+        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Thought Observer', reframeBadges: [], reframeStats: {} };
+    }
+};
+
+window.saveReframeGameData = async function(data) {
+    if (!currentUser) return;
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), data, { merge: true });
+    } catch (e) {
+        console.error('Error saving game data:', e);
+    }
 };
 
 // ========== RECOVERY WORKBOOK ==========
