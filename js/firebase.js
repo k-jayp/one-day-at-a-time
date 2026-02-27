@@ -104,6 +104,7 @@ function updateUIForAuthState(user) {
     const avatarWrapper = document.getElementById('avatarDropdownWrapper');
     const signInBtn = document.getElementById('signInBtn');
     const myJourneyDropdown = document.getElementById('myJourneyDropdown');
+    const challengesDropdown = document.getElementById('challengesDropdown');
     // Home page sections
     const homeGuestShowcase = document.getElementById('homeGuestShowcase');
     const homeAuthContent = document.getElementById('homeAuthContent');
@@ -130,6 +131,7 @@ function updateUIForAuthState(user) {
         avatarWrapper.style.display = 'block';
         signInBtn.style.display = 'none';
         if (myJourneyDropdown) myJourneyDropdown.style.display = '';
+        if (challengesDropdown) challengesDropdown.style.display = '';
 
         // Set avatar initial and dropdown info
         const initial = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
@@ -187,6 +189,7 @@ function updateUIForAuthState(user) {
         avatarWrapper.style.display = 'none';
         signInBtn.style.display = 'block';
         if (myJourneyDropdown) myJourneyDropdown.style.display = 'none';
+        if (challengesDropdown) challengesDropdown.style.display = 'none';
 
         // Hide notification bell, partners tab, and stop polling
         const partnersTab = document.getElementById('partnersTabBtn');
@@ -1270,8 +1273,8 @@ window.deleteThoughtEntry = async function(entryId) {
     await deleteDoc(doc(db, 'users', currentUser.uid, 'thoughtLog', entryId));
 };
 
-// ========== REFRAME STUDIO GAMIFICATION ==========
-window.getReframeGameData = async function() {
+// ========== GAMIFICATION (shared XP pool) ==========
+window.getGameData = async function() {
     if (!currentUser) return {};
     try {
         const snap = await getDoc(doc(db, 'users', currentUser.uid));
@@ -1280,19 +1283,22 @@ window.getReframeGameData = async function() {
             return {
                 reframeXP: d.reframeXP || 0,
                 reframeLevel: d.reframeLevel || 1,
-                reframeLevelName: d.reframeLevelName || 'Thought Observer',
+                reframeLevelName: d.reframeLevelName || 'Seedling',
                 reframeBadges: d.reframeBadges || [],
-                reframeStats: d.reframeStats || { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 }
+                reframeStats: d.reframeStats || { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 },
+                growthLabStats: d.growthLabStats || { worksheetsCompleted: 0 }
             };
         }
-        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Thought Observer', reframeBadges: [], reframeStats: { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 } };
+        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Seedling', reframeBadges: [], reframeStats: { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 }, growthLabStats: { worksheetsCompleted: 0 } };
     } catch (e) {
         console.error('Error loading game data:', e);
-        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Thought Observer', reframeBadges: [], reframeStats: {} };
+        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Seedling', reframeBadges: [], reframeStats: {}, growthLabStats: { worksheetsCompleted: 0 } };
     }
 };
+// Backward compat alias
+window.getReframeGameData = window.getGameData;
 
-window.saveReframeGameData = async function(data) {
+window.saveGameData = async function(data) {
     if (!currentUser) return;
     try {
         await setDoc(doc(db, 'users', currentUser.uid), data, { merge: true });
@@ -1300,6 +1306,8 @@ window.saveReframeGameData = async function(data) {
         console.error('Error saving game data:', e);
     }
 };
+// Backward compat alias
+window.saveReframeGameData = window.saveGameData;
 
 // ========== RECOVERY WORKBOOK ==========
 window.saveWorksheetData = async function(worksheetId, data) {

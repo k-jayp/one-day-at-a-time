@@ -2419,25 +2419,29 @@ const RS_ENCOURAGEMENTS = [
     "The more you practice, the more natural this becomes."
 ];
 
-const RS_LEVELS = [
-    { level: 1, name: 'Thought Observer', icon: '🌱', xpRequired: 0 },
-    { level: 2, name: 'Pattern Spotter', icon: '🌿', xpRequired: 100 },
-    { level: 3, name: 'Reframe Rookie', icon: '🌳', xpRequired: 300 },
-    { level: 4, name: 'Mind Shifter', icon: '🔥', xpRequired: 600 },
-    { level: 5, name: 'Cognitive Champion', icon: '👑', xpRequired: 1000 },
-    { level: 6, name: 'Wisdom Seeker', icon: '💎', xpRequired: 1500 },
-    { level: 7, name: 'Master Reframer', icon: '🌟', xpRequired: 2500 }
+const GAME_LEVELS = [
+    { level: 1, name: 'Seedling', icon: '🌱', xpRequired: 0 },
+    { level: 2, name: 'Sprout', icon: '🌿', xpRequired: 100 },
+    { level: 3, name: 'Growing Strong', icon: '🌳', xpRequired: 300 },
+    { level: 4, name: 'Flourishing', icon: '🔥', xpRequired: 600 },
+    { level: 5, name: 'Thriving', icon: '👑', xpRequired: 1000 },
+    { level: 6, name: 'Radiant', icon: '💎', xpRequired: 1500 },
+    { level: 7, name: 'Recovery Master', icon: '🌟', xpRequired: 2500 }
 ];
 
-const RS_BADGES = [
+const GAME_BADGES = [
+    // Reframe Studio badges
     { id: 'first-reframe', name: 'First Light', icon: '💡', desc: 'Completed your first reframe', check: s => s.totalReframes >= 1 },
     { id: 'five-streak', name: 'Consistent Mind', icon: '🔥', desc: '5-day reframe streak', check: s => s.currentStreak >= 5 },
     { id: 'ten-reframes', name: 'Pattern Expert', icon: '🧩', desc: '10 reframes completed', check: s => s.totalReframes >= 10 },
     { id: 'all-distortions', name: 'Full Spectrum', icon: '🌈', desc: 'Identified all 12 distortion types', check: s => s.uniqueDistortions >= 12 },
     { id: 'big-shift', name: 'Breakthrough', icon: '⚡', desc: 'Reduced distress by 7+ points', check: s => s.maxReduction >= 7 },
-    { id: 'level-5', name: 'Champion', icon: '👑', desc: 'Reached Cognitive Champion level', check: s => s.level >= 5 },
+    { id: 'level-5', name: 'Champion', icon: '👑', desc: 'Reached Thriving level', check: s => s.level >= 5 },
     { id: 'twenty-five', name: 'Reframe Master', icon: '🏆', desc: '25 reframes completed', check: s => s.totalReframes >= 25 },
-    { id: 'seven-streak', name: 'Weekly Warrior', icon: '🛡️', desc: '7-day reframe streak', check: s => s.currentStreak >= 7 }
+    { id: 'seven-streak', name: 'Weekly Warrior', icon: '🛡️', desc: '7-day reframe streak', check: s => s.currentStreak >= 7 },
+    // Growth Lab badges
+    { id: 'first-worksheet', name: 'First Step', icon: '📝', desc: 'Completed your first worksheet', check: s => s.worksheetsCompleted >= 1 },
+    { id: 'all-worksheets', name: 'Deep Diver', icon: '🏊', desc: 'Completed all 5 worksheets', check: s => s.worksheetsCompleted >= 5 },
 ];
 
 let _rsDraft = {};
@@ -2815,12 +2819,12 @@ function calculateReframeXP(draft) {
 }
 
 function getLevelForXP(xp) {
-    let current = RS_LEVELS[0];
-    let next = RS_LEVELS[1] || RS_LEVELS[0];
-    for (let i = RS_LEVELS.length - 1; i >= 0; i--) {
-        if (xp >= RS_LEVELS[i].xpRequired) {
-            current = RS_LEVELS[i];
-            next = RS_LEVELS[i + 1] || RS_LEVELS[i];
+    let current = GAME_LEVELS[0];
+    let next = GAME_LEVELS[1] || GAME_LEVELS[0];
+    for (let i = GAME_LEVELS.length - 1; i >= 0; i--) {
+        if (xp >= GAME_LEVELS[i].xpRequired) {
+            current = GAME_LEVELS[i];
+            next = GAME_LEVELS[i + 1] || GAME_LEVELS[i];
             break;
         }
     }
@@ -2830,10 +2834,10 @@ function getLevelForXP(xp) {
     return { current, next, progress };
 }
 
-async function awardReframeXP(xpResult) {
-    if (typeof window.getReframeGameData !== 'function') return;
+async function awardXP(xpResult) {
+    if (typeof window.getGameData !== 'function') return;
     try {
-        const gameData = await window.getReframeGameData();
+        const gameData = await window.getGameData();
         const prevXP = gameData.reframeXP || 0;
         const prevLevel = gameData.reframeLevel || 1;
         const newXP = prevXP + xpResult.totalXP;
@@ -2845,7 +2849,7 @@ async function awardReframeXP(xpResult) {
         xpResult.levelProgress = levelInfo.progress;
         xpResult.leveledUp = levelInfo.current.level > prevLevel;
 
-        await window.saveReframeGameData({
+        await window.saveGameData({
             reframeXP: newXP,
             reframeLevel: levelInfo.current.level,
             reframeLevelName: levelInfo.current.name
@@ -2896,7 +2900,7 @@ async function rsFinish() {
 
     // Award XP — isolated from save errors
     try {
-        await awardReframeXP(xpResult);
+        await awardXP(xpResult);
     } catch (e) {
         console.error('XP award error:', e);
     }
@@ -2991,8 +2995,8 @@ async function loadThoughtEntries() {
 
     // Gamification display
     try {
-        if (typeof window.getReframeGameData === 'function') {
-            const gameData = await window.getReframeGameData();
+        if (typeof window.getGameData === 'function') {
+            const gameData = await window.getGameData();
             const xp = gameData.reframeXP || 0;
             const levelInfo = getLevelForXP(xp);
             if (xpEl) xpEl.textContent = xp;
@@ -3245,6 +3249,34 @@ async function loadWorkbookGrid() {
     if (typeof window.loadAllWorksheetStatus === 'function') {
         statuses = await window.loadAllWorksheetStatus();
     }
+
+    // Gamification display
+    try {
+        if (typeof window.getGameData === 'function') {
+            const gameData = await window.getGameData();
+            const xp = gameData.reframeXP || 0;
+            const levelInfo = getLevelForXP(xp);
+            const completedCount = Object.values(statuses).filter(s => s.completed).length;
+
+            const wsCountEl = document.getElementById('glWorksheetCount');
+            const xpEl = document.getElementById('glTotalXP');
+            if (wsCountEl) wsCountEl.textContent = completedCount;
+            if (xpEl) xpEl.textContent = xp;
+
+            const badgeEl = document.getElementById('glLevelBadge');
+            if (badgeEl) {
+                badgeEl.textContent = `${levelInfo.current.icon} ${levelInfo.current.name}`;
+                badgeEl.parentElement.style.display = 'flex';
+            }
+            const levelFill = document.getElementById('glLandingLevelFill');
+            const levelXPText = document.getElementById('glLandingLevelXP');
+            const levelContainer = document.getElementById('glLandingLevel');
+            if (levelFill) levelFill.style.width = `${levelInfo.progress}%`;
+            if (levelXPText) levelXPText.textContent = `${xp} / ${levelInfo.next.xpRequired} XP`;
+            if (levelContainer) levelContainer.style.display = 'block';
+        }
+    } catch (e) { console.error('Growth Lab gamification load error:', e); }
+
     grid.innerHTML = Object.entries(WORKSHEETS).map(([id, ws]) => {
         const status = statuses[id];
         const completed = status && status.completed;
@@ -3472,19 +3504,116 @@ async function autoSaveWorksheet() {
     }
 }
 
-async function finishWorksheet() {
-    if (typeof window.saveWorksheetData === 'function') {
-        await window.saveWorksheetData(_currentWorksheet, {
-            data: _worksheetData,
-            currentStep: _currentWsStep,
-            completed: true,
-            completedAt: new Date().toISOString()
-        });
+// ===== Growth Lab XP Calculation =====
+function calculateWorksheetXP(worksheetId) {
+    const breakdown = [];
+    let totalXP = 30;
+    breakdown.push({ label: 'Worksheet completed', xp: 30 });
+
+    // Thoroughness bonus: check if all steps have meaningful data
+    const ws = WORKSHEETS[worksheetId];
+    if (ws) {
+        let allFilled = true;
+        for (let i = 0; i < ws.steps.length; i++) {
+            const stepData = _worksheetData[`step_${i}`];
+            if (!stepData) { allFilled = false; break; }
+            const step = ws.steps[i];
+            if (step.type === 'multi-select' && (!stepData.selected || stepData.selected.length === 0)) { allFilled = false; break; }
+            if (step.type === 'textarea' && (!stepData.text || stepData.text.trim().length < 5)) { allFilled = false; break; }
+            if (step.type === 'multi-textarea' && (!stepData.texts || stepData.texts.some(t => !t || t.trim().length < 3))) { allFilled = false; break; }
+        }
+        if (allFilled) {
+            totalXP += 10;
+            breakdown.push({ label: 'Thoroughness bonus', xp: 10 });
+        }
     }
-    showToast('Worksheet completed! Great work! 🎉');
-    closeWorksheet();
+
+    return { totalXP, breakdown };
+}
+
+async function finishWorksheet() {
+    const xpResult = calculateWorksheetXP(_currentWorksheet);
+
+    // Save worksheet data — don't let save failure block celebration
+    try {
+        if (typeof window.saveWorksheetData === 'function') {
+            await window.saveWorksheetData(_currentWorksheet, {
+                data: _worksheetData,
+                currentStep: _currentWsStep,
+                completed: true,
+                completedAt: new Date().toISOString()
+            });
+        }
+    } catch (e) { console.error('Worksheet save error:', e); }
+
+    // Check for all-worksheets bonus
+    try {
+        if (typeof window.loadAllWorksheetStatus === 'function') {
+            const statuses = await window.loadAllWorksheetStatus();
+            const completedCount = Object.values(statuses).filter(s => s.completed).length;
+            // +1 for the one we just completed (it's already saved but count might not include it yet)
+            const totalCompleted = statuses[_currentWorksheet]?.completed ? completedCount : completedCount + 1;
+            if (totalCompleted >= Object.keys(WORKSHEETS).length) {
+                const alreadyAwarded = (await window.getGameData()).growthLabStats?.allWorksheetsBonus;
+                if (!alreadyAwarded) {
+                    xpResult.totalXP += 50;
+                    xpResult.breakdown.push({ label: 'All worksheets completed!', xp: 50 });
+                }
+            }
+            // Update growthLabStats
+            await window.saveGameData({ growthLabStats: { worksheetsCompleted: totalCompleted, allWorksheetsBonus: totalCompleted >= Object.keys(WORKSHEETS).length } });
+        }
+    } catch (e) { console.error('Worksheet stats error:', e); }
+
+    // Award XP — isolated from save errors
+    try {
+        await awardXP(xpResult);
+    } catch (e) { console.error('XP award error:', e); }
+
+    // Show celebration in worksheet overlay
+    renderWorksheetCelebration(xpResult);
+    if (typeof launchOnboardingConfetti === 'function') launchOnboardingConfetti();
 }
 window.finishWorksheet = finishWorksheet;
+
+function renderWorksheetCelebration(xpResult) {
+    const ws = WORKSHEETS[_currentWorksheet];
+    const content = document.getElementById('worksheetStepContent');
+    const nav = document.getElementById('worksheetNav');
+    const header = document.getElementById('worksheetHeader');
+    if (!content) return;
+
+    if (header) header.innerHTML = `<h2>${ws ? ws.icon : '🎉'} ${ws ? ws.title : 'Worksheet'}</h2>`;
+    if (nav) nav.innerHTML = '';
+
+    let html = '<div class="rs-step-card rs-celebration-card">';
+    html += '<h3 class="rs-celebration-title">Well done!</h3>';
+
+    // XP gain
+    if (xpResult) {
+        html += `<div class="rs-xp-gain">
+            <span class="rs-xp-number">+${xpResult.totalXP} XP</span>
+            <div class="rs-xp-breakdown">${xpResult.breakdown.map(b => `<span class="rs-xp-item">${b.label}: +${b.xp}</span>`).join('')}</div>
+        </div>`;
+
+        if (xpResult.currentLevel) {
+            html += `<div class="rs-level-display">
+                <span class="rs-level-name">${xpResult.currentLevel.icon} ${xpResult.currentLevel.name}</span>
+                <div class="rs-level-bar"><div class="rs-level-fill" style="width: ${xpResult.levelProgress || 0}%"></div></div>
+                <span class="rs-level-xp">${xpResult.currentXP || 0} / ${xpResult.nextLevelXP || 100} XP</span>
+            </div>`;
+        }
+
+        if (xpResult.leveledUp) {
+            html += `<div class="rs-level-up">🎉 Level Up! You are now <strong>${xpResult.currentLevel.name}</strong></div>`;
+        }
+    }
+
+    html += `<p class="rs-encouragement">Every worksheet strengthens your recovery foundation.</p>`;
+    html += `<button class="btn btn-primary rs-next-btn" onclick="closeWorksheet(); loadWorkbookGrid();">Continue</button>`;
+    html += '</div>';
+    content.innerHTML = html;
+}
 
 window.getCopingSuggestions = function(triggerType) {
     if (!_copingToolbox) return [];
