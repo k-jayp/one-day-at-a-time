@@ -1285,14 +1285,15 @@ window.getGameData = async function() {
                 reframeLevel: d.reframeLevel || 1,
                 reframeLevelName: d.reframeLevelName || 'Seedling',
                 reframeBadges: d.reframeBadges || [],
+                gameBadges: d.gameBadges || [],
                 reframeStats: d.reframeStats || { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 },
                 growthLabStats: d.growthLabStats || { worksheetsCompleted: 0 }
             };
         }
-        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Seedling', reframeBadges: [], reframeStats: { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 }, growthLabStats: { worksheetsCompleted: 0 } };
+        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Seedling', reframeBadges: [], gameBadges: [], reframeStats: { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 }, growthLabStats: { worksheetsCompleted: 0 } };
     } catch (e) {
         console.error('Error loading game data:', e);
-        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Seedling', reframeBadges: [], reframeStats: {}, growthLabStats: { worksheetsCompleted: 0 } };
+        return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Seedling', reframeBadges: [], gameBadges: [], reframeStats: {}, growthLabStats: { worksheetsCompleted: 0 } };
     }
 };
 // Backward compat alias
@@ -1308,6 +1309,17 @@ window.saveGameData = async function(data) {
 };
 // Backward compat alias
 window.saveReframeGameData = window.saveGameData;
+
+// Save individual game session results
+window.saveGameSession = async function(sessionData) {
+    if (!currentUser) return;
+    try {
+        const ref = doc(collection(db, 'users', currentUser.uid, 'gameSessions'));
+        await setDoc(ref, { ...sessionData, createdAt: serverTimestamp() });
+    } catch (e) {
+        console.error('Error saving game session:', e);
+    }
+};
 
 // ========== RECOVERY WORKBOOK ==========
 window.saveWorksheetData = async function(worksheetId, data) {
