@@ -3151,73 +3151,81 @@ function saveCopingState() {
 }
 
 // Coping suggestions for urge log integration
-// ========== RECOVERY WORKBOOK ==========
+// ========== GROWTH LAB — Guided AI-Powered Worksheets ==========
 const WORKSHEETS = {
     'core-beliefs': {
         title: 'Core Beliefs Explorer',
         icon: '🧠',
-        description: 'Identify and challenge negative core beliefs',
+        description: 'Uncover and challenge deep beliefs that shape your recovery',
         steps: [
-            { type: 'multi-select', title: 'Select beliefs that resonate with you', options: [
+            { type: 'intro', title: 'Core Beliefs Explorer', body: 'Core beliefs are deep assumptions we hold about ourselves — often formed early in life or reinforced by addiction. They sit beneath our everyday thoughts and quietly shape how we feel, act, and relate to others.\n\nIn this exercise, you\'ll identify beliefs that resonate with you, explore where they show up, and — with a little AI-powered guidance — start building evidence for a more balanced perspective.\n\nThere are no wrong answers. Just honest reflection.' },
+            { type: 'guided-select', title: 'Which beliefs resonate with you?', hint: 'Most people in recovery identify with several of these. Select all that feel true — even if only sometimes.', options: [
                 "I'm not good enough", "I'm unlovable", "I'm worthless", "I'm a failure",
                 "I'm broken", "I don't belong", "I'm helpless", "I can't trust anyone",
                 "I'm different from everyone", "I don't deserve happiness", "I'm weak", "I'm stupid"
             ]},
-            { type: 'textarea', title: 'Describe a situation where this belief showed up', placeholder: 'What happened? How did the belief influence your actions or feelings?' },
-            { type: 'multi-textarea', title: 'List 3 pieces of evidence that contradict this belief', count: 3, placeholder: 'Evidence #' }
+            { type: 'guided-textarea', title: 'When does this belief show up?', hint: 'Think of a recent moment when one of these beliefs felt especially loud. What was happening? How did it affect you?', placeholder: 'Describe a situation where this belief influenced your feelings or actions...', promptPills: ['A time I felt not good enough', 'A conversation that triggered shame', 'A moment I wanted to isolate', 'When I compared myself to others'] },
+            { type: 'ai-analysis', title: 'Your Personalized Insight' },
+            { type: 'reflection', title: 'Building Counter-Evidence', hint: 'Your AI insight suggested some questions to help you find evidence against this belief. Use them as starting points — or write freely.', textareaCount: 3, textareaPlaceholder: 'Evidence that contradicts this belief' },
+            { type: 'guided-textarea', title: 'Your Action Step', hint: 'Based on what you\'ve explored, what\'s one small thing you could do this week to test this belief?', placeholder: 'One concrete action I can take this week...', promptPills: ['Ask someone I trust for honest feedback', 'Notice when the belief isn\'t true', 'Write down one thing I did well each day', 'Challenge the belief out loud when I notice it'] }
         ]
     },
     'strengths': {
         title: 'Strengths & Qualities',
         icon: '💪',
-        description: 'Discover and celebrate your strengths',
+        description: 'Rediscover who you are beneath the addiction',
         steps: [
-            { type: 'multi-textarea', title: 'Things I\'m good at', count: 3, placeholder: 'Strength' },
-            { type: 'multi-textarea', title: 'Challenges I\'ve overcome', count: 3, placeholder: 'Challenge' },
-            { type: 'multi-textarea', title: 'Compliments I\'ve received', count: 3, placeholder: 'Compliment' },
-            { type: 'multi-textarea', title: 'What makes me unique', count: 3, placeholder: 'Quality' },
-            { type: 'multi-textarea', title: 'How I\'ve helped others', count: 3, placeholder: 'Example' },
-            { type: 'multi-textarea', title: 'What I value most', count: 3, placeholder: 'Value' }
+            { type: 'intro', title: 'Strengths & Qualities', body: 'Addiction can make us forget who we really are. It shrinks our identity down to our worst moments and loudest mistakes.\n\nBut you are so much more than that. This exercise helps you reconnect with your strengths — the qualities that have carried you through hard times and are active in your recovery right now.\n\nLet\'s rediscover what makes you, you.' },
+            { type: 'guided-multi-textarea', title: 'What are you good at?', hint: 'These don\'t have to be grand achievements. Cooking a good meal, listening to a friend, staying calm under pressure — it all counts.', count: 3, placeholder: 'Something I\'m good at', promptPills: ['I\'m a good listener', 'I can make people laugh', 'I\'m resilient', 'I\'m creative', 'I\'m a hard worker'] },
+            { type: 'guided-multi-textarea', title: 'What challenges have you overcome?', hint: 'Recovery itself is a massive achievement. What else have you pushed through? Think of moments where you surprised yourself.', count: 3, placeholder: 'A challenge I\'ve overcome', promptPills: ['Getting through my first week', 'Rebuilding a relationship', 'Going back to work/school', 'Asking for help', 'Facing a fear'] },
+            { type: 'guided-multi-textarea', title: 'What do others appreciate about you?', hint: 'What have people told you they value? What do friends, family, or fellows say about you? If you\'re not sure, think about what role you play in your relationships.', count: 3, placeholder: 'Something others appreciate about me', promptPills: ['My honesty', 'My sense of humor', 'My loyalty', 'My kindness', 'My determination'] },
+            { type: 'ai-analysis', title: 'Your Strength Profile' },
+            { type: 'reflection', title: 'Using Your Strengths', hint: 'Your AI insight revealed strengths you might not even see in yourself. How will you put them to use this week?', textareaCount: 1, textareaPlaceholder: 'How I\'ll use my strengths in recovery this week...' }
         ]
     },
     'frustration': {
         title: 'Frustration Tolerance',
         icon: '🌊',
-        description: 'Build healthier responses to frustration',
+        description: 'Build healthier responses to life\'s frustrations',
         steps: [
-            { type: 'multi-select', title: 'Check beliefs that contribute to your frustration', options: [
+            { type: 'intro', title: 'Frustration Tolerance', body: 'Frustration is one of the most common relapse triggers. When things don\'t go our way, old patterns kick in — we react instead of respond, and we reach for what used to numb the feeling.\n\nThis exercise helps you understand your frustration patterns, identify the beliefs underneath them, and build a personalized coping plan with AI-guided insight.\n\nLearning to sit with frustration without acting on it is one of the most powerful skills in recovery.' },
+            { type: 'guided-select', title: 'Which frustration beliefs feel familiar?', hint: 'These are common beliefs that fuel frustration. Check all that apply — no judgment. Awareness is the first step.', options: [
                 "Things should always go my way", "I can't stand being uncomfortable",
                 "Life should be fair", "People should behave the way I want",
                 "I shouldn't have to wait", "It's terrible when things go wrong",
                 "I can't cope with this", "This will never get better"
             ]},
-            { type: 'textarea', title: 'Write your frustration story', placeholder: 'Describe a recent frustrating situation and how you reacted...' },
-            { type: 'multi-select', title: 'Select challenge thoughts that help', options: [
+            { type: 'guided-textarea', title: 'Tell your frustration story', hint: 'Think of a recent time frustration got the best of you. What happened? How did you react? What did it cost you?', placeholder: 'Describe a recent frustrating situation and how you reacted...', promptPills: ['A time I lost my temper', 'When something felt deeply unfair', 'A situation I couldn\'t control', 'When someone let me down'] },
+            { type: 'ai-analysis', title: 'Your Frustration Pattern' },
+            { type: 'guided-select', title: 'Choose coping thoughts that resonate', hint: 'Based on your AI insight, which of these challenge thoughts feel like ones you could actually use?', options: [
                 "I can handle discomfort", "This feeling is temporary",
                 "I've dealt with worse before", "Getting upset won't change the situation",
                 "I can choose my response", "Frustration is normal but doesn't have to control me",
                 "I can problem-solve instead of reacting", "This is an opportunity to practice patience"
             ]},
-            { type: 'textarea', title: 'Write your chosen coping thoughts', placeholder: 'What will you tell yourself next time frustration arises?' }
+            { type: 'reflection', title: 'Your Coping Plan', hint: 'Now pull it all together. What will you tell yourself — and do — next time frustration shows up?', textareaCount: 1, textareaPlaceholder: 'My plan for the next time frustration arises...' }
         ]
     },
     'values': {
         title: 'Values Clarification',
         icon: '🧭',
-        description: 'Understand what matters most and close the gap',
+        description: 'Rediscover what matters and align your life with it',
         steps: [
-            { type: 'value-rating', title: 'Rate the importance of each value (1-10)', values: ['Family','Career','Relationships','Health','Spirituality','Community','Growth','Fun'], ratingType: 'importance' },
-            { type: 'value-rating', title: 'Rate your current alignment (1-10)', values: ['Family','Career','Relationships','Health','Spirituality','Community','Growth','Fun'], ratingType: 'alignment' },
-            { type: 'value-gap', title: 'Your values gap chart' },
-            { type: 'textarea', title: 'Choose one value to focus on this week', placeholder: 'Which value has the biggest gap? What one small action can you take this week?' }
+            { type: 'intro', title: 'Values Clarification', body: 'In active addiction, our values get buried. We say family matters most, but our actions tell a different story. Recovery is about closing that gap — rediscovering what truly matters and learning to live in alignment with it.\n\nThis exercise will help you rate what\'s important to you, honestly assess how well you\'re living those values, and create a concrete plan to close the biggest gaps.\n\nGaps aren\'t failures — they\'re information. They show you where to focus next.' },
+            { type: 'value-rating', title: 'How important is each value to you?', hint: 'Rate each value from 1 (not important) to 10 (extremely important). Go with your gut — there are no right answers.', values: ['Family','Career','Relationships','Health','Spirituality','Community','Growth','Fun'], ratingType: 'importance' },
+            { type: 'value-rating', title: 'How aligned are you with each value right now?', hint: 'Be honest with yourself. A low number doesn\'t mean failure — it means there\'s an opportunity to grow. Rate 1 (not at all aligned) to 10 (fully living this value).', values: ['Family','Career','Relationships','Health','Spirituality','Community','Growth','Fun'], ratingType: 'alignment' },
+            { type: 'value-gap', title: 'Your Values Gap Chart' },
+            { type: 'ai-analysis', title: 'Your Values Insight' },
+            { type: 'reflection', title: 'Your Weekly Challenge', hint: 'Your AI insight identified where the biggest gaps are and suggested a challenge. Pick one value to focus on this week.', textareaCount: 1, textareaPlaceholder: 'The value I\'ll focus on this week and what I\'ll do...' }
         ]
     },
     'treatment-attitudes': {
         title: 'Treatment Attitudes',
         icon: '📋',
-        description: 'Check your readiness and openness to treatment',
+        description: 'Check in with your openness and readiness for recovery',
         steps: [
-            { type: 'true-false', title: 'Respond to each statement', statements: [
+            { type: 'intro', title: 'Treatment Attitudes', body: 'This isn\'t a test — it\'s a check-in with yourself about where you stand right now in your recovery journey.\n\nEvery answer reveals something valuable. Saying "False" to a statement isn\'t a failure — it\'s honesty, and honesty is the foundation of recovery.\n\nAnswer based on where you are TODAY, not where you think you should be.' },
+            { type: 'true-false', title: 'Respond to each statement honestly', hint: 'Remember: there are no wrong answers. This is between you and your recovery.', statements: [
                 'I am willing to try new approaches to recovery',
                 'I believe I can change my life for the better',
                 'I am honest with my counselor/sponsor',
@@ -3233,7 +3241,9 @@ const WORKSHEETS = {
                 'I am patient with my progress',
                 'I forgive myself for past mistakes',
                 'I see setbacks as learning opportunities'
-            ]}
+            ]},
+            { type: 'ai-analysis', title: 'Your Readiness Profile' },
+            { type: 'reflection', title: 'Your Next Step', hint: 'Your AI insight highlighted growth areas as opportunities, not deficits. Pick one area and write a small, concrete step you can take.', textareaCount: 1, textareaPlaceholder: 'One small step I can take to strengthen my recovery this week...' }
         ]
     }
 };
@@ -3241,6 +3251,8 @@ const WORKSHEETS = {
 let _currentWorksheet = null;
 let _currentWsStep = 0;
 let _worksheetData = {};
+let _wsAiInsight = null;
+let _wsReviewMode = false;
 
 async function loadWorkbookGrid() {
     const grid = document.getElementById('workbookGrid');
@@ -3296,11 +3308,23 @@ async function openWorksheet(worksheetId) {
     _currentWorksheet = worksheetId;
     _currentWsStep = 0;
     _worksheetData = {};
+    _wsAiInsight = null;
+    _wsReviewMode = false;
 
     if (typeof window.loadWorksheetData === 'function') {
         const saved = await window.loadWorksheetData(worksheetId);
-        if (saved && saved.data) {
-            _worksheetData = saved.data;
+        if (saved) {
+            if (saved.data) _worksheetData = saved.data;
+            if (saved.aiInsight) _wsAiInsight = saved.aiInsight;
+            // If completed with XP already awarded → show review mode
+            if (saved.completed && saved.xpAwarded) {
+                _wsReviewMode = true;
+                const overlay = document.getElementById('worksheetOverlay');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                renderWorksheetReview();
+                return;
+            }
             _currentWsStep = saved.currentStep || 0;
         }
     }
@@ -3317,10 +3341,136 @@ function closeWorksheet() {
     overlay.classList.remove('active');
     document.body.style.overflow = '';
     _currentWorksheet = null;
+    _wsAiInsight = null;
+    _wsReviewMode = false;
     loadWorkbookGrid();
 }
 window.closeWorksheet = closeWorksheet;
 
+// ===== Review Mode =====
+function renderWorksheetReview() {
+    const ws = WORKSHEETS[_currentWorksheet];
+    if (!ws) return;
+    const header = document.getElementById('worksheetHeader');
+    const content = document.getElementById('worksheetStepContent');
+    const nav = document.getElementById('worksheetNav');
+
+    if (header) header.innerHTML = `<h3>${ws.icon} ${ws.title}</h3><span class="worksheet-badge completed-badge" style="display:inline-block;margin-top:4px;">Completed ✓</span>`;
+    if (nav) nav.innerHTML = `
+        <button class="btn btn-secondary" onclick="wsRedoWorksheet()">Redo This Worksheet</button>
+        <button class="btn btn-primary" onclick="closeWorksheet()">Back to Growth Lab</button>
+    `;
+
+    let html = '<div class="ws-review-container">';
+
+    // Walk through each step and render read-only summaries
+    ws.steps.forEach((step, i) => {
+        const stepKey = `step_${i}`;
+        const saved = _worksheetData[stepKey] || {};
+
+        if (step.type === 'intro' || step.type === 'ai-analysis') return; // Skip intro and AI analysis steps in review
+
+        html += `<div class="ws-review-section">`;
+        html += `<h4 class="ws-review-section-title">${step.title}</h4>`;
+
+        switch (step.type) {
+            case 'guided-select':
+            case 'multi-select':
+                if (saved.selected && saved.selected.length > 0) {
+                    html += '<div class="ws-review-pills">';
+                    saved.selected.forEach(s => { html += `<span class="ws-review-pill">${escapeHtml(s)}</span>`; });
+                    html += '</div>';
+                } else {
+                    html += '<p class="ws-review-empty">No selections made</p>';
+                }
+                break;
+            case 'guided-textarea':
+                html += saved.text ? `<p class="ws-review-text">${escapeHtml(saved.text)}</p>` : '<p class="ws-review-empty">No response</p>';
+                break;
+            case 'guided-multi-textarea':
+            case 'multi-textarea':
+                if (saved.texts && saved.texts.some(t => t && t.trim())) {
+                    html += '<ul class="ws-review-list">';
+                    saved.texts.forEach(t => { if (t && t.trim()) html += `<li>${escapeHtml(t)}</li>`; });
+                    html += '</ul>';
+                } else {
+                    html += '<p class="ws-review-empty">No responses</p>';
+                }
+                break;
+            case 'value-rating':
+                if (saved.ratings) {
+                    html += '<div class="ws-review-ratings">';
+                    Object.entries(saved.ratings).forEach(([val, r]) => {
+                        html += `<div class="ws-review-rating-row"><span>${val}</span><span class="ws-review-rating-val">${r}/10</span></div>`;
+                    });
+                    html += '</div>';
+                }
+                break;
+            case 'value-gap':
+                html += renderValueGapChart();
+                break;
+            case 'true-false':
+                if (saved.answers) {
+                    const trueCount = Object.values(saved.answers).filter(v => v === true).length;
+                    const total = step.statements.length;
+                    const pct = Math.round((trueCount / total) * 100);
+                    html += `<p class="ws-review-score"><strong>${trueCount}/${total} (${pct}%)</strong></p>`;
+                    html += '<div class="ws-review-tf">';
+                    step.statements.forEach((stmt, si) => {
+                        const a = saved.answers[si];
+                        html += `<div class="ws-review-tf-row ${a ? 'true' : 'false'}"><span class="ws-review-tf-icon">${a ? '✓' : '✗'}</span><span>${escapeHtml(stmt)}</span></div>`;
+                    });
+                    html += '</div>';
+                }
+                break;
+            case 'reflection':
+                if (saved.text) {
+                    html += `<p class="ws-review-text">${escapeHtml(saved.text)}</p>`;
+                } else if (saved.texts && saved.texts.some(t => t && t.trim())) {
+                    html += '<ul class="ws-review-list">';
+                    saved.texts.forEach(t => { if (t && t.trim()) html += `<li>${escapeHtml(t)}</li>`; });
+                    html += '</ul>';
+                } else {
+                    html += '<p class="ws-review-empty">No reflection written</p>';
+                }
+                break;
+        }
+
+        html += '</div>';
+    });
+
+    // Show AI insight if saved
+    if (_wsAiInsight) {
+        html += '<div class="ws-review-section ws-review-ai">';
+        html += '<h4 class="ws-review-section-title">AI Insight</h4>';
+        html += renderWsAIInsightContent(_currentWorksheet, _wsAiInsight);
+        html += '</div>';
+    }
+
+    html += '</div>';
+    content.innerHTML = html;
+}
+
+function wsRedoWorksheet() {
+    const worksheetId = _currentWorksheet;
+    _worksheetData = {};
+    _wsAiInsight = null;
+    _wsReviewMode = false;
+    _currentWsStep = 0;
+    // Save cleared state (keep completed flag but reset data)
+    if (typeof window.saveWorksheetData === 'function') {
+        window.saveWorksheetData(worksheetId, {
+            data: {},
+            currentStep: 0,
+            completed: false,
+            xpAwarded: false
+        });
+    }
+    renderWorksheetStep();
+}
+window.wsRedoWorksheet = wsRedoWorksheet;
+
+// ===== Main Step Renderer =====
 function renderWorksheetStep() {
     const ws = WORKSHEETS[_currentWorksheet];
     if (!ws) return;
@@ -3330,88 +3480,508 @@ function renderWorksheetStep() {
     const nav = document.getElementById('worksheetNav');
     const totalSteps = ws.steps.length;
 
-    header.innerHTML = `<h3>${ws.icon} ${ws.title}</h3><p class="worksheet-progress">Step ${_currentWsStep + 1} of ${totalSteps}</p>`;
+    // Progress bar
+    const progressPct = Math.round(((_currentWsStep) / (totalSteps - 1)) * 100);
+    header.innerHTML = `
+        <h3>${ws.icon} ${ws.title}</h3>
+        <div class="ws-progress-bar"><div class="ws-progress-fill" style="width:${progressPct}%"></div></div>
+        <p class="worksheet-progress">Step ${_currentWsStep + 1} of ${totalSteps}</p>
+    `;
 
-    let html = `<h4 class="worksheet-step-title">${step.title}</h4>`;
     const stepKey = `step_${_currentWsStep}`;
     const saved = _worksheetData[stepKey] || {};
 
+    // Render based on step type
     switch (step.type) {
-        case 'multi-select':
-            html += '<div class="worksheet-options">';
-            step.options.forEach((opt, i) => {
-                const checked = (saved.selected || []).includes(opt);
-                html += `<button class="worksheet-option ${checked ? 'selected' : ''}" onclick="toggleWsOption(this, '${stepKey}')">${opt}</button>`;
-            });
-            html += '</div>';
+        case 'intro':
+            renderWsIntro(content, step);
             break;
-        case 'textarea':
-            html += `<textarea class="worksheet-textarea" id="wsTextarea" placeholder="${step.placeholder || ''}" onchange="saveWsText('${stepKey}', this.value)">${saved.text || ''}</textarea>`;
+        case 'guided-select':
+            renderWsGuidedSelect(content, step, stepKey, saved);
             break;
-        case 'multi-textarea':
-            html += '<div class="worksheet-multi-inputs">';
-            for (let i = 0; i < step.count; i++) {
-                html += `<input type="text" class="worksheet-text-input" placeholder="${step.placeholder} ${i+1}" value="${(saved.texts || [])[i] || ''}" onchange="saveWsMultiText('${stepKey}', ${i}, this.value)">`;
-            }
-            html += '</div>';
+        case 'guided-textarea':
+            renderWsGuidedTextarea(content, step, stepKey, saved);
+            break;
+        case 'guided-multi-textarea':
+            renderWsGuidedMultiTextarea(content, step, stepKey, saved);
+            break;
+        case 'ai-analysis':
+            renderWsAIStep(content, step);
+            break;
+        case 'reflection':
+            renderWsReflection(content, step, stepKey, saved);
             break;
         case 'value-rating':
-            html += '<div class="worksheet-value-ratings">';
-            step.values.forEach(val => {
-                const rating = (saved.ratings || {})[val] || 5;
-                html += `<div class="value-rating-row">
-                    <span class="value-rating-label">${val}</span>
-                    <input type="range" min="1" max="10" value="${rating}" class="value-slider" onchange="saveWsRating('${stepKey}','${val}',this.value)">
-                    <span class="value-rating-num">${rating}</span>
-                </div>`;
-            });
-            html += '</div>';
+            renderWsValueRating(content, step, stepKey, saved);
             break;
         case 'value-gap':
-            html += renderValueGapChart();
+            renderWsValueGap(content, step);
             break;
         case 'true-false':
-            html += '<div class="worksheet-tf-list">';
-            step.statements.forEach((stmt, i) => {
-                const answer = (saved.answers || {})[i];
-                html += `<div class="tf-statement">
-                    <p>${stmt}</p>
-                    <div class="tf-buttons">
-                        <button class="tf-btn ${answer === true ? 'selected true' : ''}" onclick="saveWsTF('${stepKey}',${i},true)">True</button>
-                        <button class="tf-btn ${answer === false ? 'selected false' : ''}" onclick="saveWsTF('${stepKey}',${i},false)">False</button>
-                    </div>
-                </div>`;
-            });
-            html += '</div>';
-            // Show score if all answered
-            const answers = saved.answers || {};
-            const answered = Object.keys(answers).length;
-            if (answered === step.statements.length) {
-                const trueCount = Object.values(answers).filter(v => v === true).length;
-                const pct = Math.round((trueCount / step.statements.length) * 100);
-                html += `<div class="tf-score"><strong>Score: ${trueCount}/${step.statements.length} (${pct}%)</strong><p>${pct >= 80 ? 'Strong treatment engagement!' : pct >= 60 ? 'Good foundation — keep building!' : 'Consider discussing openness to change with your support system.'}</p></div>`;
+            renderWsTrueFalse(content, step, stepKey, saved);
+            break;
+        default:
+            content.innerHTML = `<p>Unknown step type: ${step.type}</p>`;
+    }
+
+    // Nav buttons — intro has its own "Let's Begin" button; ai-analysis has no nav
+    if (step.type === 'intro' || step.type === 'ai-analysis') {
+        nav.innerHTML = '';
+    } else {
+        const isFirst = _currentWsStep === 0;
+        const isLast = _currentWsStep === totalSteps - 1;
+        nav.innerHTML = `
+            <button class="btn btn-secondary" ${isFirst ? 'disabled' : ''} onclick="prevWorksheetStep()">Back</button>
+            ${isLast ? '<button class="btn btn-primary" onclick="finishWorksheet()">Complete</button>' : '<button class="btn btn-primary" onclick="nextWorksheetStep()">Next</button>'}
+        `;
+    }
+}
+
+// ===== Intro Step =====
+function renderWsIntro(el, step) {
+    const paragraphs = step.body.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('');
+    el.innerHTML = `
+        <div class="rs-step-card ws-intro-card">
+            <h3 class="rs-step-title">${step.title}</h3>
+            <div class="ws-intro-body">${paragraphs}</div>
+            <button class="btn btn-primary rs-next-btn" onclick="nextWorksheetStep()">Let's Begin</button>
+        </div>
+    `;
+}
+
+// ===== Guided Select =====
+function renderWsGuidedSelect(el, step, stepKey, saved) {
+    let html = `<div class="rs-step-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    if (step.hint) html += `<p class="rs-step-hint">${step.hint}</p>`;
+    html += '<div class="worksheet-options">';
+    step.options.forEach(opt => {
+        const checked = (saved.selected || []).includes(opt);
+        html += `<button class="worksheet-option ${checked ? 'selected' : ''}" onclick="toggleWsOption(this, '${stepKey}')">${escapeHtml(opt)}</button>`;
+    });
+    html += '</div></div>';
+    el.innerHTML = html;
+}
+
+// ===== Guided Textarea =====
+function renderWsGuidedTextarea(el, step, stepKey, saved) {
+    let html = `<div class="rs-step-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    if (step.hint) html += `<p class="rs-step-hint">${step.hint}</p>`;
+    if (step.promptPills && step.promptPills.length > 0) {
+        html += `<div class="rs-prompt-pills">`;
+        step.promptPills.forEach(pill => {
+            html += `<button class="rs-prompt-pill" onclick="selectWsPromptPill(this, '${stepKey}')">${escapeHtml(pill)}</button>`;
+        });
+        html += `</div>`;
+    }
+    html += `<textarea class="worksheet-textarea" id="wsTextarea_${stepKey}" placeholder="${step.placeholder || ''}" oninput="saveWsText('${stepKey}', this.value)">${saved.text || ''}</textarea>`;
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+// ===== Guided Multi-Textarea =====
+function renderWsGuidedMultiTextarea(el, step, stepKey, saved) {
+    let html = `<div class="rs-step-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    if (step.hint) html += `<p class="rs-step-hint">${step.hint}</p>`;
+    if (step.promptPills && step.promptPills.length > 0) {
+        html += `<div class="rs-prompt-pills">`;
+        step.promptPills.forEach(pill => {
+            html += `<button class="rs-prompt-pill" onclick="selectWsPromptPill(this, '${stepKey}')">${escapeHtml(pill)}</button>`;
+        });
+        html += `</div>`;
+    }
+    html += '<div class="worksheet-multi-inputs">';
+    for (let i = 0; i < step.count; i++) {
+        html += `<input type="text" class="worksheet-text-input" placeholder="${step.placeholder} ${i + 1}" value="${escapeHtml((saved.texts || [])[i] || '')}" oninput="saveWsMultiText('${stepKey}', ${i}, this.value)">`;
+    }
+    html += '</div></div>';
+    el.innerHTML = html;
+}
+
+// ===== AI Analysis Step =====
+function renderWsAIStep(content, step) {
+    // If we already have an insight, show it
+    if (_wsAiInsight) {
+        renderWsAIInsight(content, step);
+        return;
+    }
+    // Otherwise trigger the AI call
+    renderWsAILoading(content);
+    wsRequestAIAnalysis();
+}
+
+function renderWsAILoading(el) {
+    el.innerHTML = `
+        <div class="rs-step-card rs-loading-card">
+            <div class="rs-loading-brain">
+                <span class="rs-loading-icon">🧠</span>
+                <div class="rs-loading-sparkles">
+                    <span class="rs-sparkle">✨</span>
+                    <span class="rs-sparkle">✨</span>
+                    <span class="rs-sparkle">✨</span>
+                </div>
+            </div>
+            <h3 class="rs-step-title">Analyzing your responses...</h3>
+            <p class="rs-step-hint">Creating personalized insight just for you</p>
+            <div class="rs-loading-bar"><div class="rs-loading-fill"></div></div>
+        </div>
+    `;
+}
+
+async function wsRequestAIAnalysis() {
+    try {
+        const payload = buildWsAIPayload(_currentWorksheet);
+        const response = await fetch(RS_WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'worksheet-guide',
+                worksheetType: _currentWorksheet,
+                responses: payload
+            })
+        });
+        const data = await response.json();
+        let text = data.content?.[0]?.text;
+        if (!text) throw new Error('Empty AI response');
+
+        // Strip markdown code fences
+        text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+        const insight = JSON.parse(text);
+        _wsAiInsight = insight;
+
+        // Save AI insight to Firestore
+        try {
+            if (typeof window.saveWorksheetData === 'function') {
+                await window.saveWorksheetData(_currentWorksheet, {
+                    data: _worksheetData,
+                    currentStep: _currentWsStep,
+                    completed: false,
+                    aiInsight: JSON.parse(JSON.stringify(_wsAiInsight))
+                });
             }
+        } catch (e) { console.error('AI insight save error:', e); }
+
+        const content = document.getElementById('worksheetStepContent');
+        const ws = WORKSHEETS[_currentWorksheet];
+        const step = ws.steps[_currentWsStep];
+        renderWsAIInsight(content, step);
+    } catch (err) {
+        console.error('Worksheet AI analysis error:', err);
+        renderWsAIError(document.getElementById('worksheetStepContent'));
+    }
+}
+
+function buildWsAIPayload(worksheetId) {
+    const payload = {};
+    switch (worksheetId) {
+        case 'core-beliefs':
+            payload.selectedBeliefs = (_worksheetData['step_1'] || {}).selected || [];
+            payload.situation = (_worksheetData['step_2'] || {}).text || '';
+            break;
+        case 'strengths':
+            payload.strengths = (_worksheetData['step_1'] || {}).texts || [];
+            payload.challenges = (_worksheetData['step_2'] || {}).texts || [];
+            payload.appreciation = (_worksheetData['step_3'] || {}).texts || [];
+            break;
+        case 'frustration':
+            payload.frustrationBeliefs = (_worksheetData['step_1'] || {}).selected || [];
+            payload.frustrationStory = (_worksheetData['step_2'] || {}).text || '';
+            break;
+        case 'values': {
+            const importRatings = (_worksheetData['step_1'] || {}).ratings || {};
+            const alignRatings = (_worksheetData['step_2'] || {}).ratings || {};
+            payload.importance = importRatings;
+            payload.alignment = alignRatings;
+            payload.gaps = {};
+            Object.keys(importRatings).forEach(v => {
+                payload.gaps[v] = Math.abs((importRatings[v] || 5) - (alignRatings[v] || 5));
+            });
+            break;
+        }
+        case 'treatment-attitudes': {
+            const tfData = (_worksheetData['step_1'] || {}).answers || {};
+            const ws = WORKSHEETS['treatment-attitudes'];
+            const statements = ws.steps[1].statements;
+            payload.responses = {};
+            statements.forEach((stmt, i) => {
+                payload.responses[stmt] = tfData[i] === true ? 'True' : tfData[i] === false ? 'False' : 'Unanswered';
+            });
+            const trueCount = Object.values(tfData).filter(v => v === true).length;
+            payload.score = `${trueCount}/${statements.length}`;
+            break;
+        }
+    }
+    return payload;
+}
+
+function renderWsAIInsight(el, step) {
+    let html = `<div class="rs-step-card ws-insight-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    html += renderWsAIInsightContent(_currentWorksheet, _wsAiInsight);
+    html += `<button class="btn btn-primary rs-next-btn" onclick="nextWorksheetStep()">Continue</button>`;
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+function renderWsAIInsightContent(worksheetId, insight) {
+    if (!insight) return '<p>No AI insight available.</p>';
+    let html = '';
+
+    switch (worksheetId) {
+        case 'core-beliefs':
+            if (insight.theme) html += `<div class="ws-insight-badge">${escapeHtml(insight.theme)}</div>`;
+            if (insight.insight) html += `<p class="ws-insight-text">${escapeHtml(insight.insight)}</p>`;
+            if (insight.suggestedReframe) html += `<div class="ws-insight-reframe"><strong>A gentler truth:</strong> ${escapeHtml(insight.suggestedReframe)}</div>`;
+            if (insight.affirmation) html += `<p class="ws-insight-affirmation">${escapeHtml(insight.affirmation)}</p>`;
+            if (insight.actionStep) html += `<div class="ws-insight-action"><strong>This week:</strong> ${escapeHtml(insight.actionStep)}</div>`;
+            break;
+        case 'strengths':
+            if (insight.strengthProfile) html += `<p class="ws-insight-text">${escapeHtml(insight.strengthProfile)}</p>`;
+            if (insight.topThemes && insight.topThemes.length > 0) {
+                html += '<div class="ws-insight-themes">';
+                insight.topThemes.forEach(t => { html += `<span class="ws-insight-theme-pill">${escapeHtml(t)}</span>`; });
+                html += '</div>';
+            }
+            if (insight.connections) html += `<p class="ws-insight-text">${escapeHtml(insight.connections)}</p>`;
+            if (insight.hiddenStrength) html += `<div class="ws-hidden-strength"><strong>A strength you might not see:</strong> ${escapeHtml(insight.hiddenStrength)}</div>`;
+            if (insight.affirmation) html += `<p class="ws-insight-affirmation">${escapeHtml(insight.affirmation)}</p>`;
+            if (insight.actionStep) html += `<div class="ws-insight-action"><strong>This week:</strong> ${escapeHtml(insight.actionStep)}</div>`;
+            break;
+        case 'frustration':
+            if (insight.pattern) html += `<div class="ws-insight-badge">${escapeHtml(insight.pattern)}</div>`;
+            if (insight.triggerInsight) html += `<p class="ws-insight-text">${escapeHtml(insight.triggerInsight)}</p>`;
+            if (insight.copingSuggestions && insight.copingSuggestions.length > 0) {
+                html += '<div class="ws-insight-coping"><strong>Coping strategies for you:</strong><ul>';
+                insight.copingSuggestions.forEach(s => { html += `<li>${escapeHtml(s)}</li>`; });
+                html += '</ul></div>';
+            }
+            if (insight.reframedNarrative) html += `<div class="ws-insight-reframe"><strong>Another way to see it:</strong> ${escapeHtml(insight.reframedNarrative)}</div>`;
+            if (insight.affirmation) html += `<p class="ws-insight-affirmation">${escapeHtml(insight.affirmation)}</p>`;
+            if (insight.actionStep) html += `<div class="ws-insight-action"><strong>This week:</strong> ${escapeHtml(insight.actionStep)}</div>`;
+            break;
+        case 'values':
+            if (insight.valueProfile) html += `<p class="ws-insight-text">${escapeHtml(insight.valueProfile)}</p>`;
+            if (insight.biggestGaps && insight.biggestGaps.length > 0) {
+                html += '<div class="ws-insight-gaps"><strong>Biggest gaps:</strong>';
+                insight.biggestGaps.forEach(g => {
+                    html += `<div class="ws-insight-gap-item"><span class="ws-insight-gap-value">${escapeHtml(g.value)}</span> <span class="ws-insight-gap-num">Gap: ${g.gap}</span><p>${escapeHtml(g.insight)}</p></div>`;
+                });
+                html += '</div>';
+            }
+            if (insight.alignmentWins && insight.alignmentWins.length > 0) {
+                html += '<div class="ws-insight-wins"><strong>Where you\'re aligned:</strong><ul>';
+                insight.alignmentWins.forEach(w => { html += `<li>${escapeHtml(w)}</li>`; });
+                html += '</ul></div>';
+            }
+            if (insight.connectionToRecovery) html += `<p class="ws-insight-text">${escapeHtml(insight.connectionToRecovery)}</p>`;
+            if (insight.weeklyChallenge) html += `<div class="ws-insight-action"><strong>Your weekly challenge:</strong> ${escapeHtml(insight.weeklyChallenge)}</div>`;
+            if (insight.affirmation) html += `<p class="ws-insight-affirmation">${escapeHtml(insight.affirmation)}</p>`;
+            break;
+        case 'treatment-attitudes':
+            if (insight.overallReadiness) {
+                const badgeClass = insight.overallReadiness === 'high' ? 'high' : insight.overallReadiness === 'moderate' ? 'moderate' : 'developing';
+                html += `<div class="ws-readiness-badge ws-readiness-${badgeClass}">${insight.overallReadiness.charAt(0).toUpperCase() + insight.overallReadiness.slice(1)} Readiness</div>`;
+            }
+            if (insight.scoreInterpretation) html += `<p class="ws-insight-text">${escapeHtml(insight.scoreInterpretation)}</p>`;
+            if (insight.strengths && insight.strengths.length > 0) {
+                html += '<div class="ws-insight-wins"><strong>Your strengths:</strong><ul>';
+                insight.strengths.forEach(s => { html += `<li>${escapeHtml(s)}</li>`; });
+                html += '</ul></div>';
+            }
+            if (insight.growthAreas && insight.growthAreas.length > 0) {
+                html += '<div class="ws-insight-growth"><strong>Areas to explore:</strong><ul>';
+                insight.growthAreas.forEach(g => { html += `<li>${escapeHtml(g)}</li>`; });
+                html += '</ul></div>';
+            }
+            if (insight.encouragement) html += `<p class="ws-insight-affirmation">${escapeHtml(insight.encouragement)}</p>`;
+            if (insight.nextStep) html += `<div class="ws-insight-action"><strong>Your next step:</strong> ${escapeHtml(insight.nextStep)}</div>`;
             break;
     }
 
-    content.innerHTML = html;
+    return html;
+}
 
-    // Nav buttons
-    const isFirst = _currentWsStep === 0;
-    const isLast = _currentWsStep === totalSteps - 1;
-    nav.innerHTML = `
-        <button class="btn btn-secondary" ${isFirst ? 'disabled' : ''} onclick="prevWorksheetStep()">Back</button>
-        ${isLast ? '<button class="btn btn-primary" onclick="finishWorksheet()">Complete</button>' : '<button class="btn btn-primary" onclick="nextWorksheetStep()">Next</button>'}
+function renderWsAIError(el) {
+    el.innerHTML = `
+        <div class="rs-step-card">
+            <h3 class="rs-step-title">Couldn't generate insight right now</h3>
+            <p class="rs-step-hint">The AI analysis didn't complete. You can try again or continue without it — your responses are still saved.</p>
+            <button class="btn btn-primary rs-next-btn" onclick="wsRetryAI()">Try Again</button>
+            <button class="btn rs-next-btn rs-secondary-btn" onclick="wsSkipAI()">Continue Without AI</button>
+        </div>
     `;
+}
+
+function wsRetryAI() {
+    const content = document.getElementById('worksheetStepContent');
+    renderWsAILoading(content);
+    wsRequestAIAnalysis();
+}
+window.wsRetryAI = wsRetryAI;
+
+function wsSkipAI() {
+    _wsAiInsight = null;
+    nextWorksheetStep();
+}
+window.wsSkipAI = wsSkipAI;
+
+// ===== Reflection Step =====
+function renderWsReflection(el, step, stepKey, saved) {
+    let html = `<div class="rs-step-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    if (step.hint) html += `<p class="rs-step-hint">${step.hint}</p>`;
+
+    // Show AI-generated prompt pills if available
+    const aiPrompts = getAIReflectionPrompts(_currentWorksheet, _wsAiInsight);
+    if (aiPrompts.length > 0) {
+        html += `<div class="rs-prompt-pills">`;
+        aiPrompts.forEach(pill => {
+            html += `<button class="rs-prompt-pill" onclick="selectWsPromptPill(this, '${stepKey}')">${escapeHtml(pill)}</button>`;
+        });
+        html += `</div>`;
+    }
+
+    // Show AI suggestion card if available
+    const aiSuggestion = getAISuggestion(_currentWorksheet, _wsAiInsight);
+    if (aiSuggestion) {
+        html += `<div class="ws-ai-suggestion">
+            <p class="ws-ai-suggestion-label">AI suggestion:</p>
+            <p class="ws-ai-suggestion-text">${escapeHtml(aiSuggestion)}</p>
+            <button class="btn btn-secondary ws-use-suggestion-btn" onclick="useWsAISuggestion('${stepKey}')">Use as starting point</button>
+        </div>`;
+    }
+
+    if (step.textareaCount && step.textareaCount > 1) {
+        html += '<div class="worksheet-multi-inputs">';
+        for (let i = 0; i < step.textareaCount; i++) {
+            html += `<textarea class="worksheet-textarea ws-reflection-textarea" id="wsReflection_${stepKey}_${i}" placeholder="${step.textareaPlaceholder || ''} ${i + 1}" oninput="saveWsReflectionMulti('${stepKey}', ${i}, this.value)">${(saved.texts || [])[i] || ''}</textarea>`;
+        }
+        html += '</div>';
+    } else {
+        html += `<textarea class="worksheet-textarea ws-reflection-textarea" id="wsReflection_${stepKey}" placeholder="${step.textareaPlaceholder || ''}" oninput="saveWsText('${stepKey}', this.value)">${saved.text || ''}</textarea>`;
+    }
+
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+function getAIReflectionPrompts(worksheetId, insight) {
+    if (!insight) return [];
+    switch (worksheetId) {
+        case 'core-beliefs': return insight.counterEvidencePrompts || [];
+        case 'strengths': return [];
+        case 'frustration': return insight.copingSuggestions || [];
+        case 'values': return insight.weeklyChallenge ? [insight.weeklyChallenge] : [];
+        case 'treatment-attitudes': return insight.nextStep ? [insight.nextStep] : [];
+        default: return [];
+    }
+}
+
+function getAISuggestion(worksheetId, insight) {
+    if (!insight) return null;
+    switch (worksheetId) {
+        case 'core-beliefs': return insight.suggestedReframe || null;
+        case 'strengths': return insight.actionStep || null;
+        case 'frustration': return insight.reframedNarrative || null;
+        case 'values': return insight.weeklyChallenge || null;
+        case 'treatment-attitudes': return insight.nextStep || null;
+        default: return null;
+    }
+}
+
+// ===== Value Rating =====
+function renderWsValueRating(el, step, stepKey, saved) {
+    let html = `<div class="rs-step-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    if (step.hint) html += `<p class="rs-step-hint">${step.hint}</p>`;
+    html += '<div class="worksheet-value-ratings">';
+    step.values.forEach(val => {
+        const rating = (saved.ratings || {})[val] || 5;
+        html += `<div class="value-rating-row">
+            <span class="value-rating-label">${val}</span>
+            <input type="range" min="1" max="10" value="${rating}" class="value-slider" onchange="saveWsRating('${stepKey}','${val}',this.value)">
+            <span class="value-rating-num">${rating}</span>
+        </div>`;
+    });
+    html += '</div></div>';
+    el.innerHTML = html;
 
     // Attach range slider live update
-    content.querySelectorAll('.value-slider').forEach(slider => {
+    el.querySelectorAll('.value-slider').forEach(slider => {
         slider.addEventListener('input', function() {
             this.nextElementSibling.textContent = this.value;
         });
     });
 }
 
+// ===== Value Gap Chart =====
+function renderWsValueGap(el, step) {
+    let html = `<div class="rs-step-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    html += `<p class="rs-step-hint">Values with a gap of 3+ are highlighted. These aren't failures — they're where you have the most room to grow.</p>`;
+    html += renderValueGapChart();
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+function renderValueGapChart() {
+    const importStep = WORKSHEETS['values'].steps.findIndex(s => s.ratingType === 'importance');
+    const alignStep = WORKSHEETS['values'].steps.findIndex(s => s.ratingType === 'alignment');
+    const importanceData = (_worksheetData[`step_${importStep}`] || {}).ratings || {};
+    const alignmentData = (_worksheetData[`step_${alignStep}`] || {}).ratings || {};
+    const values = WORKSHEETS['values'].steps[importStep].values;
+    let html = '<div class="gap-chart">';
+    values.forEach(val => {
+        const imp = importanceData[val] || 5;
+        const align = alignmentData[val] || 5;
+        const gap = Math.abs(imp - align);
+        html += `<div class="gap-chart-row">
+            <span class="gap-chart-label">${val}</span>
+            <div class="gap-chart-bars">
+                <div class="gap-bar importance" style="width:${imp * 10}%"><span>${imp}</span></div>
+                <div class="gap-bar alignment" style="width:${align * 10}%"><span>${align}</span></div>
+            </div>
+            ${gap >= 3 ? '<span class="gap-alert">Gap: ' + gap + '</span>' : ''}
+        </div>`;
+    });
+    html += '<div class="gap-legend"><span class="gap-legend-item importance">Importance</span><span class="gap-legend-item alignment">Alignment</span></div>';
+    html += '</div>';
+    return html;
+}
+
+// ===== True/False =====
+function renderWsTrueFalse(el, step, stepKey, saved) {
+    let html = `<div class="rs-step-card">`;
+    html += `<h3 class="rs-step-title">${step.title}</h3>`;
+    if (step.hint) html += `<p class="rs-step-hint">${step.hint}</p>`;
+    html += '<div class="worksheet-tf-list">';
+    step.statements.forEach((stmt, i) => {
+        const answer = (saved.answers || {})[i];
+        html += `<div class="tf-statement">
+            <p>${escapeHtml(stmt)}</p>
+            <div class="tf-buttons">
+                <button class="tf-btn ${answer === true ? 'selected true' : ''}" onclick="saveWsTF('${stepKey}',${i},true)">True</button>
+                <button class="tf-btn ${answer === false ? 'selected false' : ''}" onclick="saveWsTF('${stepKey}',${i},false)">False</button>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+
+    // Show score if all answered
+    const answers = saved.answers || {};
+    const answered = Object.keys(answers).length;
+    if (answered === step.statements.length) {
+        const trueCount = Object.values(answers).filter(v => v === true).length;
+        const pct = Math.round((trueCount / step.statements.length) * 100);
+        html += `<div class="tf-score"><strong>Score: ${trueCount}/${step.statements.length} (${pct}%)</strong><p>${pct >= 80 ? 'Strong treatment engagement!' : pct >= 60 ? 'Good foundation — keep building!' : 'This is where you are today. Honesty is the first step to growth.'}</p></div>`;
+    }
+    html += '</div>';
+    el.innerHTML = html;
+}
+
+// ===== Data Save Handlers =====
 function toggleWsOption(btn, stepKey) {
     btn.classList.toggle('selected');
     const selected = Array.from(btn.parentElement.querySelectorAll('.selected')).map(b => b.textContent);
@@ -3436,6 +4006,14 @@ function saveWsMultiText(stepKey, index, value) {
 }
 window.saveWsMultiText = saveWsMultiText;
 
+function saveWsReflectionMulti(stepKey, index, value) {
+    if (!_worksheetData[stepKey]) _worksheetData[stepKey] = {};
+    if (!_worksheetData[stepKey].texts) _worksheetData[stepKey].texts = [];
+    _worksheetData[stepKey].texts[index] = value;
+    autoSaveWorksheet();
+}
+window.saveWsReflectionMulti = saveWsReflectionMulti;
+
 function saveWsRating(stepKey, valueName, rating) {
     if (!_worksheetData[stepKey]) _worksheetData[stepKey] = {};
     if (!_worksheetData[stepKey].ratings) _worksheetData[stepKey].ratings = {};
@@ -3453,35 +4031,48 @@ function saveWsTF(stepKey, index, answer) {
 }
 window.saveWsTF = saveWsTF;
 
-function renderValueGapChart() {
-    const importanceData = (_worksheetData['step_0'] || {}).ratings || {};
-    const alignmentData = (_worksheetData['step_1'] || {}).ratings || {};
-    const values = WORKSHEETS['values'].steps[0].values;
-    let html = '<div class="gap-chart">';
-    values.forEach(val => {
-        const imp = importanceData[val] || 5;
-        const align = alignmentData[val] || 5;
-        const gap = Math.abs(imp - align);
-        html += `<div class="gap-chart-row">
-            <span class="gap-chart-label">${val}</span>
-            <div class="gap-chart-bars">
-                <div class="gap-bar importance" style="width:${imp * 10}%"><span>${imp}</span></div>
-                <div class="gap-bar alignment" style="width:${align * 10}%"><span>${align}</span></div>
-            </div>
-            ${gap >= 3 ? '<span class="gap-alert">Gap: ' + gap + '</span>' : ''}
-        </div>`;
-    });
-    html += '<div class="gap-legend"><span class="gap-legend-item importance">Importance</span><span class="gap-legend-item alignment">Alignment</span></div>';
-    html += '</div>';
-    return html;
+// ===== Prompt Pill + AI Suggestion Handlers =====
+function selectWsPromptPill(btn, stepKey) {
+    btn.parentElement.querySelectorAll('.rs-prompt-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    // Find the first empty textarea on the page and insert the pill text
+    const textareas = document.querySelectorAll(`[id^="wsTextarea_${stepKey}"], [id^="wsReflection_${stepKey}"]`);
+    const target = Array.from(textareas).find(ta => !ta.value.trim()) || textareas[0];
+    if (target) {
+        target.value = btn.textContent;
+        target.focus();
+        // Trigger save
+        const match = target.id.match(/wsReflection_(.+?)_(\d+)$/);
+        if (match) {
+            saveWsReflectionMulti(match[1], parseInt(match[2]), target.value);
+        } else {
+            saveWsText(stepKey, target.value);
+        }
+    }
 }
+window.selectWsPromptPill = selectWsPromptPill;
 
+function useWsAISuggestion(stepKey) {
+    const textarea = document.querySelector(`[id^="wsReflection_${stepKey}"], [id^="wsTextarea_${stepKey}"]`);
+    const suggestion = getAISuggestion(_currentWorksheet, _wsAiInsight);
+    if (textarea && suggestion) {
+        textarea.value = suggestion;
+        textarea.focus();
+        saveWsText(stepKey, textarea.value);
+    }
+}
+window.useWsAISuggestion = useWsAISuggestion;
+
+// ===== Navigation =====
 function nextWorksheetStep() {
     const ws = WORKSHEETS[_currentWorksheet];
     if (_currentWsStep < ws.steps.length - 1) {
         _currentWsStep++;
         autoSaveWorksheet();
         renderWorksheetStep();
+        // Scroll to top of overlay
+        const inner = document.querySelector('.worksheet-overlay-inner');
+        if (inner) inner.scrollTop = 0;
     }
 }
 window.nextWorksheetStep = nextWorksheetStep;
@@ -3490,17 +4081,21 @@ function prevWorksheetStep() {
     if (_currentWsStep > 0) {
         _currentWsStep--;
         renderWorksheetStep();
+        const inner = document.querySelector('.worksheet-overlay-inner');
+        if (inner) inner.scrollTop = 0;
     }
 }
 window.prevWorksheetStep = prevWorksheetStep;
 
 async function autoSaveWorksheet() {
     if (typeof window.saveWorksheetData === 'function') {
-        await window.saveWorksheetData(_currentWorksheet, {
+        const saveData = {
             data: _worksheetData,
             currentStep: _currentWsStep,
             completed: false
-        });
+        };
+        if (_wsAiInsight) saveData.aiInsight = JSON.parse(JSON.stringify(_wsAiInsight));
+        await window.saveWorksheetData(_currentWorksheet, saveData);
     }
 }
 
@@ -3510,21 +4105,43 @@ function calculateWorksheetXP(worksheetId) {
     let totalXP = 30;
     breakdown.push({ label: 'Worksheet completed', xp: 30 });
 
-    // Thoroughness bonus: check if all steps have meaningful data
     const ws = WORKSHEETS[worksheetId];
-    if (ws) {
-        let allFilled = true;
-        for (let i = 0; i < ws.steps.length; i++) {
-            const stepData = _worksheetData[`step_${i}`];
-            if (!stepData) { allFilled = false; break; }
-            const step = ws.steps[i];
-            if (step.type === 'multi-select' && (!stepData.selected || stepData.selected.length === 0)) { allFilled = false; break; }
-            if (step.type === 'textarea' && (!stepData.text || stepData.text.trim().length < 5)) { allFilled = false; break; }
-            if (step.type === 'multi-textarea' && (!stepData.texts || stepData.texts.some(t => !t || t.trim().length < 3))) { allFilled = false; break; }
-        }
-        if (allFilled) {
+    if (!ws) return { totalXP, breakdown };
+
+    // Thoroughness bonus — check guided input steps for meaningful data
+    let thoroughSteps = 0;
+    let totalInputSteps = 0;
+    ws.steps.forEach((step, i) => {
+        if (step.type === 'intro' || step.type === 'ai-analysis' || step.type === 'value-gap') return;
+        totalInputSteps++;
+        const stepData = _worksheetData[`step_${i}`];
+        if (!stepData) return;
+        let filled = false;
+        if ((step.type === 'guided-select' || step.type === 'multi-select') && stepData.selected && stepData.selected.length > 0) filled = true;
+        if ((step.type === 'guided-textarea' || step.type === 'reflection') && stepData.text && stepData.text.trim().length >= 5) filled = true;
+        if ((step.type === 'guided-multi-textarea' || step.type === 'multi-textarea') && stepData.texts && stepData.texts.filter(t => t && t.trim().length >= 3).length >= 2) filled = true;
+        if (step.type === 'value-rating' && stepData.ratings && Object.keys(stepData.ratings).length >= 5) filled = true;
+        if (step.type === 'true-false' && stepData.answers && Object.keys(stepData.answers).length === step.statements.length) filled = true;
+        if (filled) thoroughSteps++;
+    });
+    if (totalInputSteps > 0 && thoroughSteps >= totalInputSteps * 0.8) {
+        totalXP += 10;
+        breakdown.push({ label: 'Thoroughness bonus', xp: 10 });
+    }
+
+    // AI engagement bonus
+    if (_wsAiInsight) {
+        totalXP += 10;
+        breakdown.push({ label: 'AI insight received', xp: 10 });
+    }
+
+    // Reflection bonus — check last reflection/action step
+    const lastReflectionIdx = ws.steps.map((s, i) => s.type === 'reflection' ? i : -1).filter(i => i >= 0).pop();
+    if (lastReflectionIdx !== undefined) {
+        const refData = _worksheetData[`step_${lastReflectionIdx}`];
+        if (refData && ((refData.text && refData.text.trim().length >= 10) || (refData.texts && refData.texts.some(t => t && t.trim().length >= 10)))) {
             totalXP += 10;
-            breakdown.push({ label: 'Thoroughness bonus', xp: 10 });
+            breakdown.push({ label: 'Reflection written', xp: 10 });
         }
     }
 
@@ -3532,43 +4149,57 @@ function calculateWorksheetXP(worksheetId) {
 }
 
 async function finishWorksheet() {
-    const xpResult = calculateWorksheetXP(_currentWorksheet);
+    // Check for duplicate XP
+    let alreadyAwarded = false;
+    try {
+        if (typeof window.loadWorksheetData === 'function') {
+            const existing = await window.loadWorksheetData(_currentWorksheet);
+            if (existing && existing.xpAwarded) alreadyAwarded = true;
+        }
+    } catch (e) { console.error('XP check error:', e); }
+
+    const xpResult = alreadyAwarded ? { totalXP: 0, breakdown: [{ label: 'Already completed (no duplicate XP)', xp: 0 }] } : calculateWorksheetXP(_currentWorksheet);
 
     // Save worksheet data — don't let save failure block celebration
     try {
         if (typeof window.saveWorksheetData === 'function') {
-            await window.saveWorksheetData(_currentWorksheet, {
+            const savePayload = {
                 data: _worksheetData,
                 currentStep: _currentWsStep,
                 completed: true,
-                completedAt: new Date().toISOString()
-            });
+                completedAt: new Date().toISOString(),
+                xpAwarded: true,
+                version: 2
+            };
+            if (_wsAiInsight) savePayload.aiInsight = JSON.parse(JSON.stringify(_wsAiInsight));
+            await window.saveWorksheetData(_currentWorksheet, savePayload);
         }
     } catch (e) { console.error('Worksheet save error:', e); }
 
     // Check for all-worksheets bonus
-    try {
-        if (typeof window.loadAllWorksheetStatus === 'function') {
-            const statuses = await window.loadAllWorksheetStatus();
-            const completedCount = Object.values(statuses).filter(s => s.completed).length;
-            // +1 for the one we just completed (it's already saved but count might not include it yet)
-            const totalCompleted = statuses[_currentWorksheet]?.completed ? completedCount : completedCount + 1;
-            if (totalCompleted >= Object.keys(WORKSHEETS).length) {
-                const alreadyAwarded = (await window.getGameData()).growthLabStats?.allWorksheetsBonus;
-                if (!alreadyAwarded) {
-                    xpResult.totalXP += 50;
-                    xpResult.breakdown.push({ label: 'All worksheets completed!', xp: 50 });
+    if (!alreadyAwarded) {
+        try {
+            if (typeof window.loadAllWorksheetStatus === 'function') {
+                const statuses = await window.loadAllWorksheetStatus();
+                const completedCount = Object.values(statuses).filter(s => s.completed).length;
+                const totalCompleted = statuses[_currentWorksheet]?.completed ? completedCount : completedCount + 1;
+                if (totalCompleted >= Object.keys(WORKSHEETS).length) {
+                    const gameData = await window.getGameData();
+                    const alreadyBonused = gameData.growthLabStats?.allWorksheetsBonus;
+                    if (!alreadyBonused) {
+                        xpResult.totalXP += 50;
+                        xpResult.breakdown.push({ label: 'All worksheets completed!', xp: 50 });
+                    }
                 }
+                await window.saveGameData({ growthLabStats: { worksheetsCompleted: totalCompleted, allWorksheetsBonus: totalCompleted >= Object.keys(WORKSHEETS).length } });
             }
-            // Update growthLabStats
-            await window.saveGameData({ growthLabStats: { worksheetsCompleted: totalCompleted, allWorksheetsBonus: totalCompleted >= Object.keys(WORKSHEETS).length } });
-        }
-    } catch (e) { console.error('Worksheet stats error:', e); }
+        } catch (e) { console.error('Worksheet stats error:', e); }
 
-    // Award XP — isolated from save errors
-    try {
-        await awardXP(xpResult);
-    } catch (e) { console.error('XP award error:', e); }
+        // Award XP — isolated from save errors
+        try {
+            await awardXP(xpResult);
+        } catch (e) { console.error('XP award error:', e); }
+    }
 
     // Show celebration in worksheet overlay
     renderWorksheetCelebration(xpResult);
@@ -3590,7 +4221,7 @@ function renderWorksheetCelebration(xpResult) {
     html += '<h3 class="rs-celebration-title">Well done!</h3>';
 
     // XP gain
-    if (xpResult) {
+    if (xpResult && xpResult.totalXP > 0) {
         html += `<div class="rs-xp-gain">
             <span class="rs-xp-number">+${xpResult.totalXP} XP</span>
             <div class="rs-xp-breakdown">${xpResult.breakdown.map(b => `<span class="rs-xp-item">${b.label}: +${b.xp}</span>`).join('')}</div>
@@ -3607,6 +4238,8 @@ function renderWorksheetCelebration(xpResult) {
         if (xpResult.leveledUp) {
             html += `<div class="rs-level-up">🎉 Level Up! You are now <strong>${xpResult.currentLevel.name}</strong></div>`;
         }
+    } else if (xpResult && xpResult.totalXP === 0) {
+        html += '<p class="rs-step-hint">You\'ve already earned XP for this worksheet. Great job revisiting it!</p>';
     }
 
     html += `<p class="rs-encouragement">Every worksheet strengthens your recovery foundation.</p>`;

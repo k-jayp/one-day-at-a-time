@@ -3178,6 +3178,355 @@
     border-top: 1px solid var(--sand);
 }
 
+/* ===== Growth Lab — Guided Worksheet Styles ===== */
+
+/* Progress Bar */
+.ws-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--sand);
+    border-radius: 2px;
+    margin: 0.5rem 0;
+    overflow: hidden;
+}
+.ws-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--sage), var(--terracotta));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+/* Intro Card */
+.ws-intro-card {
+    text-align: center;
+}
+.ws-intro-card .rs-step-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+.ws-intro-body {
+    text-align: left;
+    max-width: 520px;
+    margin: 0 auto 1.5rem;
+}
+.ws-intro-body p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--sage-dark);
+    margin-bottom: 0.8rem;
+}
+
+/* AI Insight Card */
+.ws-insight-card {
+    border-left: 4px solid var(--sage);
+}
+.ws-insight-badge {
+    display: inline-block;
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    background: rgba(74, 124, 89, 0.1);
+    color: var(--sage);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+.ws-insight-text {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--warm-brown);
+    margin-bottom: 0.75rem;
+}
+.ws-insight-reframe {
+    background: rgba(74, 124, 89, 0.06);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--warm-brown);
+}
+.ws-insight-reframe strong {
+    color: var(--sage);
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.ws-insight-affirmation {
+    font-style: italic;
+    color: var(--sage-dark);
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+}
+.ws-insight-action {
+    background: rgba(191, 106, 58, 0.06);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--warm-brown);
+}
+.ws-insight-action strong {
+    color: var(--terracotta);
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.ws-insight-themes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+.ws-insight-theme-pill {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: 14px;
+    background: rgba(191, 106, 58, 0.1);
+    color: var(--terracotta);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* Hidden Strength special card (Strengths worksheet) */
+.ws-hidden-strength {
+    background: linear-gradient(135deg, rgba(242, 201, 76, 0.1), rgba(191, 106, 58, 0.08));
+    border: 1px solid rgba(242, 201, 76, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--warm-brown);
+}
+.ws-hidden-strength strong {
+    color: #B8860B;
+    display: block;
+    margin-bottom: 0.3rem;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Coping & Gaps */
+.ws-insight-coping, .ws-insight-wins, .ws-insight-growth {
+    margin-bottom: 0.75rem;
+}
+.ws-insight-coping strong, .ws-insight-wins strong, .ws-insight-growth strong, .ws-insight-gaps strong {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--sage);
+    margin-bottom: 0.4rem;
+}
+.ws-insight-coping ul, .ws-insight-wins ul, .ws-insight-growth ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+}
+.ws-insight-coping li, .ws-insight-wins li, .ws-insight-growth li {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--warm-brown);
+    margin-bottom: 0.3rem;
+}
+.ws-insight-gaps {
+    margin-bottom: 0.75rem;
+}
+.ws-insight-gap-item {
+    background: rgba(191, 106, 58, 0.05);
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.4rem;
+}
+.ws-insight-gap-value {
+    font-weight: 700;
+    color: var(--warm-brown);
+    font-size: 0.88rem;
+}
+.ws-insight-gap-num {
+    color: var(--terracotta);
+    font-weight: 600;
+    font-size: 0.78rem;
+    margin-left: 0.4rem;
+}
+.ws-insight-gap-item p {
+    font-size: 0.82rem;
+    color: var(--sage-dark);
+    margin: 0.2rem 0 0;
+    line-height: 1.4;
+}
+
+/* Readiness Badge (Treatment Attitudes) */
+.ws-readiness-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+.ws-readiness-high {
+    background: rgba(74, 124, 89, 0.12);
+    color: var(--sage);
+}
+.ws-readiness-moderate {
+    background: rgba(191, 106, 58, 0.12);
+    color: var(--terracotta);
+}
+.ws-readiness-developing {
+    background: rgba(242, 201, 76, 0.15);
+    color: #B8860B;
+}
+
+/* AI Suggestion Card */
+.ws-ai-suggestion {
+    background: rgba(74, 124, 89, 0.06);
+    border: 1px dashed var(--sage);
+    border-radius: 12px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+}
+.ws-ai-suggestion-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sage);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.3rem;
+}
+.ws-ai-suggestion-text {
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+    font-style: italic;
+}
+.ws-use-suggestion-btn {
+    font-size: 0.75rem !important;
+    padding: 0.3rem 0.8rem !important;
+}
+
+/* Reflection textarea */
+.ws-reflection-textarea {
+    min-height: 100px;
+}
+
+/* Review Mode */
+.ws-review-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.ws-review-section {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+}
+.ws-review-section-title {
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    color: var(--warm-brown);
+    margin-bottom: 0.6rem;
+}
+.ws-review-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+.ws-review-pill {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 10px;
+    background: rgba(191, 106, 58, 0.1);
+    color: var(--terracotta);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+.ws-review-text {
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+    line-height: 1.55;
+    margin: 0;
+}
+.ws-review-empty {
+    font-size: 0.82rem;
+    color: var(--sage-dark);
+    font-style: italic;
+    margin: 0;
+}
+.ws-review-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    list-style: disc;
+}
+.ws-review-list li {
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+    line-height: 1.4;
+    margin-bottom: 0.2rem;
+}
+.ws-review-ratings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+.ws-review-rating-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--warm-brown);
+}
+.ws-review-rating-val {
+    font-weight: 600;
+    color: var(--terracotta);
+}
+.ws-review-score {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--warm-brown);
+    margin-bottom: 0.5rem;
+}
+.ws-review-tf {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.ws-review-tf-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--warm-brown);
+}
+.ws-review-tf-row.true {
+    background: rgba(74, 124, 89, 0.06);
+}
+.ws-review-tf-row.false {
+    background: rgba(191, 106, 58, 0.06);
+}
+.ws-review-tf-icon {
+    font-weight: 700;
+    width: 18px;
+    text-align: center;
+}
+.ws-review-tf-row.true .ws-review-tf-icon { color: var(--sage); }
+.ws-review-tf-row.false .ws-review-tf-icon { color: var(--terracotta); }
+
+.ws-review-ai {
+    border-left: 4px solid var(--sage);
+}
+
 
 /* Community Wall */
 .community-container {
@@ -8862,6 +9211,71 @@ body.dark-mode .worksheet-close {
     background: #2a2a2a;
     border-color: rgba(255,255,255,0.12);
     color: var(--sand);
+}
+body.dark-mode .ws-progress-bar {
+    background: rgba(255,255,255,0.1);
+}
+body.dark-mode .ws-intro-body p {
+    color: var(--warm-brown);
+}
+body.dark-mode .ws-insight-card {
+    border-left-color: var(--sage);
+}
+body.dark-mode .ws-insight-badge {
+    background: rgba(90, 155, 110, 0.15);
+}
+body.dark-mode .ws-insight-text,
+body.dark-mode .ws-insight-reframe,
+body.dark-mode .ws-insight-action {
+    color: var(--warm-brown);
+}
+body.dark-mode .ws-insight-reframe {
+    background: rgba(90, 155, 110, 0.08);
+}
+body.dark-mode .ws-insight-action {
+    background: rgba(212, 136, 79, 0.08);
+}
+body.dark-mode .ws-hidden-strength {
+    background: linear-gradient(135deg, rgba(242, 201, 76, 0.08), rgba(212, 136, 79, 0.06));
+    border-color: rgba(242, 201, 76, 0.2);
+}
+body.dark-mode .ws-insight-theme-pill {
+    background: rgba(212, 136, 79, 0.12);
+}
+body.dark-mode .ws-insight-gap-item {
+    background: rgba(212, 136, 79, 0.08);
+}
+body.dark-mode .ws-readiness-high {
+    background: rgba(90, 155, 110, 0.15);
+}
+body.dark-mode .ws-readiness-moderate {
+    background: rgba(212, 136, 79, 0.15);
+}
+body.dark-mode .ws-readiness-developing {
+    background: rgba(242, 201, 76, 0.12);
+}
+body.dark-mode .ws-ai-suggestion {
+    background: rgba(90, 155, 110, 0.08);
+    border-color: rgba(90, 155, 110, 0.3);
+}
+body.dark-mode .ws-ai-suggestion-text {
+    color: var(--warm-brown);
+}
+body.dark-mode .ws-review-section {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+}
+body.dark-mode .ws-review-pill {
+    background: rgba(212, 136, 79, 0.15);
+}
+body.dark-mode .ws-review-tf-row.true {
+    background: rgba(90, 155, 110, 0.08);
+}
+body.dark-mode .ws-review-tf-row.false {
+    background: rgba(212, 136, 79, 0.08);
+}
+body.dark-mode .ws-review-ai {
+    border-left-color: var(--sage);
 }
 
 /* Home section welcome text */
