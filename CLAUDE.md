@@ -135,3 +135,5 @@ Config in `.claude/launch.json`.
 6. **Async error isolation** — Never put save + UI render in the same try block; a Firestore error must not block the user-facing celebration/completion UI
 7. **aiAnalysis sanitization** — Always `JSON.parse(JSON.stringify())` the AI analysis before saving to Firestore to strip non-serializable values
 8. **Schema versioning** — `thoughtLog` entries have `version` field (1, 2, or 3); always check version when reading
+9. **AI response markdown fences** — Claude may wrap JSON responses in `` ```json `` code blocks; always strip markdown fences before `JSON.parse`
+10. **Firestore rules must list every subcollection** — New subcollections under `users/{uid}` need explicit rules in the Firebase Console; a wildcard (`{document=**}`) is NOT used
