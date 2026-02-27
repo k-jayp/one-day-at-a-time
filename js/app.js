@@ -2867,6 +2867,13 @@ async function rsFinish() {
     const xpResult = calculateReframeXP(_rsDraft);
     const distortionNames = _rsDraft.aiAnalysis ? _rsDraft.aiAnalysis.distortions.map(d => d.name) : [];
 
+    // Sanitize aiAnalysis for Firestore — re-serialize to strip any non-JSON-safe values
+    let safeAiAnalysis = null;
+    if (_rsDraft.aiAnalysis) {
+        try { safeAiAnalysis = JSON.parse(JSON.stringify(_rsDraft.aiAnalysis)); } catch (e) { safeAiAnalysis = null; }
+    }
+
+    // Save to Firestore — don't let save failure block the celebration
     try {
         await window.saveThoughtEntry({
             thought: _rsDraft.thought,
@@ -2876,18 +2883,24 @@ async function rsFinish() {
             reframedThought: _rsDraft.reframedThought,
             emotionBefore: _rsDraft.emotionBefore,
             emotionAfter: _rsDraft.emotionAfter,
-            aiAnalysis: _rsDraft.aiAnalysis,
+            aiAnalysis: safeAiAnalysis,
             xpEarned: xpResult.totalXP,
             version: 3
         });
-        await awardReframeXP(xpResult);
-        renderRsCelebration(document.getElementById('rsStepContent'), xpResult);
-        // Fire confetti
-        if (typeof launchOnboardingConfetti === 'function') launchOnboardingConfetti();
     } catch (e) {
         console.error('Save error:', e);
-        showToast('Error saving — try again');
     }
+
+    // Award XP — isolated from save errors
+    try {
+        await awardReframeXP(xpResult);
+    } catch (e) {
+        console.error('XP award error:', e);
+    }
+
+    // Always show celebration regardless of save/XP outcome
+    renderRsCelebration(document.getElementById('rsStepContent'), xpResult);
+    if (typeof launchOnboardingConfetti === 'function') launchOnboardingConfetti();
 }
 window.rsFinish = rsFinish;
 
