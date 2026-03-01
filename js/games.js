@@ -254,60 +254,11 @@ window.closeGame = closeGame;
 
 // ========== CHALLENGES HUB ==========
 async function renderChallengesHub() {
-    const container = document.querySelector('#challenges-hub .challenges-hub-container');
-    if (!container) return;
-
-    // Load gamification data
-    let xp = 0, levelInfo = null, badges = [];
-    try {
-        if (typeof window.getGameData === 'function') {
-            const gameData = await window.getGameData();
-            xp = gameData.reframeXP || 0;
-            badges = gameData.gameBadges || [];
-            levelInfo = getLevelForXP(xp);
-        }
-    } catch (e) { console.error('Hub gamification error:', e); }
-
-    if (!levelInfo) levelInfo = { current: { icon: ICONS.seedling, name: 'Seedling' }, next: { xpRequired: 100 }, progress: 0 };
-
-    let html = '';
-
-    // Gamification row
-    html += `<div class="challenges-hub-gamification">
-        <span class="challenges-hub-level">${levelInfo.current.icon} ${levelInfo.current.name}</span>
-        <span class="challenges-hub-xp">${xp} XP</span>
-        <div class="challenges-hub-bar"><div class="challenges-hub-bar-fill" style="width:${levelInfo.progress}%"></div></div>
-    </div>`;
-
-    // Game cards grid
-    html += '<div class="games-grid">';
-    for (const game of GAME_CONFIGS) {
-        const featuredClass = game.featured ? ' featured' : '';
-        html += `<div class="game-card${featuredClass}" onclick="openGame('${game.id}')">`;
-        if (game.badge) html += `<span class="game-card-new-badge">${game.badge}</span>`;
-        else if (game.featured) html += '<span class="game-card-new-badge">Featured</span>';
-        html += `<div class="game-card-icon">${game.icon}</div>`;
-        html += `<div class="game-card-title">${game.title}</div>`;
-        html += `<div class="game-card-desc">${game.desc}</div>`;
-        html += `<div class="game-card-xp">${game.xpRange}</div>`;
-        html += `<button class="game-card-play-btn" onclick="event.stopPropagation(); openGame('${game.id}')">Play</button>`;
-        html += '</div>';
+    // Mount the React games app into the challenge hub
+    const container = document.getElementById('react-games-root');
+    if (container && typeof window.mountGrowthGames === 'function') {
+        window.mountGrowthGames(container);
     }
-    html += '</div>';
-
-    // Badge showcase
-    html += '<div class="badge-showcase"><h3>Badges</h3><div class="badge-grid">';
-    for (const badge of CHALLENGE_BADGES) {
-        const earned = badges.includes(badge.id) || (badge.id === 'first_session' && xp > 0) || (badge.id === 'xp_100' && xp >= 100);
-        html += `<div class="badge-item${earned ? '' : ' locked'}">
-            <div class="badge-item-icon">${badge.icon}</div>
-            <div class="badge-item-name">${badge.name}</div>
-            <div class="badge-item-desc">${badge.desc}</div>
-        </div>`;
-    }
-    html += '</div></div>';
-
-    container.innerHTML = html;
 }
 window.renderChallengesHub = renderChallengesHub;
 
