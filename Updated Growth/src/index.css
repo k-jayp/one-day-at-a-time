@@ -1,5 +1,5 @@
-@import "tailwindcss/theme" layer(theme);
-@import "tailwindcss/utilities" layer(utilities);
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
 
 /* Scoped preflight — only applies inside the React games container */
 #react-games-root *,
