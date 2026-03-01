@@ -28,27 +28,47 @@ const ALL_BADGES: Badge[] = [
   { id: 'coping_master', name: 'Toolkit Builder', description: 'Completed the Coping Skills Menu.', icon: <Shield className="w-6 h-6" />, color: 'bg-emerald-100 text-emerald-600' },
 ];
 
-// Bridge to main site's Firestore game data functions
+// postMessage bridge to parent site's Firestore functions
+let _msgId = 0;
+const _pending = new Map<number, { resolve: (v: any) => void; reject: (e: any) => void }>();
+
+window.addEventListener('message', (e) => {
+  if (e.data?.source !== 'wdr-parent') return;
+  const { id, result, error } = e.data;
+  const p = _pending.get(id);
+  if (!p) return;
+  _pending.delete(id);
+  if (error) p.reject(new Error(error));
+  else p.resolve(result);
+});
+
+function callParent(method: string, args?: any): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const id = ++_msgId;
+    _pending.set(id, { resolve, reject });
+    window.parent.postMessage({ source: 'wdr-challenges', id, method, args }, '*');
+    // Timeout after 5s
+    setTimeout(() => {
+      if (_pending.has(id)) {
+        _pending.delete(id);
+        reject(new Error('postMessage timeout'));
+      }
+    }, 5000);
+  });
+}
+
 const firestoreBridge = {
   async loadGameData(): Promise<{ xp: number; badges: string[] }> {
     try {
-      if (typeof (window as any).getGameData === 'function') {
-        const data = await (window as any).getGameData();
-        return { xp: data.reframeXP || 0, badges: data.gameBadges || [] };
-      }
+      const data = await callParent('getGameData');
+      return { xp: data?.reframeXP || 0, badges: data?.gameBadges || [] };
     } catch (e) { console.error('Failed to load game data:', e); }
     return { xp: 0, badges: [] };
   },
   async saveXPAndBadges(xpEarned: number, gameId: string, score: number, maxScore: number) {
     try {
-      // Award XP
-      if (typeof (window as any).awardXP === 'function') {
-        await (window as any).awardXP({ totalXP: xpEarned, breakdown: [{ label: 'Score', xp: xpEarned }] });
-      }
-      // Save session
-      if (typeof (window as any).saveGameSession === 'function') {
-        await (window as any).saveGameSession({ gameId, xpEarned, score, maxScore });
-      }
+      await callParent('awardXP', { totalXP: xpEarned, breakdown: [{ label: 'Score', xp: xpEarned }] });
+      await callParent('saveGameSession', { gameId, xpEarned, score, maxScore });
       // Check badges
       const badgeMap: Record<string, string> = {
         'categorizer': 'master_dichotomous',
@@ -59,9 +79,7 @@ const firestoreBridge = {
       if (badgeId) {
         const data = await firestoreBridge.loadGameData();
         if (!data.badges.includes(badgeId)) {
-          if (typeof (window as any).saveGameData === 'function') {
-            await (window as any).saveGameData({ gameBadges: [...data.badges, badgeId] });
-          }
+          await callParent('saveGameData', { gameBadges: [...data.badges, badgeId] });
         }
       }
     } catch (e) { console.error('Failed to save game data:', e); }
@@ -79,6 +97,18 @@ export default function App() {
       setGlobalXP(xp);
       setEarnedBadges(badges);
     });
+  }, []);
+
+  // Notify parent of height changes for iframe auto-resize
+  useEffect(() => {
+    const sendHeight = () => {
+      const h = document.documentElement.scrollHeight;
+      window.parent.postMessage({ source: 'wdr-challenges', type: 'resize', height: h }, '*');
+    };
+    const ro = new ResizeObserver(sendHeight);
+    ro.observe(document.documentElement);
+    sendHeight();
+    return () => ro.disconnect();
   }, []);
 
   // Badge logic checker

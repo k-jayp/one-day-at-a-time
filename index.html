@@ -44,7 +44,6 @@
     <link rel="stylesheet" href="css/chat.css?v=2">
     <link rel="stylesheet" href="css/meditation.css?v=2">
     <link rel="stylesheet" href="css/games.css?v=1">
-    <link rel="stylesheet" href="js/growth-games/growth-games.css?v=1">
     <link rel="stylesheet" href="css/responsive.css?v=3">
 </head>
 <body>
@@ -1098,7 +1097,13 @@
                 <h2>Challenges</h2>
                 <p>Build your recovery skills through interactive exercises</p>
             </div>
-            <div id="react-games-root"></div>
+            <iframe
+                id="challenges-iframe"
+                src="challenges/index.html"
+                style="width:100%; border:none; min-height:600px; display:block;"
+                loading="lazy"
+                title="Recovery Challenges Hub"
+            ></iframe>
         </div>
     </section>
 
@@ -2727,12 +2732,52 @@
     </div>
 
     <!-- Scripts: all type="module" ensures execution in order (firebase first) -->
-    <script src="js/growth-games/growth-games.js?v=1"></script>
     <script type="module" src="js/firebase.js?v=4"></script>
     <script type="module" src="js/app.js?v=7"></script>
     <script type="module" src="js/games.js?v=1"></script>
     <script type="module" src="js/chat.js"></script>
     <script type="module" src="js/meditation.js?v=2"></script>
     <script type="module" src="js/pdf-export.js?v=3"></script>
+
+    <!-- Challenges iframe ↔ Firestore bridge -->
+    <script>
+    (function() {
+      window.addEventListener('message', async function(e) {
+        if (!e.data || e.data.source !== 'wdr-challenges') return;
+
+        // Handle iframe auto-resize
+        if (e.data.type === 'resize') {
+          var iframe = document.getElementById('challenges-iframe');
+          if (iframe && e.data.height) {
+            iframe.style.height = e.data.height + 'px';
+          }
+          return;
+        }
+
+        // Handle Firestore method calls
+        var id = e.data.id;
+        var method = e.data.method;
+        var args = e.data.args;
+        var iframe = document.getElementById('challenges-iframe');
+        if (!iframe) return;
+
+        try {
+          var result;
+          if (method === 'getGameData' && typeof window.getGameData === 'function') {
+            result = await window.getGameData();
+          } else if (method === 'awardXP' && typeof window.awardXP === 'function') {
+            result = await window.awardXP(args);
+          } else if (method === 'saveGameSession' && typeof window.saveGameSession === 'function') {
+            result = await window.saveGameSession(args);
+          } else if (method === 'saveGameData' && typeof window.saveGameData === 'function') {
+            result = await window.saveGameData(args);
+          }
+          iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, result: result }, '*');
+        } catch (err) {
+          iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, error: err.message || 'Unknown error' }, '*');
+        }
+      });
+    })();
+    </script>
 </body>
 </html>
