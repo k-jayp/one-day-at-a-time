@@ -30,6 +30,7 @@ export default function App() {
     fetchGameData().then((data) => {
       if (data && data.reframeXP) setGlobalXP(data.reframeXP);
       if (data && data.gameBadges && data.gameBadges.length > 0) setEarnedBadges(data.gameBadges);
+      if (data && data.growthLabProgress) setGameProgress(prev => ({ ...prev, ...data.growthLabProgress }));
     }).catch(() => {});
     fetchUserInfo().then((info) => {
       if (info && info.displayName) setUserName(info.displayName);
@@ -104,9 +105,20 @@ export default function App() {
     }
     setEarnedBadges(newBadges);
 
+    // Build updated progress for this game
+    const updatedProgress = {
+      ...gameProgress,
+      [gameId]: {
+        ...gameProgress[gameId],
+        completed: true,
+        playCount: gameProgress[gameId].playCount + 1,
+        lastCompletedAt: new Date().toISOString()
+      }
+    };
+
     // Persist to Firestore — single saveGameData call with all fields
     if (isInIframe()) {
-      saveGameData({ reframeXP: newXP, gameBadges: newBadges }).catch((err) => {
+      saveGameData({ reframeXP: newXP, gameBadges: newBadges, growthLabProgress: updatedProgress }).catch((err) => {
         console.error('Failed to save game data:', err);
       });
       saveGameSession({ gameId, xpEarned, score: xpEarned, maxScore: xpEarned }).catch(() => {});

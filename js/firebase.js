@@ -1296,7 +1296,8 @@ window.getGameData = async function() {
                 reframeBadges: d.reframeBadges || [],
                 gameBadges: d.gameBadges || [],
                 reframeStats: d.reframeStats || { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 },
-                growthLabStats: d.growthLabStats || { worksheetsCompleted: 0 }
+                growthLabStats: d.growthLabStats || { worksheetsCompleted: 0 },
+                growthLabProgress: d.growthLabProgress || null
             };
         }
         return { reframeXP: 0, reframeLevel: 1, reframeLevelName: 'Seedling', reframeBadges: [], gameBadges: [], reframeStats: { totalReframes: 0, uniqueDistortions: [], maxReduction: 0, longestStreak: 0 }, growthLabStats: { worksheetsCompleted: 0 } };
