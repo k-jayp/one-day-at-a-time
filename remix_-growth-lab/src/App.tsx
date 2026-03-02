@@ -11,7 +11,7 @@ import AIReframeStudio from './games/AIReframeStudio';
 import Profile from './components/Profile';
 import { ALL_BADGES, INITIAL_GAME_PROGRESS, GameProgress } from './constants';
 import GameTutorial from './components/GameTutorial';
-import { isInIframe, fetchGameData, fetchUserInfo, awardXP as bridgeAwardXP, saveGameSession, saveGameData } from './bridge';
+import { isInIframe, fetchGameData, fetchUserInfo, saveGameSession, saveGameData } from './bridge';
 
 type GameType = 'distortions' | 'coping' | 'frustration' | 'categorizer' | 'reframe' | 'ai-reframe' | 'profile' | null;
 
@@ -72,8 +72,9 @@ export default function App() {
   }, [globalXP, streak, earnedBadges]);
 
   const handleGameComplete = (xpEarned: number, gameId: string) => {
-    // Optimistic local state updates
-    setGlobalXP(prev => prev + xpEarned);
+    // Compute new XP total
+    const newXP = globalXP + xpEarned;
+    setGlobalXP(newXP);
 
     setGameProgress(prev => ({
       ...prev,
@@ -103,11 +104,12 @@ export default function App() {
     }
     setEarnedBadges(newBadges);
 
-    // Persist to Firestore via parent bridge
+    // Persist to Firestore — single saveGameData call with all fields
     if (isInIframe()) {
-      bridgeAwardXP({ totalXP: xpEarned }).catch(() => {});
+      saveGameData({ reframeXP: newXP, gameBadges: newBadges }).catch((err) => {
+        console.error('Failed to save game data:', err);
+      });
       saveGameSession({ gameId, xpEarned, score: xpEarned, maxScore: xpEarned }).catch(() => {});
-      saveGameData({ gameBadges: newBadges }).catch(() => {});
     }
 
     setActiveGame('profile'); // Show profile after game to see rewards
