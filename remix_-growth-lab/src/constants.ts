@@ -51,12 +51,12 @@ export interface GameProgress {
 }
 
 export const INITIAL_GAME_PROGRESS: Record<string, GameProgress> = {
-  'ai-reframe': { id: 'ai-reframe', name: 'AI Reframe Studio', completed: false, playCount: 0 },
-  'distortions': { id: 'distortions', name: 'Identify Distortions', completed: false, playCount: 0 },
-  'categorizer': { id: 'categorizer', name: 'Thought Categorizer', completed: false, playCount: 0 },
-  'reframe': { id: 'reframe', name: 'Reframe Builder', completed: false, playCount: 0 },
-  'coping': { id: 'coping', name: 'Coping Skills Menu', completed: false, playCount: 0 },
-  'frustration': { id: 'frustration', name: 'Frustration Tolerance', completed: false, playCount: 0 },
+  'ai-reframe': { id: 'ai-reframe', name: 'The Reframe Room', completed: false, playCount: 0 },
+  'distortions': { id: 'distortions', name: 'Spot the Thought', completed: false, playCount: 0 },
+  'categorizer': { id: 'categorizer', name: 'Distorted Sorted', completed: false, playCount: 0 },
+  'reframe': { id: 'reframe', name: 'Balance Beam', completed: false, playCount: 0 },
+  'coping': { id: 'coping', name: 'Skills that Soothe', completed: false, playCount: 0 },
+  'frustration': { id: 'frustration', name: 'Tolerance Tilt', completed: false, playCount: 0 },
 };
 
 export const ALL_BADGES: Badge[] = [

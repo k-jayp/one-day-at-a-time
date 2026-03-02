@@ -8,13 +8,14 @@ interface ProfileProps {
   earnedBadges: string[];
   streak: number;
   gameProgress: Record<string, GameProgress>;
+  userName?: string;
 }
 
 const iconMap: Record<string, React.FC<any>> = {
   Brain, Shield, Sparkles, Activity, Trophy, Star, Flame, BrainCircuit, Target, Heart, Zap
 };
 
-export default function Profile({ globalXP, earnedBadges, streak, gameProgress }: ProfileProps) {
+export default function Profile({ globalXP, earnedBadges, streak, gameProgress, userName }: ProfileProps) {
   const currentLevel = getLevelForXP(globalXP);
   const nextLevel = getNextLevel(currentLevel.level);
   
@@ -44,7 +45,7 @@ export default function Profile({ globalXP, earnedBadges, streak, gameProgress }
             <Medal className="w-16 h-16 text-indigo-600" />
           </div>
           <div className="text-center md:text-left flex-1">
-            <h2 className="text-3xl font-bold text-neutral-900 mb-2">Recovery Profile</h2>
+            <h2 className="text-3xl font-bold text-neutral-900 mb-2">{userName ? `${userName}'s Profile` : 'Your Profile'}</h2>
             <p className="text-neutral-500 mb-4">Tracking your growth and resilience</p>
             
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">

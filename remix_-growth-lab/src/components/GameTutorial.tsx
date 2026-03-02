@@ -16,10 +16,10 @@ const tutorialData: Record<string, {
   example: { distorted: string; reframed: string };
 }> = {
   'ai-reframe': {
-    title: 'AI Reframe Studio',
+    title: 'The Reframe Room',
     icon: BrainCircuit,
     color: 'text-indigo-600 bg-indigo-50 border-indigo-200',
-    concept: 'Sometimes we get stuck in negative thought loops. The AI Reframe Studio uses artificial intelligence to help you identify cognitive distortions in your own words and guides you through reframing them into healthier perspectives.',
+    concept: 'Sometimes we get stuck in negative thought loops. The Reframe Room uses artificial intelligence to help you identify cognitive distortions in your own words and guides you through reframing them into healthier perspectives.',
     howToPlay: [
       'Type a negative or distressing thought you are currently having.',
       'The AI will analyze your thought and identify any cognitive distortions.',
@@ -32,7 +32,7 @@ const tutorialData: Record<string, {
     }
   },
   'distortions': {
-    title: 'Identify Distortions',
+    title: 'Spot the Thought',
     icon: Brain,
     color: 'text-indigo-600 bg-indigo-50 border-indigo-200',
     concept: 'Cognitive distortions are irrational thought patterns that can negatively influence our emotions. Learning to recognize them is the first step to changing them.',
@@ -48,7 +48,7 @@ const tutorialData: Record<string, {
     }
   },
   'categorizer': {
-    title: 'Thought Categorizer',
+    title: 'Distorted Sorted',
     icon: Activity,
     color: 'text-blue-600 bg-blue-50 border-blue-200',
     concept: 'Categorizing thoughts helps create distance from them. By sorting thoughts into categories, you practice observing them objectively rather than accepting them as absolute truth.',
@@ -63,7 +63,7 @@ const tutorialData: Record<string, {
     }
   },
   'reframe': {
-    title: 'Reframe Builder',
+    title: 'Balance Beam',
     icon: Sparkles,
     color: 'text-purple-600 bg-purple-50 border-purple-200',
     concept: 'Reframing is the core skill of Cognitive Behavioral Therapy (CBT). It involves taking a distorted, negative thought and restructuring it into a balanced, realistic, and helpful alternative.',
@@ -79,7 +79,7 @@ const tutorialData: Record<string, {
     }
   },
   'coping': {
-    title: 'Coping Skills Menu',
+    title: 'Skills that Soothe',
     icon: Shield,
     color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
     concept: 'A robust coping toolbox is essential for managing distress. Categorizing skills helps you quickly identify the right tool for the right situation (e.g., physical grounding vs. emotional soothing).',
@@ -94,7 +94,7 @@ const tutorialData: Record<string, {
     }
   },
   'frustration': {
-    title: 'Frustration Tolerance',
+    title: 'Tolerance Tilt',
     icon: Flame,
     color: 'text-orange-600 bg-orange-50 border-orange-200',
     concept: 'Low frustration tolerance (LFT) is the belief that discomfort is unbearable. Building frustration tolerance involves accepting that while things may be difficult, you can survive and cope with them.',

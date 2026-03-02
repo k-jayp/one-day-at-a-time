@@ -11,6 +11,7 @@ import AIReframeStudio from './games/AIReframeStudio';
 import Profile from './components/Profile';
 import { ALL_BADGES, INITIAL_GAME_PROGRESS, GameProgress } from './constants';
 import GameTutorial from './components/GameTutorial';
+import { isInIframe, fetchGameData, fetchUserInfo, awardXP as bridgeAwardXP, saveGameSession, saveGameData } from './bridge';
 
 type GameType = 'distortions' | 'coping' | 'frustration' | 'categorizer' | 'reframe' | 'ai-reframe' | 'profile' | null;
 
@@ -21,6 +22,32 @@ export default function App() {
   const [earnedBadges, setEarnedBadges] = useState<string[]>([]);
   const [streak, setStreak] = useState(1); // Default to 1 for demo purposes
   const [gameProgress, setGameProgress] = useState<Record<string, GameProgress>>(INITIAL_GAME_PROGRESS);
+  const [userName, setUserName] = useState('');
+
+  // Load persisted game data and user info from Firestore via parent bridge
+  useEffect(() => {
+    if (!isInIframe()) return;
+    fetchGameData().then((data) => {
+      if (data && data.reframeXP) setGlobalXP(data.reframeXP);
+      if (data && data.gameBadges && data.gameBadges.length > 0) setEarnedBadges(data.gameBadges);
+    }).catch(() => {});
+    fetchUserInfo().then((info) => {
+      if (info && info.displayName) setUserName(info.displayName);
+    }).catch(() => {});
+  }, []);
+
+  // Auto-resize iframe to fit content
+  useEffect(() => {
+    if (!isInIframe()) return;
+    const send = () => {
+      const h = document.documentElement.scrollHeight;
+      window.parent.postMessage({ source: 'wdr-challenges', type: 'resize', height: h }, '*');
+    };
+    send();
+    const observer = new MutationObserver(send);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    return () => observer.disconnect();
+  }, []);
 
   // Simple badge logic checker
   useEffect(() => {
@@ -45,8 +72,9 @@ export default function App() {
   }, [globalXP, streak, earnedBadges]);
 
   const handleGameComplete = (xpEarned: number, gameId: string) => {
+    // Optimistic local state updates
     setGlobalXP(prev => prev + xpEarned);
-    
+
     setGameProgress(prev => ({
       ...prev,
       [gameId]: {
@@ -56,22 +84,30 @@ export default function App() {
         lastCompletedAt: new Date().toISOString()
       }
     }));
-    
-    // Award specific badges based on game
-    if (gameId === 'coping' && !earnedBadges.includes('coping_master')) {
-      setEarnedBadges(prev => [...prev, 'coping_master']);
+
+    // Collect new badges
+    const newBadges = [...earnedBadges];
+    const badgeMap: Record<string, string> = {
+      'coping': 'coping_master',
+      'categorizer': 'master_dichotomous',
+      'ai-reframe': 'ai_reframe_master',
+      'frustration': 'frustration_pro',
+      'reframe': 'reframe_builder',
+    };
+    const badge = badgeMap[gameId];
+    if (badge && !newBadges.includes(badge)) {
+      newBadges.push(badge);
     }
-    if (gameId === 'categorizer' && !earnedBadges.includes('master_dichotomous')) {
-      setEarnedBadges(prev => [...prev, 'master_dichotomous']);
+    if (!newBadges.includes('first_session')) {
+      newBadges.push('first_session');
     }
-    if (gameId === 'ai-reframe' && !earnedBadges.includes('ai_reframe_master')) {
-      setEarnedBadges(prev => [...prev, 'ai_reframe_master']);
-    }
-    if (gameId === 'frustration' && !earnedBadges.includes('frustration_pro')) {
-      setEarnedBadges(prev => [...prev, 'frustration_pro']);
-    }
-    if (gameId === 'reframe' && !earnedBadges.includes('reframe_builder')) {
-      setEarnedBadges(prev => [...prev, 'reframe_builder']);
+    setEarnedBadges(newBadges);
+
+    // Persist to Firestore via parent bridge
+    if (isInIframe()) {
+      bridgeAwardXP({ totalXP: xpEarned }).catch(() => {});
+      saveGameSession({ gameId, xpEarned, score: xpEarned, maxScore: xpEarned }).catch(() => {});
+      saveGameData({ gameBadges: newBadges }).catch(() => {});
     }
 
     setActiveGame('profile'); // Show profile after game to see rewards
@@ -133,7 +169,7 @@ export default function App() {
                   Interactive Recovery Tools
                 </h2>
                 <p className="text-lg text-neutral-600">
-                  Build your resilience, challenge negative thoughts, and earn achievements through interactive exercises based on clinical worksheets.
+                  Build your resilience, challenge negative thoughts, and earn achievements through interactive recovery exercises.
                 </p>
               </div>
 
@@ -149,7 +185,7 @@ export default function App() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-2xl font-bold text-neutral-900">AI Reframe Studio</h3>
+                        <h3 className="text-2xl font-bold text-neutral-900">The Reframe Room</h3>
                         <span className="bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">New</span>
                         {gameProgress['ai-reframe'].completed && <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">Completed</span>}
                       </div>
@@ -169,7 +205,7 @@ export default function App() {
                   <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Brain className="w-7 h-7 text-indigo-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Identify Distortions</h3>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Spot the Thought</h3>
                   <p className="text-neutral-600 text-sm leading-relaxed mb-6">
                     Learn to identify common thinking errors like catastrophizing and all-or-nothing thinking.
                   </p>
@@ -184,7 +220,7 @@ export default function App() {
                   <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Activity className="w-7 h-7 text-blue-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Thought Categorizer</h3>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Distorted Sorted</h3>
                   <p className="text-neutral-600 text-sm leading-relaxed mb-6">
                     Drag and drop distorted thoughts into their correct cognitive distortion categories.
                   </p>
@@ -199,7 +235,7 @@ export default function App() {
                   <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Sparkles className="w-7 h-7 text-purple-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Reframe Builder</h3>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Balance Beam</h3>
                   <p className="text-neutral-600 text-sm leading-relaxed mb-6">
                     Fill in the blanks to transform distorted thoughts into balanced, realistic alternatives.
                   </p>
@@ -214,7 +250,7 @@ export default function App() {
                   <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Shield className="w-7 h-7 text-emerald-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Coping Skills Menu</h3>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Skills that Soothe</h3>
                   <p className="text-neutral-600 text-sm leading-relaxed mb-6">
                     Build your personalized toolkit by categorizing physical, emotional, and mental coping strategies.
                   </p>
@@ -229,7 +265,7 @@ export default function App() {
                   <div className="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                     <Flame className="w-7 h-7 text-orange-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Frustration Tolerance</h3>
+                  <h3 className="text-xl font-bold text-neutral-900 mb-3">Tolerance Tilt</h3>
                   <p className="text-neutral-600 text-sm leading-relaxed mb-6">
                     Practice reframing beliefs that drive frustration into tolerant, accepting thoughts.
                   </p>
@@ -253,7 +289,7 @@ export default function App() {
               />
             </motion.div>
           ) : activeGame === 'profile' ? (
-            <Profile globalXP={globalXP} earnedBadges={earnedBadges} streak={streak} gameProgress={gameProgress} />
+            <Profile globalXP={globalXP} earnedBadges={earnedBadges} streak={streak} gameProgress={gameProgress} userName={userName} />
           ) : (
             <motion.div
               key="game-view"

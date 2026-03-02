@@ -7,6 +7,9 @@
     <title>We Do Recover | One Day at a Time</title>
     <link rel="icon" type="image/svg+xml" href="newicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <!-- Preload challenges hub assets for faster iframe load -->
+    <link rel="preload" href="challenges/assets/index-BuvtVc2e.js" as="script" crossorigin>
+    <link rel="preload" href="challenges/assets/index-C54T16MC.css" as="style" crossorigin>
     <!-- Google Analytics & reCAPTCHA — loaded only after cookie consent -->
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -1125,7 +1128,7 @@
                 id="challenges-iframe"
                 src="challenges/index.html"
                 style="width:100%; border:none; min-height:600px; display:block;"
-                loading="lazy"
+                loading="eager"
                 title="Recovery Challenges Hub"
             ></iframe>
         </div>
@@ -2795,6 +2798,10 @@
             result = await window.saveGameSession(args);
           } else if (method === 'saveGameData' && typeof window.saveGameData === 'function') {
             result = await window.saveGameData(args);
+          } else if (method === 'getUserInfo') {
+            var user = window.getCurrentUser && window.getCurrentUser();
+            var pn = localStorage.getItem('preferredName');
+            result = { displayName: pn || (user && user.displayName) || '', email: (user && user.email) || '' };
           }
           iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, result: result }, '*');
         } catch (err) {
