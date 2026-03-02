@@ -55,6 +55,11 @@ const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null;
 
+// Signal for the challenges bridge to know when auth has resolved
+window._firebaseAuthReady = new Promise(function(resolve) {
+    window._resolveFirebaseAuth = resolve;
+});
+
 // Return YYYY-MM-DD in the user's local timezone (avoids UTC date drift)
 function localDateStr(date) {
     const d = date || new Date();
@@ -74,6 +79,7 @@ window.escapeHtml = escapeHtml;
 
 onAuthStateChanged(auth, async (user) => {
     currentUser = user;
+    if (window._resolveFirebaseAuth) { window._resolveFirebaseAuth(); window._resolveFirebaseAuth = null; }
     updateUIForAuthState(user);
     if (user) {
         await loadUserData();

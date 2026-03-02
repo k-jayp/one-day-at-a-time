@@ -2801,6 +2801,11 @@
         if (!iframe) return;
 
         try {
+          // Wait for Firebase Auth to resolve AND functions to be defined
+          if (method !== 'getUserInfo' && window._firebaseAuthReady) {
+            await Promise.race([window._firebaseAuthReady, new Promise(function(r) { setTimeout(r, 8000); })]);
+          }
+
           var result;
           if (method === 'getGameData') {
             await waitForFn('getGameData', 5000);
@@ -2815,6 +2820,10 @@
             await waitForFn('saveGameData', 5000);
             if (typeof window.saveGameData === 'function') result = await window.saveGameData(args);
           } else if (method === 'getUserInfo') {
+            // getUserInfo also needs auth to be ready for getCurrentUser
+            if (window._firebaseAuthReady) {
+              await Promise.race([window._firebaseAuthReady, new Promise(function(r) { setTimeout(r, 8000); })]);
+            }
             var user = window.getCurrentUser && window.getCurrentUser();
             var pn = localStorage.getItem('preferredName');
             result = { displayName: pn || (user && user.displayName) || '', email: (user && user.email) || '' };
