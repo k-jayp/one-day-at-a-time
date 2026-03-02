@@ -8,7 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="newicon.svg">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <!-- Preload challenges hub assets for faster iframe load -->
-    <link rel="preload" href="challenges/assets/index-BuvtVc2e.js" as="script" crossorigin>
+    <link rel="preload" href="challenges/assets/index-BncxZrZv.js" as="script" crossorigin>
     <link rel="preload" href="challenges/assets/index-C54T16MC.css" as="style" crossorigin>
     <!-- Google Analytics & reCAPTCHA — loaded only after cookie consent -->
     <script>
@@ -2798,26 +2798,34 @@
         var method = e.data.method;
         var args = e.data.args;
         var iframe = document.getElementById('challenges-iframe');
+        console.log('[parent-bridge] received:', method, 'id=' + id, 'iframe=' + !!iframe, 'authReady=' + !!window._firebaseAuthReady, 'currentUser=' + !!(window.getCurrentUser && window.getCurrentUser()));
         if (!iframe) return;
 
         try {
           // Wait for Firebase Auth to resolve AND functions to be defined
-          if (method !== 'getUserInfo' && window._firebaseAuthReady) {
+          if (window._firebaseAuthReady) {
+            console.log('[parent-bridge] waiting for auth...');
             await Promise.race([window._firebaseAuthReady, new Promise(function(r) { setTimeout(r, 8000); })]);
+            console.log('[parent-bridge] auth resolved, currentUser=' + !!(window.getCurrentUser && window.getCurrentUser()));
           }
 
           var result;
           if (method === 'getGameData') {
             await waitForFn('getGameData', 5000);
+            console.log('[parent-bridge] getGameData fn=' + (typeof window.getGameData));
             if (typeof window.getGameData === 'function') result = await window.getGameData();
+            console.log('[parent-bridge] getGameData result:', JSON.stringify(result)?.slice(0, 200));
           } else if (method === 'awardXP') {
             await waitForFn('awardXP', 5000);
+            console.log('[parent-bridge] awardXP fn=' + (typeof window.awardXP), 'args=', args);
             if (typeof window.awardXP === 'function') result = await window.awardXP(args);
+            console.log('[parent-bridge] awardXP done');
           } else if (method === 'saveGameSession') {
             await waitForFn('saveGameSession', 5000);
             if (typeof window.saveGameSession === 'function') result = await window.saveGameSession(args);
           } else if (method === 'saveGameData') {
             await waitForFn('saveGameData', 5000);
+            console.log('[parent-bridge] saveGameData args=', args);
             if (typeof window.saveGameData === 'function') result = await window.saveGameData(args);
           } else if (method === 'getUserInfo') {
             // getUserInfo also needs auth to be ready for getCurrentUser
@@ -2828,6 +2836,7 @@
             var pn = localStorage.getItem('preferredName');
             result = { displayName: pn || (user && user.displayName) || '', email: (user && user.email) || '' };
           }
+          console.log('[parent-bridge] responding:', method, 'id=' + id, 'result=' + JSON.stringify(result)?.slice(0, 200));
           iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, result: result }, '*');
         } catch (err) {
           iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, error: err.message || 'Unknown error' }, '*');
