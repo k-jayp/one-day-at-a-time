@@ -1117,6 +1117,85 @@
         </div>
     </section>
 
+    <!-- Challenges iframe ↔ Firestore bridge (must be BEFORE the iframe so the listener is ready) -->
+    <script>
+    (function() {
+      // Wait for a window function to be defined (handles module script load timing)
+      function waitForFn(name, timeout) {
+        return new Promise(function(resolve) {
+          if (typeof window[name] === 'function') { resolve(true); return; }
+          var start = Date.now();
+          var timer = setInterval(function() {
+            if (typeof window[name] === 'function') { clearInterval(timer); resolve(true); }
+            else if (Date.now() - start > timeout) { clearInterval(timer); resolve(false); }
+          }, 50);
+        });
+      }
+
+      window.addEventListener('message', async function(e) {
+        if (!e.data || e.data.source !== 'wdr-challenges') return;
+
+        // Handle iframe auto-resize
+        if (e.data.type === 'resize') {
+          var iframe = document.getElementById('challenges-iframe');
+          if (iframe && e.data.height) {
+            iframe.style.height = e.data.height + 'px';
+          }
+          return;
+        }
+
+        // Handle Firestore method calls
+        var id = e.data.id;
+        var method = e.data.method;
+        var args = e.data.args;
+        var iframe = document.getElementById('challenges-iframe');
+        console.log('[parent-bridge] received:', method, 'id=' + id, 'iframe=' + !!iframe, 'currentUser=' + !!(window.getCurrentUser && window.getCurrentUser()));
+        if (!iframe) return;
+
+        try {
+          // Wait for Firebase Auth to resolve AND functions to be defined
+          if (window._firebaseAuthReady) {
+            console.log('[parent-bridge] waiting for auth...');
+            await Promise.race([window._firebaseAuthReady, new Promise(function(r) { setTimeout(r, 8000); })]);
+            console.log('[parent-bridge] auth resolved, currentUser=' + !!(window.getCurrentUser && window.getCurrentUser()));
+          }
+
+          var result;
+          if (method === 'getGameData') {
+            await waitForFn('getGameData', 5000);
+            console.log('[parent-bridge] getGameData fn=' + (typeof window.getGameData));
+            if (typeof window.getGameData === 'function') result = await window.getGameData();
+            console.log('[parent-bridge] getGameData result:', JSON.stringify(result)?.slice(0, 200));
+          } else if (method === 'awardXP') {
+            await waitForFn('awardXP', 5000);
+            console.log('[parent-bridge] awardXP fn=' + (typeof window.awardXP), 'args=', args);
+            if (typeof window.awardXP === 'function') result = await window.awardXP(args);
+            console.log('[parent-bridge] awardXP done');
+          } else if (method === 'saveGameSession') {
+            await waitForFn('saveGameSession', 5000);
+            if (typeof window.saveGameSession === 'function') result = await window.saveGameSession(args);
+          } else if (method === 'saveGameData') {
+            await waitForFn('saveGameData', 5000);
+            console.log('[parent-bridge] saveGameData args=', args);
+            if (typeof window.saveGameData === 'function') result = await window.saveGameData(args);
+          } else if (method === 'getUserInfo') {
+            if (window._firebaseAuthReady) {
+              await Promise.race([window._firebaseAuthReady, new Promise(function(r) { setTimeout(r, 8000); })]);
+            }
+            var user = window.getCurrentUser && window.getCurrentUser();
+            var pn = localStorage.getItem('preferredName');
+            result = { displayName: pn || (user && user.displayName) || '', email: (user && user.email) || '' };
+          }
+          console.log('[parent-bridge] responding:', method, 'id=' + id, 'result=' + JSON.stringify(result)?.slice(0, 200));
+          iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, result: result }, '*');
+        } catch (err) {
+          console.error('[parent-bridge] error:', method, err.message);
+          iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, error: err.message || 'Unknown error' }, '*');
+        }
+      });
+    })();
+    </script>
+
     <!-- Challenges Hub Page -->
     <section id="challenges-hub" class="page">
         <div class="challenges-hub-container">
@@ -2766,83 +2845,5 @@
     <script type="module" src="js/meditation.js?v=2"></script>
     <script type="module" src="js/pdf-export.js?v=3"></script>
 
-    <!-- Challenges iframe ↔ Firestore bridge -->
-    <script>
-    (function() {
-      // Wait for a window function to be defined (handles module script load timing)
-      function waitForFn(name, timeout) {
-        return new Promise(function(resolve) {
-          if (typeof window[name] === 'function') { resolve(true); return; }
-          var start = Date.now();
-          var timer = setInterval(function() {
-            if (typeof window[name] === 'function') { clearInterval(timer); resolve(true); }
-            else if (Date.now() - start > timeout) { clearInterval(timer); resolve(false); }
-          }, 50);
-        });
-      }
-
-      window.addEventListener('message', async function(e) {
-        if (!e.data || e.data.source !== 'wdr-challenges') return;
-
-        // Handle iframe auto-resize
-        if (e.data.type === 'resize') {
-          var iframe = document.getElementById('challenges-iframe');
-          if (iframe && e.data.height) {
-            iframe.style.height = e.data.height + 'px';
-          }
-          return;
-        }
-
-        // Handle Firestore method calls
-        var id = e.data.id;
-        var method = e.data.method;
-        var args = e.data.args;
-        var iframe = document.getElementById('challenges-iframe');
-        console.log('[parent-bridge] received:', method, 'id=' + id, 'iframe=' + !!iframe, 'authReady=' + !!window._firebaseAuthReady, 'currentUser=' + !!(window.getCurrentUser && window.getCurrentUser()));
-        if (!iframe) return;
-
-        try {
-          // Wait for Firebase Auth to resolve AND functions to be defined
-          if (window._firebaseAuthReady) {
-            console.log('[parent-bridge] waiting for auth...');
-            await Promise.race([window._firebaseAuthReady, new Promise(function(r) { setTimeout(r, 8000); })]);
-            console.log('[parent-bridge] auth resolved, currentUser=' + !!(window.getCurrentUser && window.getCurrentUser()));
-          }
-
-          var result;
-          if (method === 'getGameData') {
-            await waitForFn('getGameData', 5000);
-            console.log('[parent-bridge] getGameData fn=' + (typeof window.getGameData));
-            if (typeof window.getGameData === 'function') result = await window.getGameData();
-            console.log('[parent-bridge] getGameData result:', JSON.stringify(result)?.slice(0, 200));
-          } else if (method === 'awardXP') {
-            await waitForFn('awardXP', 5000);
-            console.log('[parent-bridge] awardXP fn=' + (typeof window.awardXP), 'args=', args);
-            if (typeof window.awardXP === 'function') result = await window.awardXP(args);
-            console.log('[parent-bridge] awardXP done');
-          } else if (method === 'saveGameSession') {
-            await waitForFn('saveGameSession', 5000);
-            if (typeof window.saveGameSession === 'function') result = await window.saveGameSession(args);
-          } else if (method === 'saveGameData') {
-            await waitForFn('saveGameData', 5000);
-            console.log('[parent-bridge] saveGameData args=', args);
-            if (typeof window.saveGameData === 'function') result = await window.saveGameData(args);
-          } else if (method === 'getUserInfo') {
-            // getUserInfo also needs auth to be ready for getCurrentUser
-            if (window._firebaseAuthReady) {
-              await Promise.race([window._firebaseAuthReady, new Promise(function(r) { setTimeout(r, 8000); })]);
-            }
-            var user = window.getCurrentUser && window.getCurrentUser();
-            var pn = localStorage.getItem('preferredName');
-            result = { displayName: pn || (user && user.displayName) || '', email: (user && user.email) || '' };
-          }
-          console.log('[parent-bridge] responding:', method, 'id=' + id, 'result=' + JSON.stringify(result)?.slice(0, 200));
-          iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, result: result }, '*');
-        } catch (err) {
-          iframe.contentWindow.postMessage({ source: 'wdr-parent', id: id, error: err.message || 'Unknown error' }, '*');
-        }
-      });
-    })();
-    </script>
 </body>
 </html>
