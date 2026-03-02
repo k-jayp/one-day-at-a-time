@@ -20,22 +20,16 @@ window.addEventListener('message', (e) => {
 function callParent(method: string, args?: any): Promise<any> {
   return new Promise((resolve, reject) => {
     if (!isInIframe()) {
-      console.warn('[bridge] Not in iframe, skipping', method);
       reject(new Error('Not running inside parent app'));
       return;
     }
     const id = ++requestId;
-    console.log('[bridge] →', method, 'id=' + id, args || '');
-    pending.set(id, {
-      resolve: (v: any) => { console.log('[bridge] ←', method, 'id=' + id, JSON.stringify(v)?.slice(0, 200)); resolve(v); },
-      reject: (e: Error) => { console.error('[bridge] ✗', method, 'id=' + id, e.message); reject(e); }
-    });
+    pending.set(id, { resolve, reject });
     window.parent.postMessage({ source: 'wdr-challenges', id, method, args }, '*');
     // Timeout after 10s
     setTimeout(() => {
       if (pending.has(id)) {
         pending.delete(id);
-        console.error('[bridge] TIMEOUT', method, 'id=' + id);
         reject(new Error(`Bridge call "${method}" timed out`));
       }
     }, 10000);
