@@ -1120,6 +1120,11 @@
     <!-- Challenges iframe ↔ Firestore bridge (must be BEFORE the iframe so the listener is ready) -->
     <script>
     (function() {
+      // Create auth-ready promise HERE (before firebase.js module loads) so the bridge can await it
+      window._firebaseAuthReady = new Promise(function(resolve) {
+        window._resolveFirebaseAuth = resolve;
+      });
+
       // Wait for a window function to be defined (handles module script load timing)
       function waitForFn(name, timeout) {
         return new Promise(function(resolve) {

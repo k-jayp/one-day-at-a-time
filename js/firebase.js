@@ -55,10 +55,13 @@ const googleProvider = new GoogleAuthProvider();
 
 let currentUser = null;
 
-// Signal for the challenges bridge to know when auth has resolved
-window._firebaseAuthReady = new Promise(function(resolve) {
-    window._resolveFirebaseAuth = resolve;
-});
+// Auth-ready promise is created by the bridge script in index.html.
+// Create fallback here in case firebase.js loads without the bridge.
+if (!window._firebaseAuthReady) {
+    window._firebaseAuthReady = new Promise(function(resolve) {
+        window._resolveFirebaseAuth = resolve;
+    });
+}
 
 // Return YYYY-MM-DD in the user's local timezone (avoids UTC date drift)
 function localDateStr(date) {
