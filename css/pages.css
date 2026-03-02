@@ -420,6 +420,99 @@
     height: 20px;
 }
 
+.jft-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.jft-actions .jft-link {
+    margin-top: 0;
+}
+
+.jft-print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1.5px solid var(--sage-dark);
+    border-radius: 8px;
+    color: var(--sage-dark);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.jft-print-btn:hover {
+    background: var(--sage-dark);
+    color: white;
+}
+
+.jft-print-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Print styles for daily readings */
+@media print {
+    body > *:not(.print-active) {
+        display: none !important;
+    }
+
+    .print-active {
+        display: block !important;
+        position: static !important;
+    }
+
+    .print-active .jft-container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+
+    .print-active .jft-card {
+        background: white !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .print-active .jft-card::before {
+        display: none !important;
+    }
+
+    .jft-actions,
+    .jft-print-btn,
+    nav,
+    .bottom-nav,
+    .page-header p,
+    footer,
+    .avatar-dropdown {
+        display: none !important;
+    }
+
+    .print-active .page-header h2 {
+        font-size: 1.6rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .print-active .jft-date {
+        margin-bottom: 1rem;
+    }
+
+    .print-active .jft-content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+}
+
 .gratitude-input-section, .journal-editor {
     background: var(--glass-bg);
     backdrop-filter: blur(20px);

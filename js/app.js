@@ -91,6 +91,15 @@ function showPage(pageId) {
 }
 window.showPage = showPage;
 
+function printReading(pageId) {
+    const section = document.getElementById(pageId);
+    if (!section) return;
+    section.classList.add('print-active');
+    window.print();
+    section.classList.remove('print-active');
+}
+window.printReading = printReading;
+
 function toggleMobileMenu() {
     document.getElementById('navLinks').classList.toggle('open');
     // Close all dropdowns when closing the menu
