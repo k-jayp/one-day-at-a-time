@@ -2769,6 +2769,18 @@
     <!-- Challenges iframe ↔ Firestore bridge -->
     <script>
     (function() {
+      // Wait for a window function to be defined (handles module script load timing)
+      function waitForFn(name, timeout) {
+        return new Promise(function(resolve) {
+          if (typeof window[name] === 'function') { resolve(true); return; }
+          var start = Date.now();
+          var timer = setInterval(function() {
+            if (typeof window[name] === 'function') { clearInterval(timer); resolve(true); }
+            else if (Date.now() - start > timeout) { clearInterval(timer); resolve(false); }
+          }, 50);
+        });
+      }
+
       window.addEventListener('message', async function(e) {
         if (!e.data || e.data.source !== 'wdr-challenges') return;
 
@@ -2790,14 +2802,18 @@
 
         try {
           var result;
-          if (method === 'getGameData' && typeof window.getGameData === 'function') {
-            result = await window.getGameData();
-          } else if (method === 'awardXP' && typeof window.awardXP === 'function') {
-            result = await window.awardXP(args);
-          } else if (method === 'saveGameSession' && typeof window.saveGameSession === 'function') {
-            result = await window.saveGameSession(args);
-          } else if (method === 'saveGameData' && typeof window.saveGameData === 'function') {
-            result = await window.saveGameData(args);
+          if (method === 'getGameData') {
+            await waitForFn('getGameData', 5000);
+            if (typeof window.getGameData === 'function') result = await window.getGameData();
+          } else if (method === 'awardXP') {
+            await waitForFn('awardXP', 5000);
+            if (typeof window.awardXP === 'function') result = await window.awardXP(args);
+          } else if (method === 'saveGameSession') {
+            await waitForFn('saveGameSession', 5000);
+            if (typeof window.saveGameSession === 'function') result = await window.saveGameSession(args);
+          } else if (method === 'saveGameData') {
+            await waitForFn('saveGameData', 5000);
+            if (typeof window.saveGameData === 'function') result = await window.saveGameData(args);
           } else if (method === 'getUserInfo') {
             var user = window.getCurrentUser && window.getCurrentUser();
             var pn = localStorage.getItem('preferredName');
