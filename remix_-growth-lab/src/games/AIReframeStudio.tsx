@@ -1,19 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BrainCircuit, ArrowRight, Loader2, Sparkles, ShieldCheck, AlertCircle, BookOpen } from 'lucide-react';
-import { GoogleGenAI, Type } from '@google/genai';
 import ReferenceSidebar from '../components/ReferenceSidebar';
 import { CognitiveDistortionsReference } from '../content/references';
 
-let _ai: GoogleGenAI | null = null;
-function getAI() {
-  if (!_ai) {
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) throw new Error('Gemini API key is not configured.');
-    _ai = new GoogleGenAI({ apiKey: key });
-  }
-  return _ai;
-}
+const WORKER_URL = 'https://recovery-chat.kidell-powellj.workers.dev';
 
 interface DistortionAnalysis {
   name: string;
@@ -45,39 +36,29 @@ export default function AIReframeStudio({ onComplete }: Props) {
     setError(null);
 
     try {
-      const response = await getAI().models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Analyze the following thought from a user who is feeling distress (Intensity: ${intensity}/10): "${thought}"`,
-        config: {
-          systemInstruction: "You are a compassionate, clinical CBT assistant. Your goal is to help the user identify cognitive distortions in their thought. Be empathetic, non-judgmental, and clear.",
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              distortions: {
-                type: Type.ARRAY,
-                description: "List of cognitive distortions identified in the thought.",
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    name: { type: Type.STRING, description: "Name of the cognitive distortion (e.g., Catastrophizing, All-or-Nothing Thinking, Mind Reading)." },
-                    explanation: { type: Type.STRING, description: "Compassionate explanation of exactly how the user's specific thought matches this distortion." },
-                    reframeQuestion: { type: Type.STRING, description: "A gentle, guiding question to help the user reframe this specific distortion." }
-                  },
-                  required: ["name", "explanation", "reframeQuestion"]
-                }
-              }
-            },
-            required: ["distortions"]
-          }
-        }
+      const response = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'analyze-thought',
+          thought,
+          distressLevel: intensity,
+        }),
       });
 
-      const jsonStr = response.text || '{}';
-      const parsed = JSON.parse(jsonStr);
-      
+      const data = await response.json();
+      let text = data.content?.[0]?.text || '';
+      // Strip markdown fences Claude may wrap around JSON
+      text = text.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim();
+      const parsed = JSON.parse(text);
+
       if (parsed.distortions && parsed.distortions.length > 0) {
-        setAnalysis(parsed.distortions);
+        // Map worker response fields to component's expected shape
+        setAnalysis(parsed.distortions.map((d: any) => ({
+          name: d.name,
+          explanation: d.explanation,
+          reframeQuestion: Array.isArray(d.reframingQuestions) ? d.reframingQuestions[0] : d.reframeQuestion || '',
+        })));
         setStep('reveal');
       } else {
         throw new Error("No distortions identified.");
